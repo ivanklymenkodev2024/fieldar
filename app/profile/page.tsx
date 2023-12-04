@@ -16,11 +16,16 @@ const ProfilePage = () => {
   const [singleModalTitle, setSingleModalTitle] = useState("");
   const [singleModalPlaceholder, setSingleModalPlaceholder] = useState("");
   const [isShowPasswordModal, setIsShowPasswordModal] = useState(false);
+  const [isShowCropImageModal, setIsShowCropImageModal] = useState(false);
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [jobTitle, setJobTitle] = useState("");
+
+  const updateImage = () => {
+    setIsShowCropImageModal(true);
+  }
 
   const updateName = () => {
     setIsShowSingleModal(true);
@@ -52,7 +57,7 @@ const ProfilePage = () => {
 
   return (
     <div className="flex">
-      <SideBar />
+      <SideBar index={-1} />
       <div className="absolute left-[320px] w-panel h-[100vh] bg-gray-4">
         <Header title={"My Profile"} />
 
@@ -67,7 +72,7 @@ const ProfilePage = () => {
               alt="Profile Image"
               className="rounded-[23px] ml-[40px]"
             />
-            <button className="mx-[24px] mt-[24px] h-fit bg-gray-5 rounded-[24px] px-[16px] py-[12px] font-small shadow-md drop-shadow-0 drop-shadow-y-3 blur-6 text-white flex items-center">
+            <button className="mx-[24px] mt-[24px] h-fit bg-gray-5 rounded-[24px] px-[16px] py-[12px] font-small shadow-md drop-shadow-0 drop-shadow-y-3 blur-6 text-white flex items-center" onClick={updateImage}>
               <Image src={updateIcon} width={25} height={25} alt="close" />
               <p className="ml-[10px] font-bold">Update</p>
             </button>
@@ -143,6 +148,53 @@ const ProfilePage = () => {
           </div>
         </div>
       </div>
+
+      {isShowCropImageModal && (
+        <div
+          id="modal_image"
+          className="flex overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full"
+        >
+          <div className="relative p-4 w-full max-w-[490px] max-h-full">
+            <div
+              className="fixed bg-black opacity-30 w-[100vw] h-[100vh] left-0 top-0"
+              onClick={() => setIsShowCropImageModal(false)}
+            ></div>
+            <div className="relative bg-gray-4 border-[1px] border-gray-6 rounded-[26px] shadow-md drop-shadow-0 drop-shadow-y-3 blur-6">
+              <div className="flex items-center justify-center p-4 md:p-5 ">
+                <h3 className="text-center text-xl font-semibold dark:text-white text-small text-white">
+                  Crop Picture
+                </h3>
+                <button
+                  type="button"
+                  className="absolute right-0 mr-[20px] text-white bg-gray-8 hover:bg-gray-200 hover:text-gray-900 rounded-[55px] shadow-md drop-shadow-0 drop-shadow-y-3 blur-6 text-sm w-8 h-8 ms-auto inline-flex justify-center items-center"
+                  onClick={() => setIsShowCropImageModal(false)}
+                >
+                  <Image src={closeIcon} width={20} height={20} alt="close" />
+                  <span className="sr-only">Close modal</span>
+                </button>
+              </div>
+              <div className="mx-[50px] my-[30px] flex justify-center items-end">
+                <Image src={profileImg} width={224} height={224} alt="profile image" className="mx-[13px]"/>
+                <Image src={profileImg} width={142} height={142} alt="profile image" className="mx-[13px]"/>
+              </div>
+              <div className="flex justify-center items-center p-4 md:p-5 mx-[60px]">
+                <button
+                  type="button"
+                  className="rounded-[24px] text-white bg-gray-5 mx-[6px] py-[12px] shadow-md drop-shadow-0 drop-shadow-y-3 blur-6 w-full"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  className="rounded-[24px] text-white bg-gray-7 mx-[6px] py-[12px] shadow-md drop-shadow-0 drop-shadow-y-3 blur-6 w-full"
+                >
+                  Save
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {isShowSingleModal && (
         <div

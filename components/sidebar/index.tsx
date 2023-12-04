@@ -2,7 +2,7 @@ import Image from "next/image";
 
 import logoImage from "../../public/images/logo.png";
 import profilePic from "../../public/images/profile.png";
-import { SidebarProps } from "flowbite-react";
+import { SidebarProps } from "@/configs";
 
 import companyIcon from "../../public/icons/CompanyIcon.png";
 import teamIcon from "../../public/icons/TeamIcon.png";
