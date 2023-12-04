@@ -5,3 +5,7 @@ export interface PageLayoutProps {
 export interface HeaderProps {
     title: string
 }
+
+export interface SidebarProps {
+    index: number
+}

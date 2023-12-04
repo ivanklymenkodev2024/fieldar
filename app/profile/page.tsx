@@ -3,6 +3,13 @@
 import Header from "@/components/header";
 import SideBar from "@/components/sidebar";
 import { useState } from "react";
+import Image from "next/image";
+
+import profileImg from "../../public/images/profile.png";
+
+import editIcon from "../../public/icons/EditIcon.png";
+import closeIcon from "../../public/icons/CloseXIcon.png";
+import updateIcon from "../../public/icons/UpdateIcon.png";
 
 const ProfilePage = () => {
   const [isShowSingleModal, setIsShowSingleModal] = useState(false);
@@ -39,9 +46,9 @@ const ProfilePage = () => {
     setSingleModalPlaceholder("Job Title...");
   };
 
-	const updatePassword = () => {
-		setIsShowPasswordModal(true);
-	}
+  const updatePassword = () => {
+    setIsShowPasswordModal(true);
+  };
 
   return (
     <div className="flex">
@@ -53,11 +60,16 @@ const ProfilePage = () => {
           <p className="m-[20px] text-gray-10 font-bold">Profile Image</p>
 
           <div className="flex flex-wrap items-end">
-            <div className="ml-[40px] w-[175px] h-[175px] rounded-[23px] bg-white">
-              Profile Image
-            </div>
-            <button className="mx-[24px] mt-[24px] h-fit bg-gray-5 rounded-[24px] px-[16px] py-[12px] font-small shadow-md drop-shadow-0 drop-shadow-y-3 blur-6 text-white">
-              <p className="font-bold">Update</p>
+            <Image
+              src={profileImg}
+              width={175}
+              height={175}
+              alt="Profile Image"
+              className="rounded-[23px] ml-[40px]"
+            />
+            <button className="mx-[24px] mt-[24px] h-fit bg-gray-5 rounded-[24px] px-[16px] py-[12px] font-small shadow-md drop-shadow-0 drop-shadow-y-3 blur-6 text-white flex items-center">
+              <Image src={updateIcon} width={25} height={25} alt="close" />
+              <p className="ml-[10px] font-bold">Update</p>
             </button>
           </div>
         </div>
@@ -70,30 +82,32 @@ const ProfilePage = () => {
             <p className="m-[10px] text-white font-bold w-[200px]">
               Kyle Szostek{" "}
             </p>
-            <button
-              className="w-[20px] h-[20px] bg-white"
-              onClick={updateName}
-            ></button>
+            <button className="w-[20px] h-[20px]" onClick={updateName}>
+              <Image src={editIcon} width={20} height={20} alt="Edit Name" />
+            </button>
           </div>
           <div className="flex items-center">
             <p className="m-[10px] text-gray-10 font-bold w-[90px]">Email: </p>
             <p className="m-[10px] text-white font-bold w-[200px]">
               kyle@gmail.com{" "}
             </p>
-            <button
-              className="w-[20px] h-[20px] bg-white"
-              onClick={updateEmail}
-            ></button>
+            <button className="w-[20px] h-[20px]" onClick={updateEmail}>
+              <Image src={editIcon} width={20} height={20} alt="Edit Email" />
+            </button>
           </div>
           <div className="flex items-center">
             <p className="m-[10px] text-gray-10 font-bold w-[90px]">Phone: </p>
             <p className="m-[10px] text-white font-bold w-[200px]">
               800-555-1235{" "}
             </p>
-            <button
-              className="w-[20px] h-[20px] bg-white"
-              onClick={updatePhone}
-            ></button>
+            <button className="w-[20px] h-[20px]" onClick={updatePhone}>
+              <Image
+                src={editIcon}
+                width={20}
+                height={20}
+                alt="Edit Phone number"
+              />
+            </button>
           </div>
           <div className="flex items-center">
             <p className="m-[10px] text-gray-10 font-bold w-[90px]">
@@ -102,10 +116,14 @@ const ProfilePage = () => {
             <p className="m-[10px] text-white font-bold w-[200px]">
               SR.VDC Engineer{" "}
             </p>
-            <button
-              className="w-[20px] h-[20px] bg-white"
-              onClick={updateJobTitle}
-            ></button>
+            <button className="w-[20px] h-[20px]" onClick={updateJobTitle}>
+              <Image
+                src={editIcon}
+                width={20}
+                height={20}
+                alt="Edit Job Title"
+              />
+            </button>
           </div>
           <div className="flex items-center">
             <p className="m-[10px] text-gray-10 font-bold w-[90px]">
@@ -114,7 +132,14 @@ const ProfilePage = () => {
             <p className="m-[10px] text-white font-bold w-[200px]">
               ***************{" "}
             </p>
-            <button className="w-[20px] h-[20px] bg-white" onClick={updatePassword}></button>
+            <button className="w-[20px] h-[20px]" onClick={updatePassword}>
+              <Image
+                src={editIcon}
+                width={20}
+                height={20}
+                alt="Edit Password"
+              />
+            </button>
           </div>
         </div>
       </div>
@@ -125,7 +150,10 @@ const ProfilePage = () => {
           className="flex overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full"
         >
           <div className="relative p-4 w-full max-w-[520px] max-h-full">
-            <div className="fixed bg-black opacity-30 w-[100vw] h-[100vh] left-0 top-0" onClick={() => setIsShowSingleModal(false)}></div>
+            <div
+              className="fixed bg-black opacity-30 w-[100vw] h-[100vh] left-0 top-0"
+              onClick={() => setIsShowSingleModal(false)}
+            ></div>
             <div className="relative bg-gray-4 border-[1px] border-gray-6 rounded-[26px] shadow-md drop-shadow-0 drop-shadow-y-3 blur-6">
               <div className="flex items-center justify-center p-4 md:p-5 ">
                 <h3 className="text-center text-xl font-semibold dark:text-white text-small text-white">
@@ -136,21 +164,7 @@ const ProfilePage = () => {
                   className="absolute right-0 mr-[20px] text-white bg-gray-8 hover:bg-gray-200 hover:text-gray-900 rounded-[55px] shadow-md drop-shadow-0 drop-shadow-y-3 blur-6 text-sm w-8 h-8 ms-auto inline-flex justify-center items-center"
                   onClick={() => setIsShowSingleModal(false)}
                 >
-                  <svg
-                    className="w-4 h-4"
-                    aria-hidden="true"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 14 14"
-                  >
-                    <path
-                      stroke="currentColor"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="4"
-                      d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
-                    />
-                  </svg>
+                  <Image src={closeIcon} width={20} height={20} alt="close" />
                   <span className="sr-only">Close modal</span>
                 </button>
               </div>
@@ -194,21 +208,7 @@ const ProfilePage = () => {
                   className="absolute right-0 mr-[20px] text-white bg-gray-8 hover:bg-gray-200 hover:text-gray-900 rounded-[55px] shadow-md drop-shadow-0 drop-shadow-y-3 blur-6 text-sm w-8 h-8 ms-auto inline-flex justify-center items-center"
                   onClick={() => setIsShowPasswordModal(false)}
                 >
-                  <svg
-                    className="w-4 h-4"
-                    aria-hidden="true"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 14 14"
-                  >
-                    <path
-                      stroke="currentColor"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="4"
-                      d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
-                    />
-                  </svg>
+                  <Image src={closeIcon} width={20} height={20} alt="close" />
                   <span className="sr-only">Close modal</span>
                 </button>
               </div>
