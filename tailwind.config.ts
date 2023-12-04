@@ -8,6 +8,50 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      width: {
+        panel: 'calc(100% - 320px)',
+        sidebar: '320px',
+      },
+      height: {
+        menu: 'calc(100% - 220px)',
+        ttable: 'calc(100vh - 400px)',
+        actable: 'calc(100vh - 280px)',
+      },
+      colors: {
+        gray: {
+          "2": "#2A2A2A",
+          "3": "#343434",
+          "4": "#484848",
+          "5": "#54B7B9",
+          "6": "#707070",
+          "9": "#ABABAB",
+          "10": "#C1C1C1",
+          "11": "#DFDFDF",
+          "12": "#FBFBFB"
+        },
+        red: {
+          primary: "#FF7878",
+        },
+        custom: {
+          "1": "#62D3D5"
+        }
+      },
+      fontFamily: {
+        primary: "Open Sans"
+      },
+      fontSize: {
+        "2xsmall": "14px",
+        sxsmall: '15px',
+        primary: '16px',
+        xsmall: '14px',
+        small: '18px',
+        msmall: '20px',
+        ssmall: '22px',
+        medium: '24px',
+        sbig: '26px',
+        big: '28px',
+        "2xbig": '43px'
+      },
       backgroundImage: {
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
         'gradient-conic':
