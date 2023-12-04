@@ -21,9 +21,11 @@ const config: Config = {
         gray: {
           "2": "#2A2A2A",
           "3": "#343434",
+          "3-5": "#4F5362",
           "4": "#484848",
           "5": "#54B7B9",
           "6": "#707070",
+          "8": "#9F9F9F",
           "9": "#ABABAB",
           "10": "#C1C1C1",
           "11": "#DFDFDF",
@@ -59,6 +61,8 @@ const config: Config = {
       },
     },
   },
-  plugins: [],
+  plugins: [
+    require("flowbite/plugin")
+  ],
 }
 export default config
