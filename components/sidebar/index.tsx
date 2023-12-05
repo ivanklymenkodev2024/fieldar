@@ -129,33 +129,39 @@ const SideBar: React.FC<SidebarProps> = ({ index }: SidebarProps) => {
         </div>
 
         <div className="flex flex-col">
-          <div
-            className={
-              "flex items-center justify-start h-[72px] w-full " +
-              (index == 5 ? "bg-gray-4" : "bg-gray-2")
-            }
-          >
-            <Image
-              src={settingsIcon}
-              width={25}
-              height={25}
-              alt="settings"
-              className="ml-[75px]"
-            />
-            <p className="ml-[10px] text-white text-small font-bold">
-              Settings
-            </p>
-          </div>
-          <div className="flex items-center justify-start bg-gray-2 h-[72px] w-full">
-            <Image
-              src={logoutIcon}
-              width={25}
-              height={25}
-              alt="logout"
-              className="ml-[75px]"
-            />
-            <p className="ml-[10px] text-white text-small font-bold">Log Out</p>
-          </div>
+          <Link href="/settings">
+            <div
+              className={
+                "flex items-center justify-start h-[72px] w-full " +
+                (index == 5 ? "bg-gray-4" : "bg-gray-2")
+              }
+            >
+              <Image
+                src={settingsIcon}
+                width={25}
+                height={25}
+                alt="settings"
+                className="ml-[75px]"
+              />
+              <p className="ml-[10px] text-white text-small font-bold">
+                Settings
+              </p>
+            </div>
+          </Link>
+          <Link href={"/login"}>
+            <div className="flex items-center justify-start bg-gray-2 h-[72px] w-full">
+              <Image
+                src={logoutIcon}
+                width={25}
+                height={25}
+                alt="logout"
+                className="ml-[75px]"
+              />
+              <p className="ml-[10px] text-white text-small font-bold">
+                Log Out
+              </p>
+            </div>
+          </Link>
         </div>
       </div>
     </div>

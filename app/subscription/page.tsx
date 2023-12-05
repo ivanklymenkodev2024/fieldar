@@ -3,6 +3,16 @@
 import Header from "@/components/header";
 import SideBar from "@/components/sidebar";
 
+import Image from "next/image";
+
+import projectIcon from "../../public/icons/ProjectIcon.png";
+import modelIcon from "../../public/icons/ModelIcon.png";
+import viewIcon from '../../public/icons/ViewIcon.png';
+import supportIcon from '../../public/icons/SupportIcon.png';
+import teamIcon from '../../public/icons/TeamIcon.png';
+import adminIcon from '../../public/icons/AdminIcon.png';
+import brandIcon from '../../public/icons/BrandingIcon.png';
+
 const SubscriptionPage = () => {
   return (
     <div className="flex">
@@ -16,18 +26,39 @@ const SubscriptionPage = () => {
               <div className="text-white  text-ssmall flex justify-center p-[14px] mb-[10px] border-b-[2px] border-gray-6 rounded-t-[26px] font-bold">
                 Trial
               </div>
-              <div className="flex flex-row px-[22px] py-[10px]">
-                <div className="w-[20px] h-[20px] bg-white mx-[20px]"></div>
+              <div className="flex flex-row px-[22px] py-[10px] items-center">
+                <div className="w-[32px] h-[32px] mx-[20px]">
+                  <Image
+                    src={projectIcon}
+                    width={32}
+                    height={32}
+                    alt="project icon"
+                  />
+                </div>
                 <p className="text-white text-primary font-bold">
                   1 Could-Hosted Project
                 </p>
               </div>
               <div className="flex flex-row px-[22px] py-[10px]">
-                <div className="w-[20px] h-[20px] bg-white mx-[20px]"></div>
+                <div className="w-[32px] h-[32px] mx-[20px]">
+                  <Image
+                    src={modelIcon}
+                    width={32}
+                    height={32}
+                    alt="model icon"
+                  />
+                </div>
                 <p className="text-white text-primary font-bold">3 Models</p>
               </div>
               <div className="flex flex-row px-[22px] py-[10px]">
-                <div className="w-[20px] h-[20px] bg-white mx-[20px]"></div>
+              <div className="w-[32px] h-[32px] mx-[20px]">
+                  <Image
+                    src={viewIcon}
+                    width={32}
+                    height={32}
+                    alt="model icon"
+                  />
+                </div>
                 <p className="text-white text-primary font-bold">
                   Free Viewing For Everyone
                 </p>
@@ -51,33 +82,75 @@ const SubscriptionPage = () => {
               </div>
               <div className="w-full flex flex-wrap justify-between pt-[10px]">
                 <div className="md:w-[40%] w-full m-[10px] flex items-center">
-                  <div className="w-[20px] h-[20px] m-[8px] bg-white"></div>
+                  <div className="w-[32px] h-[32px] mx-[20px]">
+                  <Image
+                    src={modelIcon}
+                    width={32}
+                    height={32}
+                    alt="model icon"
+                  />
+                </div>
                   <p className="text-white text-sxsmall">Unlimited Models</p>
                 </div>
                 <div className="md:w-[40%] w-full m-[10px] flex items-center">
-                  <div className="w-[20px] h-[20px] m-[8px] bg-white"></div>
+                  <div className="w-[32px] h-[32px] mx-[20px]">
+                  <Image
+                    src={supportIcon}
+                    width={32}
+                    height={32}
+                    alt="model icon"
+                  />
+                </div>
                   <p className="text-white text-sxsmall">
                     Priority Expert Support
                   </p>
                 </div>
                 <div className="md:w-[40%] w-full m-[10px] flex items-center">
-                  <div className="w-[20px] h-[20px] m-[8px] bg-white"></div>
+                  <div className="w-[32px] h-[32px] mx-[20px]">
+                  <Image
+                    src={teamIcon}
+                    width={32}
+                    height={32}
+                    alt="model icon"
+                  />
+                </div>
                   <p className="text-white text-sxsmall">
                     All Collaboration Tools
                   </p>
                 </div>
                 <div className="md:w-[40%] w-full m-[10px] flex items-center">
-                  <div className="w-[20px] h-[20px] m-[8px] bg-white"></div>
+                  <div className="w-[32px] h-[32px] mx-[20px]">
+                  <Image
+                    src={adminIcon}
+                    width={32}
+                    height={32}
+                    alt="model icon"
+                  />
+                </div>
                   <p className="text-white text-sxsmall">Admin Accounts</p>
                 </div>
                 <div className="md:w-[40%] w-full m-[10px] flex items-center">
-                  <div className="w-[20px] h-[20px] m-[8px] bg-white"></div>
+                  <div className="w-[32px] h-[32px] mx-[20px]">
+                  <Image
+                    src={brandIcon}
+                    width={32}
+                    height={32}
+                    alt="model icon"
+                  />
+                </div>
                   <p className="text-white text-sxsmall">
                     Custom Company Branding
                   </p>
                 </div>
                 <div className="md:w-[40%] w-full m-[10px] flex items-center">
-                  <div className="w-[20px] h-[20px] m-[8px] bg-white"></div>
+                  <div className="w-[32px] h-[32px] mx-[20px]">
+                  <Image
+                    src={viewIcon}
+                    width={32}
+                    height={32}
+                    alt="model icon"
+                  />
+                </div>
                   <p className="text-white text-sxsmall">
                     Free Viewing For Everyone
                   </p>
@@ -89,7 +162,7 @@ const SubscriptionPage = () => {
                 </p>
                 <div className="flex items-center justify-center">
                   <p className="text-ssmall m-[12px] text-white">Add</p>
-                  <select className="text-white bg-red-primary rounded-[31px] p-[15px] w-[200px] border-r-[20px] border-red-primary font-bold mb-4">
+                  <select className="text-white bg-red-primary rounded-[31px] p-[15px] w-[200px] border-r-[20px] focus:border-red-primary font-bold mb-4 ring-0 border-red-primary focus:ring-0">
                     <option>1 Project</option>
                     <option>2 Project</option>
                     <option>3 Project</option>
@@ -101,7 +174,6 @@ const SubscriptionPage = () => {
                     $199
                   </p>
                   <p className="text-center text-gray-12 text-msmall mb-[12px]">
-                    {" "}
                     per month
                   </p>
                 </div>
@@ -110,7 +182,9 @@ const SubscriptionPage = () => {
                 </p>
                 <div className="w-[1px] h-[60px]"></div>
 
-                <p className="text-center text-gray-10 font-normal">$2,388 per project</p>
+                <p className="text-center text-gray-10 font-normal">
+                  $2,388 per project
+                </p>
                 <p className="text-center text-white text-2xsmall font-bold">
                   Total: $2,388 per year
                 </p>
@@ -119,7 +193,9 @@ const SubscriptionPage = () => {
                     <p className="font-semibold">Upgrade Subscription</p>
                   </button>
                 </div>
-                <p className="text-center text-gray-10 font-normal text-2xsmall m-1">Add/Remove projects at any time</p>
+                <p className="text-center text-gray-10 font-normal text-2xsmall m-1">
+                  Add/Remove projects at any time
+                </p>
               </div>
             </div>
           </div>
