@@ -1,5 +1,7 @@
 "use client";
 
+import '../globals.css';
+
 import Header from "@/components/header";
 import SideBar from "@/components/sidebar";
 
@@ -7,8 +9,11 @@ import Image from "next/image";
 
 import commentIcon from "../../public/icons/Comment.png";
 import editIcon from "../../public/icons/EditIcon.png";
+import dropUpIcon from "../../public/icons/DropupArrowIcon.png";
+import dropDownIcon from '../../public/icons/DropdownArrowIcon.png';
 
 const ActivityPage = () => {
+  
   return (
     <div className="flex">
       <SideBar index={3} />
@@ -20,7 +25,7 @@ const ActivityPage = () => {
               <p className="ml-10 font-small font-light text-gray-10">
                 Filter by:
               </p>
-              <select className="bg-gray-3 border-gray-3 border-r-[30px] text-gray-11 placeholder:italic rounded-[25px] font-small px-[23px] py-[14px] w-[260px] m-2 mr-5 outline-none ">
+              <select className="custom-select bg-gray-3 border-gray-3 focus:border-gray-3 border-r-[30px] text-gray-11 placeholder:italic rounded-[25px] font-small px-[23px] py-[14px] w-[260px] m-2 mr-5 outline-none focus:ring-0 appearance-none ">
                 <option>South Hampton L...</option>
                 <option>South Hampton L...</option>
                 <option>South Hampton L...</option>
@@ -30,13 +35,22 @@ const ActivityPage = () => {
 
           <div className="max-w-[1024px] flex flex-col bg-gray-3 h-actable rounded-[24px]">
             <div className="">
-              <div className="flex bg-gray-2 px-[30px] py-[15px] rounded-t-[24px]">
-                <p className="text-gray-10 text-small font-semibold mr-2">
-                  Project:
-                </p>
-                <p className="text-white text-small font-semibold">
-                  South Hampton Library
-                </p>
+              <div className="flex bg-gray-2 px-[30px] py-[15px] rounded-t-[24px] justify-between">
+                <div className="flex">
+                  <p className="text-gray-10 text-small font-semibold mr-2">
+                    Project:
+                  </p>
+                  <p className="text-white text-small font-semibold">
+                    South Hampton Library
+                  </p>
+                </div>
+                <Image
+                  src={dropUpIcon}
+                  width={25}
+                  height={25}
+                  alt="arrow"
+                  className="relative right-0"
+                />
               </div>
               <div className="flex bg-gray-3 px-[30px] py-[15px] justify-between items-center border-gray-4 border-b-[1px]">
                 <div className="flex justify-start items-center">
@@ -94,13 +108,22 @@ const ActivityPage = () => {
               </div>
             </div>
             <div className="">
-              <div className="flex bg-gray-2 p-[30px] py-[15px]">
-                <p className="text-gray-10 text-small font-semibold mr-2">
-                  Project:
-                </p>
-                <p className="text-white text-small font-semibold">
+              <div className="flex bg-gray-2 px-[30px] py-[15px] justify-between">
+                <div className="flex">
+                  <p className="text-gray-10 text-small font-semibold mr-2">
+                    Project:
+                  </p>
+                  <p className="text-white text-small font-semibold">
                   NASA Headquarters
-                </p>
+                  </p>
+                </div>
+                <Image
+                  src={dropUpIcon}
+                  width={25}
+                  height={25}
+                  alt="arrow"
+                  className="relative right-0"
+                />
               </div>
               <div className="flex bg-gray-3 px-[30px] py-[15px] justify-between items-center border-gray-4 border-b-[1px]">
                 <div className="flex justify-start items-center">

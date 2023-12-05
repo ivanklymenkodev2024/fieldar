@@ -28,11 +28,10 @@ body {
 }
 
 .custom-select {
+  -webkit-appearance: none;
   appearance: none;
-  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolygon points='0 4 5 8 10 0'%3e%3c/polyline%3e%3c/svg%3e");
+  background-image: url("../public/icons/DropdownArrowIcon.png") !important;
   background-repeat: no-repeat;
-  background-position: right 0.5rem center;
-  background-size: 1em;
-  padding-right: 2.5rem;
-  transform: matrix(-1, 0, 0, -1, 0, 0);
+  background-position: right 10px;
+  background-size: 25px !important;
 }
