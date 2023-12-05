@@ -22,6 +22,8 @@ const ProjectDetailPage = () => {
   const [isShowDeleteModelModal, setIsShowDeleteModelModal] = useState(false);
   const [isShowUserRoleModal, setIsShowUserRoleModal] = useState(false);
   const [isShowConfirmModal, setIsShowConfirmModal] = useState(false);
+  const [isShowAddTeamMemberModal, setIsShowAddTeamMemberModal] =
+    useState(false);
 
   const updateRole = () => {
     setIsShowUserRoleModal(false);
@@ -174,7 +176,10 @@ const ProjectDetailPage = () => {
               <hr className="w-full border-[1px] border-gray-7" />
             </div>
             <div className="w-full flex justify-end">
-              <button className="bg-red-primary px-[30px] py-[15px] w-fit rounded-[29px] my-[10px] flex items-center">
+              <button
+                className="bg-red-primary px-[30px] py-[15px] w-fit rounded-[29px] my-[10px] flex items-center"
+                onClick={() => setIsShowAddTeamMemberModal(true)}
+              >
                 <Image
                   src={plusIcon}
                   width={20}
@@ -567,6 +572,109 @@ const ProjectDetailPage = () => {
                   className="rounded-[24px] text-white bg-red-primary mx-[6px] py-[12px] shadow-md drop-shadow-0 drop-shadow-y-3 blur-6 w-full"
                 >
                   Confirm
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {isShowAddTeamMemberModal && (
+        <div
+          id="modal_user_role"
+          className="flex overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full"
+        >
+          <div className="relative p-4 w-full max-w-[680px] max-h-full">
+            <div
+              className="fixed bg-black opacity-30 w-[100vw] h-[100vh] left-0 top-0"
+              onClick={() => setIsShowAddTeamMemberModal(false)}
+            ></div>
+            <div className="relative bg-gray-4 border-[1px] border-gray-6 rounded-[26px] shadow-md drop-shadow-0 drop-shadow-y-3 blur-6">
+              <div className="flex items-center justify-center p-4 md:p-5 ">
+                <h3 className="text-center text-xl font-semibold dark:text-white text-small text-white">
+                  Add a Team Member to this project
+                </h3>
+                <button
+                  type="button"
+                  className="absolute right-0 mr-[20px] text-white bg-gray-8 hover:bg-gray-200 hover:text-gray-900 rounded-[55px] shadow-md drop-shadow-0 drop-shadow-y-3 blur-6 text-sm w-8 h-8 ms-auto inline-flex justify-center items-center"
+                  onClick={() => setIsShowAddTeamMemberModal(false)}
+                >
+                  <Image src={closeIcon} width={20} height={20} alt="close" />
+                  <span className="sr-only">Close modal</span>
+                </button>
+              </div>
+              <div className="w-full flex justify-center">
+                <p className="text-gray-10 text-center max-w-[340px]">
+                  Add a company team member to this project, and assign their
+                  access role below.
+                </p>
+              </div>
+
+              <div className="w-full flex justify-around items-center px-[70px] mt-[50px] mb-[10px]">
+                <p className="text-ssmall text-gray-10">Company Team Members</p>
+                <input
+                  className="bg-gray-3 text-gray-11 text-2xsmall placeholder:italic rounded-[26px] font-small px-[23px] py-[10px] focus:border-none outline-none "
+                  type="text"
+                  placeholder="Search Members"
+                />
+              </div>
+
+              <div className="bg-gray-3 h-[317px] flex flex-col rounded-[24px] mx-[70px]">
+                <div className="grid grid-cols-2 rounded-t-[24px] my-[14px] ">
+                  <p className="col-span-1 text-primary text-white font-normal ml-[40px] grow">
+                    Kyle Szostek
+                  </p>
+                  <p className="col-span-1 text-primary text-white font-normal ml-[40px] grow">
+                    Kyle@email.com
+                  </p>
+                </div>
+                <hr className="border-b-[1px] border-gray-7" />
+                <div className="grid grid-cols-2 my-[14px]">
+                  <p className="col-span-1 text-primary text-white font-normal ml-[40px] grow">
+                    Morgan Smith
+                  </p>
+                  <p className="col-span-1 text-primary text-white font-normal ml-[40px] grow">
+                    John@email.com
+                  </p>
+                </div>
+                <hr className="border-b-[1px] border-gray-7" />
+                <div className="grid grid-cols-2 my-[14px]">
+                  <p className="col-span-1 text-primary text-white font-normal ml-[40px] grow">
+                    Buzz DaDoggie
+                  </p>
+                  <p className="col-span-1 text-primary text-white font-normal ml-[40px] grow">
+                    Buzz@email.com
+                  </p>
+                </div>
+                <hr className="border-b-[1px] border-gray-7" />
+                <div className="grid grid-cols-2 my-[14px]">
+                  <p className="col-span-1 text-primary text-white font-normal ml-[40px] grow">
+                    Buzz DaDoggie
+                  </p>
+                  <p className="col-span-1 text-primary text-white font-normal ml-[40px] grow">
+                    Buzz@email.com
+                  </p>
+                </div>
+                <hr className="border-b-[1px] border-gray-7" />
+              </div>
+
+              <div className="flex flex-col items-center mt-[50px]">
+                <p className="text-gray-10 text-primary font-normal">
+                  Change Access Role
+                </p>
+                <select className="custom-select bg-gray-5 border-gray-5 focus:border-gray-5 text-white placeholder:italic rounded-[25px] font-small px-[23px] py-[14px] my-[10px] outline-none focus:ring-0 appearance-none font-semibold w-[400px]">
+                  <option>Manager</option>
+                  <option>Editor</option>
+                  <option>Guest</option>
+                </select>
+              </div>
+
+              <div className="flex justify-center items-center p-4 md:p-5">
+                <button
+                  type="button"
+                  className="rounded-[24px] text-white bg-red-primary px-[90px] py-[12px] shadow-md drop-shadow-0 drop-shadow-y-3 blur-6"
+                >
+                  Add Team Member
                 </button>
               </div>
             </div>
