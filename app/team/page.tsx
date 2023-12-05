@@ -6,7 +6,7 @@ import SideBar from "@/components/sidebar";
 const TeamPage = () => {
   return (
     <div className="flex">
-      <SideBar />
+      <SideBar index={1} />
       <div className="absolute left-[320px] w-panel h-[100vh] bg-gray-4">
         <Header title={"Company Team"} />
         <div className="px-[32px] py-[14px] flex flex-col">

@@ -6,7 +6,7 @@ import SideBar from "@/components/sidebar";
 const ProjectPage = () => {
   return (
     <div className="flex">
-      <SideBar />
+      <SideBar index={2}/>
       <div className="absolute left-[320px] w-panel h-[100vh] bg-gray-4">
         <Header title={"Company Projects"} />
         <div className="px-[32px] pb-[14px] flex flex-col">

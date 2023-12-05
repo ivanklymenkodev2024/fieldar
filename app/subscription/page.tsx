@@ -3,10 +3,10 @@
 import Header from "@/components/header";
 import SideBar from "@/components/sidebar";
 
-const TeamPage = () => {
+const SubscriptionPage = () => {
   return (
     <div className="flex">
-      <SideBar />
+      <SideBar index={4} />
       <div className="absolute left-[320px] w-panel h-fit bg-gray-4">
         <Header title={"My Subscription"} />
         <div className="m-[32px] flex flex-wrap">
@@ -129,4 +129,4 @@ const TeamPage = () => {
   );
 };
 
-export default TeamPage;
+export default SubscriptionPage;

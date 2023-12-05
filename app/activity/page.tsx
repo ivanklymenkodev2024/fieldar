@@ -6,7 +6,7 @@ import SideBar from "@/components/sidebar";
 const ActivityPage = () => {
   return (
     <div className="flex">
-      <SideBar />
+      <SideBar index={3}/>
       <div className="absolute left-[320px] w-panel h-[100vh] bg-gray-4">
         <Header title={"Company Activity"} />
         <div className="px-[32px] pb-[14px] flex flex-col">

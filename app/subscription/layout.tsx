@@ -4,10 +4,10 @@ import { PageLayoutProps } from "@/configs";
 import "../globals.css";
 
 export const metadata: Metadata = {
-  title: "Team Management - FieldAR",
-  description: "FieldAR Team Management Page",
+  title: "Subscription - FieldAR",
+  description: "FieldAR Subscription Page",
 };
 
-const TeamManagementLayout: React.FC<PageLayoutProps> = ({ children }) => children;
+const SubscriptionLayout: React.FC<PageLayoutProps> = ({ children }) => children;
 
-export default TeamManagementLayout;
+export default SubscriptionLayout;
