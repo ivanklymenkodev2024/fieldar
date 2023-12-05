@@ -85,7 +85,7 @@ const CompanyPage = () => {
             </p>
             <p className="text-white text-small font-bold ml-[12px] max-w-[850px]">
               Simulation Lab is a company in Brooklyn, NY that specializes in
-              AR/VR app development, and there's more to be said but this is
+              AR/VR app development, and there&apos;s more to be said but this is
               just some default placeholder text so yeah..
             </p>
           </div>

@@ -39,7 +39,7 @@ const LoginPage = () => {
           Login
         </button>
         <p className="text-white text-primary font-semibold">
-          Don't have an account yet?
+          Don&apos;t have an account yet?
         </p>
         <p className="max-w-[350px] text-gray-9 text-center">
           Download the FieldAR app on Apple App Store or Google Play and
