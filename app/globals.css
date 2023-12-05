@@ -35,3 +35,13 @@ body {
   background-position: right 10px;
   background-size: 25px !important;
 }
+
+.custom-black-select {
+  filter: invert(100%);
+  -webkit-appearance: none;
+  appearance: none;
+  background-image: url("../public/icons/DropdownArrowIcon.png") !important;
+  background-repeat: no-repeat;
+  background-position: right 10px;
+  background-size: 25px !important;
+}
