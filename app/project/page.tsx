@@ -2,6 +2,7 @@
 
 import Header from "@/components/header";
 import SideBar from "@/components/sidebar";
+import Link from "next/link";
 
 const ProjectPage = () => {
   return (
@@ -15,7 +16,7 @@ const ProjectPage = () => {
               <p className="ml-10 font-small font-light text-gray-10">
                 Filter by region
               </p>
-              <select className="bg-gray-3 border-gray-3 border-r-[30px] text-gray-11 placeholder:italic rounded-[26px] font-small px-[23px] py-[14px] w-[260px] m-2 outline-none ">
+              <select className="custom-select bg-gray-3 border-gray-3 focus:border-gray-3 border-r-[30px] text-gray-11 placeholder:italic rounded-[25px] font-small px-[23px] py-[14px] w-[260px] m-2 mr-5 outline-none focus:ring-0 appearance-none ">
                 <option>NYRO</option>
                 <option>SERO</option>
                 <option>NERO</option>
@@ -23,7 +24,7 @@ const ProjectPage = () => {
             </div>
             <div>
               <input
-                className="bg-gray-3 text-gray-11 placeholder:italic rounded-[26px] font-small px-[23px] py-[14px] w-[277px] m-2 focus:border-none outline-none "
+                className="bg-gray-3 text-gray-11 placeholder:italic rounded-[26px] font-small px-[23px] py-[14px] w-[277px] m-2 focus:border-none outline-none ring-0 border-0"
                 type="text"
                 placeholder="Search Projects"
               />
@@ -50,7 +51,7 @@ const ProjectPage = () => {
           <div className="max-w-[1024px] flex flex-col bg-gray-3 h-ttable p-[22px] py-[6px] rounded-[24px]">
             <div className="w-full grid grid-cols-8 p-[10px] border-b-[1px] border-gray-4">
               <p className="text-white col-span-3 font-light">
-                South Hampton Library
+                <Link href={"/project-detail"}>South Hampton Library</Link>
               </p>
               <p className="text-white col-span-2 font-light">NYRO</p>
               <p className="text-white col-span-2 font-light">Buffalo, NY</p>
