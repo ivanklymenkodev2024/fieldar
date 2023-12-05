@@ -5,8 +5,16 @@ import appleMark from "../../public/images/apple_mark.png";
 import appleMarkLetter from "../../public/images/apple_mark_letter.png";
 import googleAppMark from '../../public/images/google_app.png';
 import googleAppLetter from '../../public/images/google_app_letter.png';
+import { Router, useRouter } from "next/router";
 
 const LoginPage = () => {
+
+  const router = useRouter();
+
+  const goProfile = () => {
+    router.push('/profile');
+  }
+
   return (
     <form className="w-[100wh] h-[100vh] flex flex-col justify-center items-center bg-gray-4 ">
       <Image src={logoImage} width={300} height={78} alt="FieldAR Logo" />
@@ -24,7 +32,7 @@ const LoginPage = () => {
         placeholder="Password..."
       />
       <div className="gap-2"></div>
-      <button className="bg-gray-5 rounded-[33px] px-[30px] py-[15px] w-[400px] mx-2 mt-5 mb-20 text-white text-medium shadow-md drop-shadow-0 drop-shadow-y-3 blur-6 ">
+      <button className="bg-gray-5 rounded-[33px] px-[30px] py-[15px] w-[400px] mx-2 mt-5 mb-20 text-white text-medium shadow-md drop-shadow-0 drop-shadow-y-3 blur-6 " onClick={() => goProfile()}>
         Login
       </button>
       <p className="text-white text-primary font-semibold">
