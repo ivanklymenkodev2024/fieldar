@@ -22,18 +22,18 @@ const LoginPage = () => {
           Log in to view your dashboard
         </p>
         <input
-          className="bg-gray-3 text-gray-11 placeholder:italic rounded-[33px] px-[30px] py-[20px] w-[400px] m-2 focus:border-none outline-none shadown-none border-none focus:shadow-none focus:ring-0"
+          className="bg-gray-3 text-gray-11 placeholder:italic rounded-[33px] px-[30px] py-[20px] w-[80%] sm:w-[400px] m-2 focus:border-none outline-none shadown-none border-none focus:shadow-none focus:ring-0"
           type="email"
           placeholder="Email..."
         />
         <input
-          className="bg-gray-3 text-gray-11 placeholder:italic rounded-[33px] px-[30px] py-[20px] w-[400px] m-2 focus:border-none outline-none shadown-none border-none focus:shadow-none focus:ring-0"
+          className="bg-gray-3 text-gray-11 placeholder:italic rounded-[33px] px-[30px] py-[20px] w-[80%] sm:w-[400px] m-2 focus:border-none outline-none shadown-none border-none focus:shadow-none focus:ring-0"
           type="password"
           placeholder="Password..."
         />
         <div className="gap-2"></div>
         <button
-          className="bg-gray-5 rounded-[33px] px-[30px] py-[15px] w-[400px] mx-2 mt-5 mb-20 text-white text-medium shadow-md drop-shadow-0 drop-shadow-y-3 blur-6 "
+          className="bg-gray-5 rounded-[33px] px-[30px] py-[15px] w-[80%] sm:w-[400px] mx-2 mt-5 mb-20 text-white text-medium shadow-md drop-shadow-0 drop-shadow-y-3 blur-6 "
           onClick={goProfile}
         >
           Login
@@ -45,7 +45,7 @@ const LoginPage = () => {
           Download the FieldAR app on Apple App Store or Google Play and
           register for a free account.
         </p>
-        <div className="flex my-[10px]">
+        <div className="flex my-[10px] flex-wrap sm:justify-between justify-center">
           <div className="flex items-center text-gray-3-5 rounded-[18px] py-[10px] pl-[20px] pr-[30px] mt-[15px] bg-white shadow-md drop-shadow-0 drop-shadow-y-3 blur-6 mx-2">
             <Image
               src={appleMark}
