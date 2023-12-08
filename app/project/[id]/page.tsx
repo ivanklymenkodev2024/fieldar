@@ -515,8 +515,8 @@ const ProjectDetailPage = ({ params }: any) => {
                   company.CompanyRegions == undefined ? (
                     <></>
                   ) : (
-                    company.CompanyRegions.split(",").map((item: any) => {
-                      return <option>{item}</option>;
+                    company.CompanyRegions.split(",").map((item: any, id:any) => {
+                      return <option value={item} key={id}>{item}</option>;
                     })
                   )}
                 </select>
