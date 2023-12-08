@@ -39,7 +39,7 @@ const ActivityPage = () => {
 
           if (activityFilter == "") {
             setActivityFilter(
-              company.ProjectDirectory[Object.keys(company.ProjectDirectory)[0]]
+              snapshot.val().ProjectDirectory[Object.keys(snapshot.val().ProjectDirectory)[0]]
                 .ProjectTitle
             );
           }
@@ -91,7 +91,7 @@ const ActivityPage = () => {
                   setActivityFilter(e.target.value);
                 }}
               >
-                {company.ProjectDirectory == null ||
+                {company == null || company == undefined || company.ProjectDirectory == null ||
                 company.ProjectDirectory == undefined ? (
                   <></>
                 ) : (
