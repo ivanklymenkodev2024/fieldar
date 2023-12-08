@@ -88,7 +88,7 @@ const SideBar: React.FC<SidebarProps> = ({ index }: SidebarProps) => {
               </p>
             </div>
           </Link>
-          <Link href="activity">
+          <Link href="/activity">
             <div
               className={
                 "flex items-center justify-start h-[72px] w-full " +
