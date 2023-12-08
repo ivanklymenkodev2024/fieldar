@@ -97,7 +97,7 @@ const ActivityPage = () => {
                 ) : (
                   Object.keys(company.ProjectDirectory).map((key, id) => {
                     return (
-                      <option>
+                      <option value={company.ProjectDirectory[key].ProjectTitle} key={id}>
                         {company.ProjectDirectory[key].ProjectTitle}
                       </option>
                     );
@@ -121,7 +121,7 @@ const ActivityPage = () => {
                   return <></>;
                 }
                 return (
-                  <div className="">
+                  <div className="" key={id}>
                     <div
                       className={
                         "flex bg-gray-2 px-[30px] py-[15px] justify-between " +
@@ -148,7 +148,7 @@ const ActivityPage = () => {
                     </div>
                     {Object.keys(company.Activity[key]).map((aKey, id) => {
                       return (
-                        <div className="flex bg-gray-3 px-[30px] py-[15px] justify-between items-center border-gray-4 border-b-[1px]">
+                        <div className="flex bg-gray-3 px-[30px] py-[15px] justify-between items-center border-gray-4 border-b-[1px]" key={id}>
                           <div className="flex justify-start items-center">
                             <div className="w-[30px] h-[30px] mr-[17px] flex justify-center items-center">
                               <Image
