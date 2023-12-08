@@ -13,6 +13,39 @@ import editIcon from "../../public/icons/EditIcon.png";
 
 import promoteToAdmin from "../../public/icons/AdminIcon.png";
 import removeFromCompany from "../../public/icons/RemoveMember-Icon.png";
+import { child, get, getDatabase, ref } from "firebase/database";
+
+import firebase_app from "../../config";
+import { getAuth } from "firebase/auth";
+
+const auth = getAuth();
+const database = getDatabase(firebase_app);
+
+import { getFunctions, httpsCallable } from "firebase/functions";
+
+const functions = getFunctions();
+const cchangeProjectAccessRole = httpsCallable(
+  functions,
+  "changeProjectAccessRole"
+);
+
+const cPromoteMemberToAdmin = httpsCallable(functions, "promoteMemberToAdmin");
+
+const cRemoveCompanyAdminRole = httpsCallable(
+  functions,
+  "removeCompanyAdminRole"
+);
+
+const cUnassignProjectFromMember = httpsCallable(
+  functions,
+  "unassignProjectFromMember"
+);
+
+const cInviteToCompany = httpsCallable(
+  functions,
+  "inviteToCompany"
+);  
+
 
 const TeamPage = () => {
   const [isShowInviteModal, setIsShowInviteModal] = useState(false);
@@ -20,17 +53,94 @@ const TeamPage = () => {
   const [isShowConfirmModal, setIsShowConfirmModal] = useState(false);
   const [isShowUserRoleModal, setIsShowUserRoleModal] = useState(false);
 
+  const [selectedUserId, setSelectedUserId] = useState(-1);
+  const [selectedProjectId, setSelectedProjectId] = useState(-1);
+
+  const [newRole, setNewRole] = useState("");
+
+  const [members, setMembers] = useState({});
+
+  const [day, setDay] = useState(1);
+
+  const [confirmTitle, setConfirmTitle] = useState("");
+  const [confirmContent, setConfirmContent] = useState("");
+  
+  const [inviteeEmail, setInviteeEmail] = useState("");
+
+  const [filterString, setFilterString] = useState('');
+
+  const getCompany = async (companyKey: string) => {
+    const dbRef = ref(getDatabase());
+    get(child(dbRef, `companies/${companyKey}`))
+      .then((snapshot: any) => {
+        if (snapshot.exists()) {
+          setMembers(snapshot.val().Team);
+        } else {
+          console.log("No data available");
+        }
+      })
+      .catch((error: any) => {
+        console.error(error);
+      });
+  };
+
+  auth.onAuthStateChanged(function (user: any) {
+    if (user != null) {
+      const uid = user.uid;
+
+      const dbRef = ref(getDatabase());
+      get(child(dbRef, `users/${uid}`))
+        .then((snapshot: any) => {
+          if (snapshot.exists()) {
+            getCompany(snapshot.val().CompanyKey);
+          } else {
+            console.log("No data available");
+          }
+        })
+        .catch((error: any) => {
+          console.error(error);
+        });
+    } else {
+      console.log(null);
+    }
+  });
+
   const promoteToAdminFunc = () => {
     setIsShowUserDetailModal(false);
+    setConfirmTitle("Promote to Admin");
+    setConfirmContent(
+      `Are you sure you wish to promote ${members[selectedUserId].MemberName} to Admin?`
+    );
     setIsShowConfirmModal(true);
   };
 
   const removeUserFromCompany = () => {
     setIsShowUserDetailModal(false);
+    setConfirmTitle("Remove from Company");
+    setConfirmContent(
+      `Are you sure you wish to remove ${members[selectedUserId].MemberName} from company?`
+    );
     setIsShowConfirmModal(true);
   };
 
-  const updateUserRole = () => {
+  const unassignProjectFromMember = () => {
+    setIsShowUserRoleModal(false);
+    setConfirmTitle(`Remove Member from Project`);
+    setConfirmContent(
+      `Are you sure you wish to remove ${members[selectedUserId].MemberName} from Project ${members[selectedUserId].MemberProjects[selectedProjectId].ProjectName}?`
+    );
+    setIsShowConfirmModal(true);
+  };
+
+  const updateUserRole = (projectId: any) => {
+    setSelectedProjectId(
+      Object.keys(members[selectedUserId].MemberProjects)[projectId]
+    );
+    setNewRole(
+      members[selectedUserId].MemberProjects[
+        Object.keys(members[selectedUserId].MemberProjects)[projectId]
+      ].ProjectRole
+    );
     setIsShowUserDetailModal(false);
     setIsShowUserRoleModal(true);
   };
@@ -38,11 +148,89 @@ const TeamPage = () => {
   const removeFromProject = () => {
     setIsShowUserRoleModal(false);
     setIsShowConfirmModal(true);
+  };
+
+  const openUserProjectModal = (id: any) => {
+    setSelectedUserId(Object.keys(members)[id]);
+    setIsShowUserDetailModal(true);
+  };
+
+  const handleUpdateRole = () => {
+    cchangeProjectAccessRole({
+      projectKey: selectedProjectId,
+      selectedMemberId: selectedUserId,
+      selectedAccessRole: newRole,
+    })
+      .then((result) => {
+        console.log(result);
+      })
+      .catch((error) => {
+        console.log(error);
+      })
+      .finally(() => {
+        setIsShowUserRoleModal(false);
+      });
+  };
+
+  const handleRoleSelectChange = (e: any) => {
+    setNewRole(e.target.value);
+  };
+
+  const handleAddMemberDaysChange = (e: any) => {
+    setDay(e.target.value);
   }
 
-  const updateRole = () => {
-    setIsShowUserRoleModal(false);
+  const handleConfirm = () => {
+    if (confirmTitle == "Promote to Admin") {
+      cPromoteMemberToAdmin({
+        userIdToPromote: selectedUserId,
+      })
+        .then((result) => {
+          console.log(result);
+        })
+        .catch((error) => {
+          console.log(error);
+        })
+        .finally(() => {
+          setIsShowConfirmModal(false);
+        });
+    } else if (confirmTitle == "Remove from Company") {
+      cRemoveCompanyAdminRole({
+        userIdToRemove: selectedUserId,
+      })
+        .then((result) => {
+          console.log(result);
+        })
+        .catch((error) => {
+          console.log(error);
+        })
+        .finally(() => {
+          setIsShowConfirmModal(false);
+        });
+    } else if (confirmTitle == "Remove Member from Project") {
+      cUnassignProjectFromMember({
+        selectedProjectId,
+        selectedMemberId: selectedUserId,
+      });
+    }
+  };
+
+  const handleInviteToCompany = () => {
+    cInviteToCompany({
+      inviteeEmail,
+      daysToExpiration: day
+    }).then((result) => {
+      console.log(result);
+    }).catch((error) => {
+      console.log(error);
+    }).finally(() => {
+      setIsShowInviteModal(false);
+    })
   }
+
+  const handleCancel = () => {
+    setIsShowConfirmModal(false);
+  };
 
   return (
     <div className="flex">
@@ -52,9 +240,13 @@ const TeamPage = () => {
         <div className="px-[32px] py-[14px] flex flex-col">
           <div className="max-w-[1024px] flex justify-end">
             <input
-              className="bg-gray-3 text-gray-11 placeholder:italic rounded-[26px] font-small px-[23px] py-[14px] w-[400px] m-2 focus:border-none outline-none "
+              className="bg-gray-3 text-gray-11 placeholder:italic rounded-[26px] font-small px-[23px] py-[14px] w-[400px] m-2 focus:border-none outline-none focus:ring-0 border-none"
               type="text"
               placeholder="Search Team Members"
+              value={filterString}
+              onChange={(e:any) => {
+                setFilterString(e.target.value);
+              }}
             />
           </div>
 
@@ -72,37 +264,45 @@ const TeamPage = () => {
             </div>
           </div>
 
-          <div className="max-w-[1024px] flex flex-col bg-gray-3 h-ttable p-[22px] py-[6px] rounded-[24px]">
-            <div className="w-full grid grid-cols-3 p-[10px] border-b-[1px] border-gray-4">
-              <button
-                className="text-white col-span-1 font-light w-fit"
-                onClick={() => setIsShowUserDetailModal(true)}
-              >
-                Kyle Szostek
-              </button>
-              <p className="text-white col-span-1 font-light">
-                kyle.szostek@gmail.com
-              </p>
-              <p className="text-white col-span-1 font-light">2</p>
-            </div>
-            <div className="w-full grid grid-cols-3 p-[10px] border-b-[1px] border-gray-4">
-              <p className="text-white col-span-1 font-light">Morgan Winter</p>
-              <p className="text-white col-span-1 font-light">
-                morgan@email.com
-              </p>
-              <p className="text-white col-span-1 font-light">4</p>
-            </div>
-            <div className="w-full grid grid-cols-3 p-[10px] border-b-[1px] border-gray-4">
-              <p className="text-white col-span-1 font-light">Jim Jones</p>
-              <p className="text-white col-span-1 font-light">jim@email.com</p>
-              <p className="text-white col-span-1 font-light">6</p>
-            </div>
+          <div className="max-w-[1024px] flex flex-col bg-gray-3 h-ttable rounded-[24px]">
+            {Object.keys(members).map((member_id: any, id: any) => {
+              if(members[member_id]?.MemberName.toLocaleLowerCase().includes(filterString.toLocaleLowerCase())) {
+                return (
+                  <div
+                    key={id}
+                    className={`grid grid-cols-3 p-[10px] border-b-[1px] border-gray-4 hover:bg-gray-7 px-[22px] ${
+                      id == 0 ? "rounded-t-[12px] pt-[16px]" : ""
+                    }`}
+                    onClick={() => {
+                      openUserProjectModal(id);
+                    }}
+                  >
+                    <button className="text-white col-span-1 font-light w-fit">
+                      {members[member_id]?.MemberName}
+                    </button>
+                    <p className="text-white col-span-1 font-light">
+                      {members[member_id]?.MemberEmail}
+                    </p>
+                    <p className="text-white col-span-1 font-light">
+                      {Object.keys(members[member_id]?.MemberProjects).length}
+                    </p>
+                  </div>
+                );
+              }
+              else {
+                return <></>
+              }
+            })}
           </div>
 
           <div className="max-w-[1024px] flex justify-end">
             <button
               className="mt-[16px] h-fit bg-red-primary rounded-[24px] px-[16px] py-[12px] font-small shadow-md drop-shadow-0 drop-shadow-y-3 blur-6 text-white flex items-center"
-              onClick={() => setIsShowInviteModal(true)}
+              onClick={() => {
+                setIsShowInviteModal(true);
+                setInviteeEmail("");
+                setDay(1);
+              }}
             >
               <Image
                 src={plusIcon}
@@ -155,22 +355,29 @@ const TeamPage = () => {
                   className="text-primary bg-gray-3 text-gray-11 placeholder:italic rounded-[33px] px-[30px] py-[14px] focus:border-none focus:outline-none w-full focus:ring-0 border-none my-[12px]"
                   type="email"
                   placeholder="janedoe@email.com"
+                  value={inviteeEmail}
+                  onChange={(e:any) => setInviteeEmail(e.target.value)}
                 />
                 <div className="mx-[30px] flex justify-start w-full mt-[20px]">
                   <p className="text-primary text-white text-left ml-[20px] font-semibold">
                     Set Invite Expiration:
                   </p>
                 </div>
-                <select className="custom-black-select w-full bg-gray-3 border-gray-3 focus:border-gray-3 border-r-[30px] text-gray-9 placeholder:italic rounded-[25px] font-small px-[23px] py-[14px] m-2 mr-5 outline-none focus:ring-0 appearance-none font-semibold ">
-                  <option>7 days</option>
-                  <option>5 days</option>
-                  <option>1 day</option>
+                <select
+                  className="custom-black-select w-full bg-gray-3 border-gray-3 focus:border-gray-3 border-r-[30px] text-gray-9 placeholder:italic rounded-[25px] font-small px-[23px] py-[14px] m-2 mr-5 outline-none focus:ring-0 appearance-none font-semibold "
+                  onChange={handleAddMemberDaysChange}
+                  value={day}
+                >
+                  <option value={7}>7 days</option>
+                  <option value={5}>5 days</option>
+                  <option value={1}>1 day</option>
                 </select>
               </div>
               <div className="flex justify-center items-center p-4 md:p-5 mt-[30px]">
                 <button
                   type="button"
                   className="rounded-[24px] text-white bg-red-primary px-[90px] py-[12px] shadow-md drop-shadow-0 drop-shadow-y-3 blur-6"
+                  onClick={handleInviteToCompany}
                 >
                   Invite to Company
                 </button>
@@ -193,7 +400,7 @@ const TeamPage = () => {
             <div className="relative bg-gray-4 border-[1px] border-gray-6 rounded-[26px] shadow-md drop-shadow-0 drop-shadow-y-3 blur-6">
               <div className="flex items-center justify-center p-4 md:p-5 ">
                 <h3 className="text-center text-xl font-semibold dark:text-white text-small text-white">
-                  Kyle Szostek
+                  {members[selectedUserId].MemberName}
                 </h3>
                 <button
                   type="button"
@@ -217,44 +424,47 @@ const TeamPage = () => {
                 </p>
               </div>
               <div className="mx-[30px] my-[10px] flex flex-col items-start bg-gray-3 rounded-[33px] h-[360px]">
-                <div className="flex justify-between items-center w-full px-[30px]">
-                  <div className="flex justify-between grow">
-                    <p className="rounded-t-[33px] my-[20px] text-primary font-normal text-white">
-                      South Hampton Library
-                    </p>
-                    <p className="rounded-t-[33px] mx-[30px] my-[20px] text-primary font-normal text-white">
-                      Manager
-                    </p>
-                  </div>
-                  <button onClick={updateUserRole}>
-                    <Image
-                      src={editIcon}
-                      width={25}
-                      height={25}
-                      alt="edit"
-                      className="mx-[30px]"
-                    />
-                  </button>
-                </div>
-                <hr className="border-b-[1px] border-gray-7 w-full" />
-                <div className="flex justify-between items-center w-full px-[30px]">
-                  <div className="flex justify-between grow">
-                    <p className="rounded-t-[33px] my-[20px] text-primary font-normal text-white">
-                      NASA Headquaters
-                    </p>
-                    <p className="rounded-t-[33px] mx-[30px] my-[20px] text-primary font-normal text-white">
-                      Editor
-                    </p>
-                  </div>
-                  <Image
-                    src={editIcon}
-                    width={25}
-                    height={25}
-                    alt="edit"
-                    className="mx-[30px]"
-                  />
-                </div>
-                <hr className="border-b-[1px] border-gray-7 w-full" />
+                {Object.keys(members[selectedUserId].MemberProjects).map(
+                  (project, id) => {
+                    return (
+                      <>
+                        <div
+                          key={id}
+                          className="flex justify-between items-center w-full px-[30px]"
+                        >
+                          <div className="flex justify-between grow">
+                            <p className="rounded-t-[33px] my-[20px] text-primary font-normal text-white">
+                              {
+                                members[selectedUserId].MemberProjects[project]
+                                  .ProjectName
+                              }
+                            </p>
+                            <p className="rounded-t-[33px] mx-[30px] my-[20px] text-primary font-normal text-white">
+                              {
+                                members[selectedUserId].MemberProjects[project]
+                                  .ProjectRole
+                              }
+                            </p>
+                          </div>
+                          <button
+                            onClick={() => {
+                              updateUserRole(id);
+                            }}
+                          >
+                            <Image
+                              src={editIcon}
+                              width={25}
+                              height={25}
+                              alt="edit"
+                              className="mx-[30px]"
+                            />
+                          </button>
+                        </div>
+                        <hr className="border-b-[1px] border-gray-7 w-full" />
+                      </>
+                    );
+                  }
+                )}
               </div>
               <div className="mx-[30px] my-[20px] flex flex-col justify-start items-center bg-gray-3 rounded-[33px] h-[180px]">
                 <p className="text-ssmall text-gray-11 text-center my-[30px]">
@@ -306,7 +516,7 @@ const TeamPage = () => {
             <div className="relative bg-gray-4 border-[1px] border-gray-6 rounded-[26px] shadow-md drop-shadow-0 drop-shadow-y-3 blur-6">
               <div className="flex items-center justify-center p-4 md:p-5 ">
                 <h3 className="text-center text-xl font-semibold dark:text-white text-small text-white">
-                  [Action]
+                  {confirmTitle}
                 </h3>
                 <button
                   type="button"
@@ -317,19 +527,21 @@ const TeamPage = () => {
                   <span className="sr-only">Close modal</span>
                 </button>
               </div>
-              <div className="my-[30px] flex justify-center items-end">
+              <div className="m-[30px] flex justify-center items-end text-center">
                 <p className="text-small text-white font-semibold">
-                  Are you sure you wish to [do this action]?
+                  {confirmContent}
                 </p>
               </div>
               <div className="flex justify-center items-center p-4 md:p-5 mx-[60px]">
                 <button
+                  onClick={handleCancel}
                   type="button"
                   className="rounded-[24px] text-white bg-gray-7-5 mx-[6px] py-[12px] shadow-md drop-shadow-0 drop-shadow-y-3 blur-6 w-full"
                 >
                   Cancel
                 </button>
                 <button
+                  onClick={handleConfirm}
                   type="button"
                   className="rounded-[24px] text-white bg-red-primary mx-[6px] py-[12px] shadow-md drop-shadow-0 drop-shadow-y-3 blur-6 w-full"
                 >
@@ -354,7 +566,7 @@ const TeamPage = () => {
             <div className="relative bg-gray-4 border-[1px] border-gray-6 rounded-[26px] shadow-md drop-shadow-0 drop-shadow-y-3 blur-6">
               <div className="flex items-center justify-center p-4 md:p-5 ">
                 <h3 className="text-center text-xl font-semibold dark:text-white text-small text-white">
-                  Edit Project Role for Kyle
+                  Edit Project Role for {members[selectedUserId].MemberName}
                 </h3>
                 <button
                   type="button"
@@ -368,30 +580,52 @@ const TeamPage = () => {
               <div className="mx-[50px] my-[10px] flex justify-start items-center">
                 <p className="text-primary text-gray-10">Team member:</p>
                 <p className="text-primary text-white mx-[10px]">
-                  Kyle Szostek
+                  {members[selectedUserId].MemberName}
                 </p>
               </div>
               <div className="mx-[50px] my-[10px] flex justify-start items-center">
                 <p className="text-primary text-gray-10">Assigned Project:</p>
                 <p className="text-primary text-white mx-[10px]">
-                  South Hampton Library
+                  {
+                    members[selectedUserId].MemberProjects[selectedProjectId]
+                      .ProjectName
+                  }
                 </p>
               </div>
               <div className="mx-[50px] my-[10px] flex justify-start items-center">
                 <p className="text-primary text-gray-10">
                   Current Member Role:
                 </p>
-                <p className="text-primary text-white mx-[10px]">Manager</p>
+                <p className="text-primary text-white mx-[10px]">
+                  {
+                    members[selectedUserId].MemberProjects[selectedProjectId]
+                      .ProjectRole
+                  }
+                </p>
               </div>
               <div className="flex flex-col items-center mt-[50px]">
-                <p className="text-gray-10 text-primary font-normal">Change Member Role</p>
-                <select className="custom-select bg-gray-5 border-gray-5 focus:border-gray-5 text-white placeholder:italic rounded-[25px] font-small px-[23px] py-[14px] my-[10px] outline-none focus:ring-0 appearance-none font-semibold w-[300px]">
-                  <option>Manager</option>
-                  <option>Editor</option>
-                  <option>Guest</option>
+                <p className="text-gray-10 text-primary font-normal">
+                  Change Member Role
+                </p>
+                <select
+                  className="custom-select bg-gray-5 border-gray-5 focus:border-gray-5 text-white placeholder:italic rounded-[25px] font-small px-[23px] py-[14px] my-[10px] outline-none focus:ring-0 appearance-none font-semibold w-[300px]"
+                  value={newRole}
+                  onChange={handleRoleSelectChange}
+                >
+                  <option value={"Manager"}>Manager</option>
+                  <option value={"Editor"}>Editor</option>
+                  <option value={"Viewer"}>Viewer</option>
                 </select>
 
-                <button className="py-[14px] text-primary text-white bg-red-primary my-[10px] rounded-[33px] w-[300px]" onClick={updateRole}>Update Role</button>
+                <button
+                  className="py-[14px] text-primary text-white bg-red-primary my-[10px] rounded-[33px] w-[300px]"
+                  onClick={() => {
+                    handleUpdateRole();
+                    // updateRole();
+                  }}
+                >
+                  Update Role
+                </button>
               </div>
 
               <hr className="border-gray-10 border-b-[1px] my-[30px]" />
@@ -400,7 +634,7 @@ const TeamPage = () => {
                 <button
                   type="button"
                   className="rounded-[24px] text-white bg-gray-8-5 px-[90px] py-[12px] shadow-md drop-shadow-0 drop-shadow-y-3 blur-6"
-                  onClick={removeFromProject}
+                  onClick={unassignProjectFromMember}
                 >
                   Remove from Project
                 </button>

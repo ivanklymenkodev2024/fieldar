@@ -21,7 +21,6 @@ const SettingsPage = () => {
         <Header title={"My Settings"} />
         <div className="m-[32px] flex flex-wrap">
           <div className="w-[460px] flex flex-col justify-start items-center mr-[32px]">
-            <p className="text-gray-10 font-small mb-[13px]">My Current Plan</p>
             <div className="w-full rounded-[26px] bg-gray-3 flex flex-col">
               <div className="text-white  text-ssmall flex justify-center p-[14px] mb-[10px] border-b-[2px] border-gray-4 rounded-t-[26px] font-bold">
                 Email Settings

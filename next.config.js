@@ -9,6 +9,10 @@ module.exports = {
           port: '',
           pathname: '/image/upload/**',
         },
+        {
+          protocol: 'https',
+          hostname: 'firebasestorage.googleapis.com',
+        },
       ],
     },
   }

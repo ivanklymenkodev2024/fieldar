@@ -6,16 +6,48 @@ import Link from "next/link";
 
 import Image from "next/image";
 
-import backIcon from "../../public/icons/DropdownArrowIcon.png";
-import editIcon from "../../public/icons/EditIcon.png";
-import teamIcon from "../../public/icons/TeamIcon.png";
-import plusIcon from "../../public/icons/PlusIcon.png";
-import closeIcon from "../../public/icons/CloseXIcon.png";
-import alertIcon from "../../public/icons/AlertIcon.png";
-import { useState } from "react";
+import backIcon from "../../../public/icons/DropdownArrowIcon.png";
+import editIcon from "../../../public/icons/EditIcon.png";
+import teamIcon from "../../../public/icons/TeamIcon.png";
+import plusIcon from "../../../public/icons/PlusIcon.png";
+import closeIcon from "../../../public/icons/CloseXIcon.png";
+import alertIcon from "../../../public/icons/AlertIcon.png";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
-const ProjectDetailPage = () => {
-  const [isShowNewProjectModal, setIsShowNewProjectModal] = useState(false);
+import firebase_app from "../../../config";
+import { getAuth } from "firebase/auth";
+
+const auth = getAuth();
+const database = getDatabase(firebase_app);
+
+import { getFunctions, httpsCallable } from "firebase/functions";
+import { child, get, getDatabase, ref } from "firebase/database";
+
+const functions = getFunctions();
+const cEditModelDetails = httpsCallable(functions, "editModelDetails");
+const cDeleteModelAndFiles = httpsCallable(functions, "deleteModelAndFiles");
+const cUpdateProjectInfo = httpsCallable(functions, "updateProjectInfo");
+const cdeleteProject = httpsCallable(functions, "deleteProject");
+const cChangeProjectAccessRole = httpsCallable(
+  functions,
+  "changeProjectAccessRole"
+);
+const cUnassignProjectFromMember = httpsCallable(
+  functions,
+  "unassignProjectFromMember"
+);
+
+const ProjectDetailPage = ({ params }: any) => {
+  const router = useRouter();
+  const [projectId, setProjectId] = useState("");
+
+  useEffect(() => {
+    setProjectId(params.id);
+    //    setProjectId(router.query.slug);
+  }, []);
+
+  const [isShowEditProjectModal, setIsShowEditProjectModal] = useState(false);
   const [isShowDeleteProjectModal, setIsShowDeleteProjectModal] =
     useState(false);
   const [isShowEditModelModal, setIsShowEditModelModal] = useState(false);
@@ -25,12 +57,182 @@ const ProjectDetailPage = () => {
   const [isShowAddTeamMemberModal, setIsShowAddTeamMemberModal] =
     useState(false);
 
+  const [company, setCompany] = useState({});
+  const [project, setProject] = useState({});
+
+  const [selectedModel, setSelectedModel] = useState("");
+  const [newModelName, setNewModelName] = useState("");
+  const [newModelLocation, setNewModelLocation] = useState("");
+
+  const [newProjectName, setNewProjectName] = useState("");
+  const [newProjectLocation, setNewProjectLocation] = useState("");
+
+  const [selectedTeamMember, setSelectedTeamMember] = useState("");
+  const [newMemberRole, setNewMemberRole] = useState("");
+
+  const [deleteModelTitle, setDeleteModelTitle] = useState("");
+
+  const [newCompanyRegion, setNewCompanyRegion] = useState("");
+
+  const getCompany = (companyKey: string) => {
+    const dbRef = ref(getDatabase());
+    get(child(dbRef, `companies/${companyKey}`))
+      .then((snapshot: any) => {
+        if (snapshot.exists()) {
+          setCompany(snapshot.val());
+        } else {
+          console.log("No data available");
+        }
+      })
+      .catch((error: any) => {
+        console.error(error);
+      });
+  };
+
+  const getProject = () => {
+    const dbRef = ref(getDatabase());
+    get(child(dbRef, `projects/${projectId}`))
+      .then((snapshot: any) => {
+        if (snapshot.exists()) {
+          console.log(snapshot.val());
+          setProject(snapshot.val());
+        } else {
+          console.log("No data available");
+        }
+      })
+      .catch((error: any) => {
+        console.error(error);
+      });
+  };
+
+  auth.onAuthStateChanged(function (user: any) {
+    if (user != null) {
+      getProject();
+      const uid = user.uid;
+
+      const dbRef = ref(getDatabase());
+      get(child(dbRef, `users/${uid}`))
+        .then((snapshot: any) => {
+          if (snapshot.exists()) {
+            getCompany(snapshot.val().CompanyKey);
+          } else {
+            console.log("No data available");
+          }
+        })
+        .catch((error: any) => {
+          console.error(error);
+        });
+    } else {
+      console.log(null);
+    }
+  });
+
+  const handleRemoveUserFromProject = () => {
+    cUnassignProjectFromMember({
+      selectedProjectId: projectId,
+      selectedMemberId: selectedTeamMember,
+    })
+      .then((result) => {
+        console.log(result);
+      })
+      .catch((error) => {
+        console.log(error);
+      })
+      .finally(() => {
+        setSelectedTeamMember('');
+        setIsShowConfirmModal(false);
+      });
+  };
+
+  const handleUpdateProject = () => {
+    cUpdateProjectInfo({
+      ProjectTitle: newProjectName,
+      ProjectLocation: newProjectLocation,
+      CompanyRegion: newCompanyRegion,
+      ProjectKey: projectId,
+    })
+      .then((result) => {
+        console.log(result);
+      })
+      .catch((error) => {
+        console.log(error);
+      })
+      .finally(() => {
+        setIsShowEditProjectModal(false);
+      });
+  };
+
+  const handleUpdateModel = () => {
+    cEditModelDetails({
+      ProjectKey: projectId,
+      ModelKey: selectedModel,
+      ModelTitle: newModelName,
+      ModelLocation: newModelLocation,
+    })
+      .then((result) => {
+        console.log(result);
+      })
+      .catch((error) => {
+        console.log(error);
+      })
+      .finally(() => {
+        setIsShowEditModelModal(false);
+      });
+  };
+
+  const handleDeleteModel = () => {
+    cDeleteModelAndFiles({
+      projectKey: projectId,
+      currentModelId: selectedModel,
+      fileType: project.Models[selectedModel].FileType,
+    })
+      .then((result) => {
+        console.log(result);
+      })
+      .catch((error) => {
+        console.log(error);
+      })
+      .finally(() => {
+        setIsShowDeleteModelModal(false);
+      });
+  };
+
+  const handleDeleteProject = () => {
+    cdeleteProject({
+      projectId: projectId,
+    })
+      .then((result) => {
+        console.log(result);
+        router.push("/project");
+      })
+      .catch((error) => {
+        console.log(error);
+        setIsShowDeleteProjectModal(false);
+      });
+  };
+
   const updateRole = () => {
-    setIsShowUserRoleModal(false);
+    cChangeProjectAccessRole({
+      projectKey: projectId,
+      selectedMemberId: selectedTeamMember,
+      selectedAccessRole: newMemberRole,
+    })
+      .then((result) => {
+        console.log(result);
+      })
+      .catch((error) => {
+        console.log(error);
+      })
+      .finally(() => {
+        setIsShowUserRoleModal(false);
+      });
   };
 
   const editProject = () => {
-    setIsShowNewProjectModal(true);
+    setNewProjectName(project.ProjectTitle);
+    setNewProjectLocation(project.ProjectLocation);
+    setNewCompanyRegion(project.CompanyRegion);
+    setIsShowEditProjectModal(true);
   };
 
   const deleteModel = () => {
@@ -68,13 +270,13 @@ const ProjectDetailPage = () => {
             <div className="flex my-2">
               <p className="text-ssmall font-normal text-gray-10">Project: </p>
               <p className="ml-[10px] text-ssmall font-bold text-white">
-                South Hampton Library
+                {project.ProjectTitle}
               </p>
             </div>
             <div className="flex my-2">
               <p className="text-ssmall font-normal text-gray-10">Location: </p>
               <p className="ml-[10px] text-ssmall font-bold text-white">
-                Buffalo, NY
+                {project.ProjectLocation}
               </p>
             </div>
           </div>
@@ -88,7 +290,9 @@ const ProjectDetailPage = () => {
             </button>
             <button
               className="text-red-primary text-primary font-normal"
-              onClick={() => setIsShowDeleteProjectModal(true)}
+              onClick={() => {
+                setIsShowDeleteProjectModal(true);
+              }}
             >
               Delete Project
             </button>
@@ -100,20 +304,48 @@ const ProjectDetailPage = () => {
               Models
             </p>
             <div className="w-[450px] bg-gray-3 h-[500px] rounded-[24px] ">
-              <div className="rounded-t-[24px] flex justify-between items-center mx-[30px] my-[15px]">
-                <div className="flex justify-start items-center">
-                  <div className="w-[54px] h-[54px] bg-white rounded-[13px] mr-[18px]"></div>
-                  <p className="text-primary text-white font-normal">
-                    Room 123
-                  </p>
-                </div>
-                <button onClick={() => setIsShowEditModelModal(true)}>
-                  <Image src={editIcon} width={22} height={22} alt="edit" />
-                </button>
-              </div>
-              <hr className="w-full border-[1px] border-gray-7" />
+              {project.Models != null &&
+                project.Models != undefined &&
+                Object.keys(project.Models).map((key, id) => {
+                  return (
+                    <>
+                      <div
+                        className={
+                          (id == 0 ? "rounded-t-[24px]" : "") +
+                          " flex justify-between items-center mx-[30px] my-[15px]"
+                        }
+                      >
+                        <div className="flex justify-start items-center">
+                          <div className="w-[54px] h-[54px] bg-white rounded-[13px] mr-[18px]"></div>
+                          <p className="text-primary text-white font-normal">
+                            {project.Models[key].ModelTitle}
+                          </p>
+                        </div>
+                        <button
+                          onClick={() => {
+                            setSelectedModel(key);
+                            console.log(project.Models[key]);
+                            setNewModelName(project.Models[key].ModelTitle);
+                            setNewModelLocation(
+                              project.Models[key].ModelLocation
+                            );
+                            setIsShowEditModelModal(true);
+                          }}
+                        >
+                          <Image
+                            src={editIcon}
+                            width={22}
+                            height={22}
+                            alt="edit"
+                          />
+                        </button>
+                      </div>
+                      <hr className="w-full border-[1px] border-gray-7" />
+                    </>
+                  );
+                })}
 
-              <div className="flex justify-between items-center mx-[30px] my-[15px]">
+              {/* <div className="flex justify-between items-center mx-[30px] my-[15px]">
                 <div className="flex justify-start items-center">
                   <div className="w-[54px] h-[54px] bg-white rounded-[13px] mr-[18px]"></div>
                   <p className="text-primary text-white font-normal">
@@ -122,7 +354,7 @@ const ProjectDetailPage = () => {
                 </div>
                 <Image src={editIcon} width={22} height={22} alt="edit" />
               </div>
-              <hr className="w-full border-[1px] border-gray-7" />
+              <hr className="w-full border-[1px] border-gray-7" /> */}
             </div>
           </div>
 
@@ -140,40 +372,56 @@ const ProjectDetailPage = () => {
               </p>
             </div>
             <div className="w-[520px] bg-gray-3 h-[500px] rounded-[24px] ">
-              <div className="rounded-t-[24px] flex justify-between items-center mx-[30px] my-[15px]">
-                <div className="flex justify-between items-center grow mr-[40px]">
-                  <p className="text-primary text-white font-normal">
-                    Kyle Szostek
-                  </p>
-                  <p className="text-primary text-white font-normal">Manager</p>
-                </div>
-                <button onClick={() => setIsShowUserRoleModal(true)}>
-                  <Image src={editIcon} width={22} height={22} alt="edit" />
-                </button>
-              </div>
-              <hr className="w-full border-[1px] border-gray-7" />
-
-              <div className="flex justify-between items-center mx-[30px] my-[15px]">
-                <div className="flex justify-between items-center grow mr-[40px]">
-                  <p className="text-primary text-white font-normal">
-                    Jim Jones
-                  </p>
-                  <p className="text-primary text-white font-normal">Manager</p>
-                </div>
-                <Image src={editIcon} width={22} height={22} alt="edit" />
-              </div>
-              <hr className="w-full border-[1px] border-gray-7" />
-
-              <div className="flex justify-between items-center mx-[30px] my-[15px]">
-                <div className="flex justify-between items-center grow mr-[40px]">
-                  <p className="text-primary text-white font-normal">
-                    Lex Fridman
-                  </p>
-                  <p className="text-primary text-white font-normal">Editor</p>
-                </div>
-                <Image src={editIcon} width={22} height={22} alt="edit" />
-              </div>
-              <hr className="w-full border-[1px] border-gray-7" />
+              {project.TeamMembers != undefined &&
+                project.TeamMembers != null &&
+                Object.keys(project.TeamMembers)
+                  .sort((m1, m2) => {
+                    let role1 = project.TeamMembers[m1].AccessRole;
+                    let role2 = project.TeamMembers[m2].AccessRole;
+                    if (role1 == "Manager") {
+                      return false;
+                    } else if (role1 == "Editor") {
+                      if (role2 != "Manager") {
+                        return false;
+                      }
+                    } else if (role1 == "Viewer") {
+                      if (role2 == "Viewer") {
+                        return false;
+                      }
+                    }
+                    return true;
+                  })
+                  .reverse()
+                  .map((key) => {
+                    return (
+                      <>
+                        <div className="rounded-t-[24px] flex justify-between items-center mx-[30px] my-[15px]">
+                          <div className="flex justify-between items-center grow mr-[40px]">
+                            <p className="text-primary text-white font-normal">
+                              {project.TeamMembers[key].MemberName}
+                            </p>
+                            <p className="text-primary text-white font-normal">
+                              {project.TeamMembers[key].AccessRole}
+                            </p>
+                          </div>
+                          <button
+                            onClick={() => {
+                              setSelectedTeamMember(key);
+                              setIsShowUserRoleModal(true);
+                            }}
+                          >
+                            <Image
+                              src={editIcon}
+                              width={22}
+                              height={22}
+                              alt="edit"
+                            />
+                          </button>
+                        </div>
+                        <hr className="w-full border-[1px] border-gray-7" />
+                      </>
+                    );
+                  })}
             </div>
             <div className="w-full flex justify-end">
               <button
@@ -193,7 +441,7 @@ const ProjectDetailPage = () => {
           </div>
         </div>
       </div>
-      {isShowNewProjectModal && (
+      {isShowEditProjectModal && (
         <div
           id="modal_user_role"
           className="flex overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full"
@@ -201,17 +449,17 @@ const ProjectDetailPage = () => {
           <div className="relative p-4 w-full max-w-[610px] max-h-full">
             <div
               className="fixed bg-black opacity-30 w-[100vw] h-[100vh] left-0 top-0"
-              onClick={() => setIsShowNewProjectModal(false)}
+              onClick={() => setIsShowEditProjectModal(false)}
             ></div>
             <div className="relative bg-gray-4 border-[1px] border-gray-6 rounded-[26px] shadow-md drop-shadow-0 drop-shadow-y-3 blur-6">
               <div className="flex items-center justify-center p-4 md:p-5 ">
                 <h3 className="text-center text-xl font-semibold dark:text-white text-small text-white">
-                  Create New Project
+                  Edit Project
                 </h3>
                 <button
                   type="button"
                   className="absolute right-0 mr-[20px] text-white bg-gray-8 hover:bg-gray-200 hover:text-gray-900 rounded-[55px] shadow-md drop-shadow-0 drop-shadow-y-3 blur-6 text-sm w-8 h-8 ms-auto inline-flex justify-center items-center"
-                  onClick={() => setIsShowNewProjectModal(false)}
+                  onClick={() => setIsShowEditProjectModal(false)}
                 >
                   <Image src={closeIcon} width={20} height={20} alt="close" />
                   <span className="sr-only">Close modal</span>
@@ -227,18 +475,26 @@ const ProjectDetailPage = () => {
                 <input
                   className="w-full bg-gray-3 border-gray-3 focus:border-gray-3 border-r-[30px] text-gray-9 placeholder:italic rounded-[25px] font-small px-[23px] py-[14px] m-2 mr-5 outline-none focus:ring-0 appearance-none font-semibold "
                   placeholder="Enter Project Name..."
+                  value={newProjectName}
+                  onChange={(e) => {
+                    setNewProjectName(e.target.value);
+                  }}
                 />
               </div>
 
               <div className="mx-[82px] my-[20px]">
                 <div className="mx-[30px] flex justify-start w-full mt-[20px]">
                   <p className="text-primary text-white text-left ml-[20px] font-semibold">
-                    Project Name
+                    Project Location
                   </p>
                 </div>
                 <input
                   className="w-full bg-gray-3 border-gray-3 focus:border-gray-3 border-r-[30px] text-gray-9 placeholder:italic rounded-[25px] font-small px-[23px] py-[14px] m-2 mr-5 outline-none focus:ring-0 appearance-none font-semibold "
-                  placeholder="Enter Project Name..."
+                  placeholder="Enter Location..."
+                  value={newProjectLocation}
+                  onChange={(e) => {
+                    setNewProjectLocation(e.target.value);
+                  }}
                 />
               </div>
 
@@ -248,17 +504,30 @@ const ProjectDetailPage = () => {
                     Company Region
                   </p>
                 </div>
-                <select className="custom-black-select w-full bg-gray-3 border-gray-3 focus:border-gray-3 border-r-[30px] text-gray-9 placeholder:italic rounded-[25px] font-small px-[23px] py-[14px] m-2 mr-5 outline-none focus:ring-0 appearance-none font-semibold ">
-                  <option>ALL</option>
-                  <option>A</option>
-                  <option>B</option>
+                <select
+                  className="custom-black-select w-full bg-gray-3 border-gray-3 focus:border-gray-3 border-r-[30px] text-gray-9 placeholder:italic rounded-[25px] font-small px-[23px] py-[14px] m-2 mr-5 outline-none focus:ring-0 appearance-none font-semibold "
+                  value={newCompanyRegion}
+                  onChange={(e) => {
+                    setNewCompanyRegion(e.target.value);
+                  }}
+                >
+                  {company.CompanyRegions == null ||
+                  company.CompanyRegions == undefined ? (
+                    <></>
+                  ) : (
+                    company.CompanyRegions.split(",").map((item: any) => {
+                      return <option>{item}</option>;
+                    })
+                  )}
                 </select>
               </div>
               <div className="w-full flex justify-center my-[30px]">
-                <div className="rounded-[28px] bg-gray-5 px-[80px] py-[15px] w-fit text-ssmall text-white font-bold">
-                  {" "}
-                  Create Project
-                </div>
+                <button
+                  className="rounded-[28px] bg-gray-5 px-[80px] py-[15px] w-fit text-ssmall text-white font-bold"
+                  onClick={handleUpdateProject}
+                >
+                  Update
+                </button>
               </div>
             </div>
           </div>
@@ -311,7 +580,7 @@ const ProjectDetailPage = () => {
 
                 <div className="text-white text-primary text-center my-[10px] flex justify-center mt-[40px]">
                   <p className="text-gray-10">Project Title:</p>{" "}
-                  [someProjectlTitle]
+                  {" " + project.ProjectTitle}
                 </div>
                 <div className="w-full flex justify-center">
                   <input
@@ -322,9 +591,12 @@ const ProjectDetailPage = () => {
               </div>
 
               <div className="w-full flex justify-center my-[30px]">
-                <div className="rounded-[28px] bg-red-primary px-[40px] py-[15px] w-fit text-ssmall text-white font-bold">
-                  Create Project
-                </div>
+                <button
+                  className="rounded-[28px] bg-red-primary px-[40px] py-[15px] w-fit text-ssmall text-white font-bold"
+                  onClick={handleDeleteProject}
+                >
+                  Delete Project
+                </button>
               </div>
             </div>
           </div>
@@ -370,20 +642,27 @@ const ProjectDetailPage = () => {
 
                 <div className="text-white text-primary text-center my-[10px] flex justify-center mt-[40px]">
                   <p className="text-gray-10">Model Title:</p>{" "}
-                  [someProjectlTitle]
+                  {project.Models[selectedModel].ModelTitle}
                 </div>
                 <div className="w-full flex justify-center">
                   <input
                     className="bg-gray-3 border-gray-3 focus:border-gray-3 border-r-[30px] text-gray-9 placeholder:italic rounded-[25px] font-small px-[23px] py-[14px] m-2 mr-5 outline-none focus:ring-0 appearance-none font-semibold "
                     placeholder="Type the model title..."
+                    value={deleteModelTitle}
+                    onChange={(e) => {
+                      setDeleteModelTitle(e.target.value);
+                    }}
                   />
                 </div>
               </div>
 
               <div className="w-full flex justify-center my-[30px]">
-                <div className="rounded-[28px] bg-red-primary px-[40px] py-[15px] w-fit text-ssmall text-white font-bold">
+                <button
+                  className="rounded-[28px] bg-red-primary px-[40px] py-[15px] w-fit text-ssmall text-white font-bold"
+                  onClick={handleDeleteModel}
+                >
                   Delete Model
-                </div>
+                </button>
               </div>
             </div>
           </div>
@@ -403,7 +682,7 @@ const ProjectDetailPage = () => {
             <div className="relative bg-gray-4 border-[1px] border-gray-6 rounded-[26px] shadow-md drop-shadow-0 drop-shadow-y-3 blur-6">
               <div className="flex items-center justify-center p-4 md:p-5 ">
                 <h3 className="text-center text-xl font-semibold dark:text-white text-small text-white">
-                  Create New Project
+                  Edit Model
                 </h3>
                 <button
                   type="button"
@@ -418,24 +697,32 @@ const ProjectDetailPage = () => {
               <div className="mx-[82px] my-[20px]">
                 <div className="mx-[30px] flex justify-start w-full mt-[20px]">
                   <p className="text-primary text-white text-left ml-[20px] font-semibold">
-                    Project Name
+                    Model Name
                   </p>
                 </div>
                 <input
                   className="w-full bg-gray-3 border-gray-3 focus:border-gray-3 border-r-[30px] text-gray-9 placeholder:italic rounded-[25px] font-small px-[23px] py-[14px] m-2 mr-5 outline-none focus:ring-0 appearance-none font-semibold "
-                  placeholder="Enter Project Name..."
+                  placeholder="Enter Model Name..."
+                  value={newModelName}
+                  onChange={(e) => {
+                    setNewModelName(e.target.value);
+                  }}
                 />
               </div>
 
               <div className="mx-[82px] my-[20px]">
                 <div className="mx-[30px] flex justify-start w-full mt-[20px]">
                   <p className="text-primary text-white text-left ml-[20px] font-semibold">
-                    Project Name
+                    Model Location
                   </p>
                 </div>
                 <input
                   className="w-full bg-gray-3 border-gray-3 focus:border-gray-3 border-r-[30px] text-gray-9 placeholder:italic rounded-[25px] font-small px-[23px] py-[14px] m-2 mr-5 outline-none focus:ring-0 appearance-none font-semibold "
                   placeholder="Enter Project Name..."
+                  value={newModelLocation}
+                  onChange={(e) => {
+                    setNewModelLocation(e.target.value);
+                  }}
                 />
               </div>
 
@@ -446,8 +733,11 @@ const ProjectDetailPage = () => {
                 >
                   Delete Model
                 </button>
-                <button className="rounded-[28px] bg-gray-5 px-[80px] py-[15px] w-fit text-ssmall text-white font-bold">
-                  Create Project
+                <button
+                  className="rounded-[28px] bg-gray-5 px-[80px] py-[15px] w-fit text-ssmall text-white font-bold"
+                  onClick={handleUpdateModel}
+                >
+                  Update
                 </button>
               </div>
             </div>
@@ -468,7 +758,8 @@ const ProjectDetailPage = () => {
             <div className="relative bg-gray-4 border-[1px] border-gray-6 rounded-[26px] shadow-md drop-shadow-0 drop-shadow-y-3 blur-6">
               <div className="flex items-center justify-center p-4 md:p-5 ">
                 <h3 className="text-center text-xl font-semibold dark:text-white text-small text-white">
-                  Edit Project Role for Kyle
+                  Edit Project Role for{" "}
+                  {project.TeamMembers[selectedTeamMember].MemberName}
                 </h3>
                 <button
                   type="button"
@@ -482,29 +773,37 @@ const ProjectDetailPage = () => {
               <div className="mx-[50px] my-[10px] flex justify-start items-center">
                 <p className="text-primary text-gray-10">Team member:</p>
                 <p className="text-primary text-white mx-[10px]">
-                  Kyle Szostek
+                  {project.TeamMembers[selectedTeamMember].MemberName}
                 </p>
               </div>
               <div className="mx-[50px] my-[10px] flex justify-start items-center">
                 <p className="text-primary text-gray-10">Assigned Project:</p>
                 <p className="text-primary text-white mx-[10px]">
-                  South Hampton Library
+                  {project.ProjectTitle}
                 </p>
               </div>
               <div className="mx-[50px] my-[10px] flex justify-start items-center">
                 <p className="text-primary text-gray-10">
                   Current Member Role:
                 </p>
-                <p className="text-primary text-white mx-[10px]">Manager</p>
+                <p className="text-primary text-white mx-[10px]">
+                  {project.TeamMembers[selectedTeamMember].AccessRole}
+                </p>
               </div>
               <div className="flex flex-col items-center mt-[50px]">
                 <p className="text-gray-10 text-primary font-normal">
                   Change Member Role
                 </p>
-                <select className="custom-select bg-gray-5 border-gray-5 focus:border-gray-5 text-white placeholder:italic rounded-[25px] font-small px-[23px] py-[14px] my-[10px] outline-none focus:ring-0 appearance-none font-semibold w-[300px]">
-                  <option>Manager</option>
-                  <option>Editor</option>
-                  <option>Guest</option>
+                <select
+                  className="custom-select bg-gray-5 border-gray-5 focus:border-gray-5 text-white placeholder:italic rounded-[25px] font-small px-[23px] py-[14px] my-[10px] outline-none focus:ring-0 appearance-none font-semibold w-[300px]"
+                  value={newMemberRole}
+                  onChange={(e) => {
+                    setNewMemberRole(e.target.value);
+                  }}
+                >
+                  <option value={"Manager"}>Manager</option>
+                  <option value={"Editor"}>Editor</option>
+                  <option value={"Viewer"}>Viewer</option>
                 </select>
 
                 <button
@@ -544,7 +843,7 @@ const ProjectDetailPage = () => {
             <div className="relative bg-gray-4 border-[1px] border-gray-6 rounded-[26px] shadow-md drop-shadow-0 drop-shadow-y-3 blur-6">
               <div className="flex items-center justify-center p-4 md:p-5 ">
                 <h3 className="text-center text-xl font-semibold dark:text-white text-small text-white">
-                  [Action]
+                  Remove from Project
                 </h3>
                 <button
                   type="button"
@@ -556,20 +855,26 @@ const ProjectDetailPage = () => {
                 </button>
               </div>
               <div className="my-[30px] flex justify-center items-end">
-                <p className="text-small text-white font-semibold">
-                  Are you sure you wish to [do this action]?
+                <p className="text-small text-white font-semibold text-center mx-[30px]">
+                  Are you sure you wish to remove{" "}
+                  {selectedTeamMember.trim().length !=0 && project.TeamMembers[selectedTeamMember].MemberName} from{" "}
+                  {project.ProjectTitle}?
                 </p>
               </div>
               <div className="flex justify-center items-center p-4 md:p-5 mx-[60px]">
                 <button
                   type="button"
                   className="rounded-[24px] text-white bg-gray-7-5 mx-[6px] py-[12px] shadow-md drop-shadow-0 drop-shadow-y-3 blur-6 w-full"
+                  onClick={() => {
+                    setIsShowConfirmModal(false);
+                  }}
                 >
                   Cancel
                 </button>
                 <button
                   type="button"
                   className="rounded-[24px] text-white bg-red-primary mx-[6px] py-[12px] shadow-md drop-shadow-0 drop-shadow-y-3 blur-6 w-full"
+                  onClick={handleRemoveUserFromProject}
                 >
                   Confirm
                 </button>

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { PageLayoutProps } from "@/configs";
 
-import "../globals.css";
+import "../../globals.css";
 
 export const metadata: Metadata = {
   title: "Project Detail - FieldAR",

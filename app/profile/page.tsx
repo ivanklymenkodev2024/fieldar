@@ -2,14 +2,32 @@
 
 import Header from "@/components/header";
 import SideBar from "@/components/sidebar";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 
+import { child, get, getDatabase, ref, set } from "firebase/database";
+
+import firebase_app from "../../config";
 import profileImg from "../../public/images/profile.png";
 
 import editIcon from "../../public/icons/EditIcon.png";
 import closeIcon from "../../public/icons/CloseXIcon.png";
 import updateIcon from "../../public/icons/UpdateIcon.png";
+import defaultUser from "../../public/icons/User.png";
+import { getAuth } from "firebase/auth";
+import { getFirestore, onSnapshot } from "firebase/firestore";
+import { getFunctions, httpsCallable } from "firebase/functions";
+
+const auth = getAuth();
+const functions = getFunctions();
+
+const database = getDatabase(firebase_app);
+
+const cUpdateUsername = httpsCallable(functions, "updateUsername");
+const cUpdateEmail = httpsCallable(functions, "updateEmail");
+const cChangePassword = httpsCallable(functions, "changePassword");
+const cUpdatePhoneNumber = httpsCallable(functions, "updatePhoneNumber");
+const cUpdateJobTitle = httpsCallable(functions, "updateJobTitle");
 
 const ProfilePage = () => {
   const [isShowSingleModal, setIsShowSingleModal] = useState(false);
@@ -22,38 +40,142 @@ const ProfilePage = () => {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [jobTitle, setJobTitle] = useState("");
+  const [picURL, setPicUrl] = useState("");
+
+  const [oldPassword, setOldPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfrimPassword] = useState("");
+
+
+  const [singleModalInput, setSingModalInput] = useState("");
+
+  auth.onAuthStateChanged(function (user: any) {
+    if (user != null) {
+      const uid = user.uid;
+
+      const dbRef = ref(getDatabase());
+      get(child(dbRef, `users/${uid}`))
+        .then((snapshot: any) => {
+          if (snapshot.exists()) {
+            setName(snapshot.val().DisplayName);
+            setEmail(snapshot.val().Email);
+            setJobTitle(snapshot.val().JobTitle);
+            setPhone(snapshot.val().PhoneNumber);
+            setPicUrl(snapshot.val().PhotoURL);
+          } else {
+            console.log("No data available");
+          }
+        })
+        .catch((error: any) => {
+          console.error(error);
+        });
+    } else {
+      console.log(null);
+    }
+  });
 
   const updateImage = () => {
     setIsShowCropImageModal(true);
-  }
+  };
 
   const updateName = () => {
     setIsShowSingleModal(true);
     setSingleModalTitle("Update Username");
     setSingleModalPlaceholder("Username...");
+    setSingModalInput(name);
   };
 
   const updateEmail = () => {
     setIsShowSingleModal(true);
     setSingleModalTitle("Update Email");
     setSingleModalPlaceholder("Email...");
+    setSingModalInput(email);
   };
 
   const updatePhone = () => {
     setIsShowSingleModal(true);
     setSingleModalTitle("Update Phone number");
     setSingleModalPlaceholder("Phone number...");
+    setSingModalInput(phone);
   };
 
   const updateJobTitle = () => {
     setIsShowSingleModal(true);
     setSingleModalTitle("Update Job Title");
     setSingleModalPlaceholder("Job Title...");
+    setSingModalInput(jobTitle);
+  };
+
+  const updateValue = () => {
+    let func: any;
+    let data: any;
+    switch (singleModalTitle) {
+      case "Update Username":
+        func = cUpdateUsername;
+        data = {
+          newUsername: singleModalInput
+        };
+        break;
+      case "Update Email":
+        func = cUpdateEmail;
+        data = {
+          newEmail: singleModalInput
+        };
+        break;
+      case "Update Phone number":
+        func = cUpdatePhoneNumber;
+        data = {
+          phoneNumber: singleModalInput
+        };
+        break;
+      case "Update Job Title":
+        func = cUpdateJobTitle;
+        data = {
+          jobTitle: singleModalInput
+        };
+        break;
+    }
+    func(data).then((result:any) => {
+      console.log(result.data.message);
+    }).catch((error:any) => {
+      console.log(error);
+    }).finally(() => {
+      setIsShowSingleModal(false);
+    });
   };
 
   const updatePassword = () => {
+    setNewPassword('');
+    setOldPassword('');
+    setConfrimPassword('');
     setIsShowPasswordModal(true);
   };
+
+  const handleOldPasswordChange = (e:any) => {
+    setOldPassword(e.target.value);
+  }
+
+  const handleNewPasswordChange = (e:any) => {
+    setNewPassword(e.target.value);
+  }
+
+  const handleConfirmPasswordChange = (e:any) => {
+    setConfrimPassword(e.target.value);
+  }
+
+  const handleSingleModalInputChange = (e: any) => {
+    setSingModalInput(e.target.value);
+  };
+
+  const handleUpdatePassword = () => {
+    cChangePassword({currentPassword: oldPassword, newPassword}).then((result:any) => {
+      console.log(result.data.message);
+    }).catch((error) => {
+      console.log(error);
+    }).finally(() => {
+      setIsShowPasswordModal(false);
+    })
+  }
 
   return (
     <div className="flex">
@@ -66,13 +188,16 @@ const ProfilePage = () => {
 
           <div className="flex flex-wrap items-end">
             <Image
-              src={profileImg}
+              src={picURL == "" ? defaultUser : picURL}
               width={175}
               height={175}
               alt="Profile Image"
               className="rounded-[23px] ml-[40px]"
             />
-            <button className="mx-[24px] mt-[24px] h-fit bg-gray-5 rounded-[24px] px-[16px] py-[12px] font-small shadow-md drop-shadow-0 drop-shadow-y-3 blur-6 text-white flex items-center" onClick={updateImage}>
+            <button
+              className="mx-[24px] mt-[24px] h-fit bg-gray-5 rounded-[24px] px-[16px] py-[12px] font-small shadow-md drop-shadow-0 drop-shadow-y-3 blur-6 text-white flex items-center"
+              onClick={updateImage}
+            >
               <Image src={updateIcon} width={25} height={25} alt="close" />
               <p className="ml-[10px] font-bold">Update</p>
             </button>
@@ -84,27 +209,21 @@ const ProfilePage = () => {
         <div className="m-[40px] ml-[62px]">
           <div className="flex items-center">
             <p className="m-[10px] text-gray-10 font-bold w-[90px]">Name: </p>
-            <p className="m-[10px] text-white font-bold w-[200px]">
-              Kyle Szostek{" "}
-            </p>
+            <p className="m-[10px] text-white font-bold w-[200px]">{name}</p>
             <button className="w-[20px] h-[20px]" onClick={updateName}>
               <Image src={editIcon} width={20} height={20} alt="Edit Name" />
             </button>
           </div>
           <div className="flex items-center">
             <p className="m-[10px] text-gray-10 font-bold w-[90px]">Email: </p>
-            <p className="m-[10px] text-white font-bold w-[200px]">
-              kyle@gmail.com{" "}
-            </p>
+            <p className="m-[10px] text-white font-bold w-[200px]">{email}</p>
             <button className="w-[20px] h-[20px]" onClick={updateEmail}>
               <Image src={editIcon} width={20} height={20} alt="Edit Email" />
             </button>
           </div>
           <div className="flex items-center">
             <p className="m-[10px] text-gray-10 font-bold w-[90px]">Phone: </p>
-            <p className="m-[10px] text-white font-bold w-[200px]">
-              800-555-1235{" "}
-            </p>
+            <p className="m-[10px] text-white font-bold w-[200px]">{phone}</p>
             <button className="w-[20px] h-[20px]" onClick={updatePhone}>
               <Image
                 src={editIcon}
@@ -116,10 +235,10 @@ const ProfilePage = () => {
           </div>
           <div className="flex items-center">
             <p className="m-[10px] text-gray-10 font-bold w-[90px]">
-              Job Title:{" "}
+              Job Title
             </p>
             <p className="m-[10px] text-white font-bold w-[200px]">
-              SR.VDC Engineer{" "}
+              {jobTitle}
             </p>
             <button className="w-[20px] h-[20px]" onClick={updateJobTitle}>
               <Image
@@ -174,8 +293,20 @@ const ProfilePage = () => {
                 </button>
               </div>
               <div className="mx-[50px] my-[30px] flex justify-center items-end">
-                <Image src={profileImg} width={224} height={224} alt="profile image" className="mx-[13px]"/>
-                <Image src={profileImg} width={142} height={142} alt="profile image" className="mx-[13px]"/>
+                <Image
+                  src={profileImg}
+                  width={224}
+                  height={224}
+                  alt="profile image"
+                  className="mx-[13px]"
+                />
+                <Image
+                  src={profileImg}
+                  width={142}
+                  height={142}
+                  alt="profile image"
+                  className="mx-[13px]"
+                />
               </div>
               <div className="flex justify-center items-center p-4 md:p-5 mx-[60px]">
                 <button
@@ -225,12 +356,15 @@ const ProfilePage = () => {
                   className="bg-gray-3 text-gray-11 placeholder:italic rounded-[33px] px-[30px] py-[16px] focus:border-none focus:outline-none w-full focus:ring-0 border-none"
                   type="text"
                   placeholder={singleModalPlaceholder}
+                  value={singleModalInput}
+                  onChange={handleSingleModalInputChange}
                 />
               </div>
               <div className="flex justify-center items-center p-4 md:p-5">
                 <button
                   type="button"
                   className="rounded-[24px] text-white bg-gray-5 px-[90px] py-[12px] shadow-md drop-shadow-0 drop-shadow-y-3 blur-6"
+                  onClick={updateValue}
                 >
                   Update
                 </button>
@@ -269,22 +403,29 @@ const ProfilePage = () => {
                   className="bg-gray-3 text-gray-11 placeholder:italic rounded-[33px] px-[30px] py-[16px] focus:border-none focus:outline-none w-full focus:ring-0 border-none my-[12px]"
                   type="password"
                   placeholder="Current Password..."
+                  value={oldPassword}
+                  onChange={handleOldPasswordChange}
                 />
                 <input
                   className="bg-gray-3 text-gray-11 placeholder:italic rounded-[33px] px-[30px] py-[16px] focus:border-none focus:outline-none w-full focus:ring-0 border-none my-[12px]"
                   type="password"
                   placeholder="New Password..."
+                  value={newPassword}
+                  onChange={handleNewPasswordChange}
                 />
                 <input
                   className="bg-gray-3 text-gray-11 placeholder:italic rounded-[33px] px-[30px] py-[16px] focus:border-none focus:outline-none w-full focus:ring-0 border-none my-[12px]"
                   type="password"
                   placeholder="Confirm New Password..."
+                  value={confirmPassword}
+                  onChange={handleConfirmPasswordChange}
                 />
               </div>
               <div className="flex justify-center items-center p-4 md:p-5">
                 <button
                   type="button"
                   className="rounded-[24px] text-white bg-gray-5 px-[90px] py-[12px] shadow-md drop-shadow-0 drop-shadow-y-3 blur-6"
+                  onClick={handleUpdatePassword}
                 >
                   Update
                 </button>

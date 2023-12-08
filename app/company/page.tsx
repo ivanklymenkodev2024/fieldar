@@ -11,12 +11,74 @@ import editIcon from "../../public/icons/EditIcon.png";
 import closeIcon from "../../public/icons/CloseXIcon.png";
 import updateIcon from "../../public/icons/UpdateIcon.png";
 import trashIcon from "../../public/icons/TrashIcon.png";
+import companyIcon from "../../public/icons/CompanyIcon.png";
 import { useState } from "react";
+import { child, get, getDatabase, ref } from "firebase/database";
+import { getAuth } from "firebase/auth";
+
+import firebase_app from "../../config";
+
+const auth = getAuth();
+const database = getDatabase(firebase_app);
+
+import { getFunctions, httpsCallable } from "firebase/functions";
+
+const functions = getFunctions();
+const cUpdateCompanyInfo = httpsCallable(functions, "updateCompanyInfo");
+const cRemoveCompanyLogo = httpsCallable(functions, "removeCompanyIcon");
 
 const CompanyPage = () => {
   const [isShowCropImageModal, setIsShowCropImageModal] = useState(false);
   const [isRemoveImageModal, setIsRemoveImageModal] = useState(false);
   const [isEditCompanyModal, setIsEditCompanyModal] = useState(false);
+
+  const [logoURL, setLogoURL] = useState("");
+  const [companyName, setCompanyName] = useState("");
+  const [companyBio, setCompanyBio] = useState("");
+  const [companyRegion, setCompanyRegion] = useState("");
+
+  const [reCompanyName, setReCompanyName] = useState("");
+  const [reCompanyBio, setReCompanyBio] = useState("");
+  const [reCompanyRegion, setReCompanyRegion] = useState("");
+
+  const getCompany = async (companyKey: string) => {
+    const dbRef = ref(getDatabase());
+    get(child(dbRef, `companies/${companyKey}`))
+      .then((snapshot: any) => {
+        if (snapshot.exists()) {
+          setLogoURL(snapshot.val().CompanyIconURL);
+          setCompanyName(snapshot.val().CompanyName);
+          setCompanyRegion(snapshot.val().CompanyRegions);
+          setCompanyBio(snapshot.val().CompanyDescription);
+        } else {
+          console.log("No data available");
+        }
+      })
+      .catch((error: any) => {
+        console.error(error);
+      });
+  };
+
+  auth.onAuthStateChanged(function (user: any) {
+    if (user != null) {
+      const uid = user.uid;
+
+      const dbRef = ref(getDatabase());
+      get(child(dbRef, `users/${uid}`))
+        .then((snapshot: any) => {
+          if (snapshot.exists()) {
+            getCompany(snapshot.val().CompanyKey);
+          } else {
+            console.log("No data available");
+          }
+        })
+        .catch((error: any) => {
+          console.error(error);
+        });
+    } else {
+      console.log(null);
+    }
+  });
 
   const updateImage = () => {
     setIsShowCropImageModal(true);
@@ -26,8 +88,53 @@ const CompanyPage = () => {
     setIsRemoveImageModal(true);
   };
 
+  const handleRemoveLogo = () => {
+    cRemoveCompanyLogo()
+      .then((result) => {
+        console.log(result);
+      })
+      .catch((error) => {
+        console.log(error);
+      })
+      .finally(() => {
+        setIsRemoveImageModal(false);
+      });
+  };
+
   const updateCompanyDetail = () => {
+    setReCompanyName(companyName);
+    setReCompanyBio(companyBio);
+    setReCompanyRegion(companyRegion);
     setIsEditCompanyModal(true);
+  };
+
+  const handleReCompanyBioChange = (e: any) => {
+    setReCompanyBio(e.target.value);
+  };
+
+  const handleReCompanyNameChange = (e: any) => {
+    setReCompanyName(e.target.value);
+  };
+
+  const handleReCompanyRegionChange = (e: any) => {
+    setReCompanyRegion(e.target.value);
+  };
+
+  const handleOnUpdateCompanyDetail = () => {
+    cUpdateCompanyInfo({
+      CompanyName: reCompanyName,
+      CompanyDescription: reCompanyBio,
+      CompanyRegions: reCompanyRegion,
+    })
+      .then((result) => {
+        console.log(result);
+      })
+      .catch((error) => {
+        console.log(error);
+      })
+      .finally(() => {
+        setIsEditCompanyModal(false);
+      });
   };
 
   return (
@@ -40,8 +147,16 @@ const CompanyPage = () => {
           <p className="m-[20px] text-gray-10 font-bold">Company Logo</p>
 
           <div className="flex flex-wrap items-end">
-            <div className="ml-[40px] w-[350px] h-[120px] rounded-[23px] bg-red-primary text-white flex justify-center items-center">
-              Company logo
+            <div className="ml-[40px] w-[350px] h-[120px] rounded-[23px] text-white flex justify-center items-center">
+              <Image
+                width={120}
+                height={120}
+                src={
+                  logoURL == "" || logoURL == undefined ? companyIcon : logoURL
+                }
+                alt={""}
+                className="w-[120px] h-[120px]"
+              />
             </div>
             <div className="flex flex-col justify-between h-[120px]">
               <button
@@ -76,7 +191,7 @@ const CompanyPage = () => {
           <div className="my-[25px]">
             <p className="text-gray-10 text-small font-bold">Company Name</p>
             <p className="text-white text-small font-bold ml-[12px]">
-              Simulation Lab, LLC.
+              {companyName}
             </p>
           </div>
           <div className="my-[25px]">
@@ -84,15 +199,13 @@ const CompanyPage = () => {
               Company Bio / Tag-Line
             </p>
             <p className="text-white text-small font-bold ml-[12px] max-w-[850px]">
-              Simulation Lab is a company in Brooklyn, NY that specializes in
-              AR/VR app development, and there&apos;s more to be said but this is
-              just some default placeholder text so yeah..
+              {companyBio}
             </p>
           </div>
           <div className="my-[25px]">
             <p className="text-gray-10 text-small font-bold">Company Regions</p>
             <p className="text-white text-small font-bold ml-[12px]">
-              NYRO, NERO, SERO, WRO, NWRO
+              {companyRegion}
             </p>
           </div>
 
@@ -119,7 +232,7 @@ const CompanyPage = () => {
             <div className="relative bg-gray-4 border-[1px] border-gray-6 rounded-[26px] shadow-md drop-shadow-0 drop-shadow-y-3 blur-6">
               <div className="flex items-center justify-center p-4 md:p-5 ">
                 <h3 className="text-center text-xl font-semibold dark:text-white text-small text-white">
-                  [Action]
+                  Remove Company Logo
                 </h3>
                 <button
                   type="button"
@@ -132,7 +245,7 @@ const CompanyPage = () => {
               </div>
               <div className="my-[30px] flex justify-center items-end">
                 <p className="text-small text-white font-semibold">
-                  Are you sure you wish to [do this action]?
+                  Are you sure you wish to remove company logo?
                 </p>
               </div>
               <div className="flex justify-center items-center p-4 md:p-5 mx-[60px]">
@@ -145,8 +258,9 @@ const CompanyPage = () => {
                 <button
                   type="button"
                   className="rounded-[24px] text-white bg-red-primary mx-[6px] py-[12px] shadow-md drop-shadow-0 drop-shadow-y-3 blur-6 w-full"
+                  onClick={handleRemoveLogo}
                 >
-                  Save
+                  Remove
                 </button>
               </div>
             </div>
@@ -244,7 +358,8 @@ const CompanyPage = () => {
                   </p>
                   <input
                     className="bg-gray-3 px-[25px] py-[14px] w-full rounded-[33px] text-gray-10-5 ring-0 focus:outline-none focus:border-none"
-                    value={"Simulation Lab, LLC"}
+                    value={reCompanyName}
+                    onChange={handleReCompanyNameChange}
                   />
                 </div>
 
@@ -255,9 +370,8 @@ const CompanyPage = () => {
                   <textarea
                     className="bg-gray-3 px-[25px] py-[14px] w-full rounded-[17px] text-gray-10-5 ring-0 focus:outline-none focus:border-none focus:ring-0 border-0"
                     rows={4}
-                    value={
-                      "Simulation Lab is a company in Brooklyn, NY that specializes in AR/VR app development, and there's more to be said but this is just some default placeholder text so yeah.."
-                    }
+                    value={reCompanyBio}
+                    onChange={handleReCompanyBioChange}
                   />
                 </div>
 
@@ -268,7 +382,8 @@ const CompanyPage = () => {
                   <textarea
                     className="bg-gray-3 px-[25px] py-[14px] w-full rounded-[17px] text-gray-10-5 ring-0 focus:outline-none focus:border-none focus:ring-0 border-0"
                     rows={3}
-                    value={"NYRO, NERO, SERO, WRO, NWRO"}
+                    value={reCompanyRegion}
+                    onChange={handleReCompanyRegionChange}
                   />
                 </div>
               </div>
@@ -282,6 +397,7 @@ const CompanyPage = () => {
                 <button
                   type="button"
                   className="rounded-[24px] text-white bg-red-primary mx-[6px] py-[12px] shadow-md drop-shadow-0 drop-shadow-y-3 blur-6 w-full"
+                  onClick={handleOnUpdateCompanyDetail}
                 >
                   Save
                 </button>

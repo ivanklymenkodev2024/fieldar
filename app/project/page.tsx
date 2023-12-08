@@ -10,12 +10,93 @@ import Image from "next/image";
 import plusIcon from "../../public/icons/PlusIcon.png";
 import closeIcon from "../../public/icons/CloseXIcon.png";
 
+import { child, get, getDatabase, ref } from "firebase/database";
+
+import firebase_app from "../../config";
+import { getAuth } from "firebase/auth";
+
+const auth = getAuth();
+const database = getDatabase(firebase_app);
+
+import { getFunctions, httpsCallable } from "firebase/functions";
+
+const functions = getFunctions();
+const cCreateProject = httpsCallable(
+  functions,
+  "createProject"
+);
+
 const ProjectPage = () => {
   const [isShowNewProjectModal, setIsShowNewProjectModal] = useState(false);
 
+  const [company, setCompany] = useState({});
+  const [regionFilter, setRegionFilter] = useState("");
+  const [nameFilter, setNameFilter] = useState("");
+
+  const [newProjectName, setNewProjectName] = useState('');
+  const [newProjectLocation, setNewProjectLocation] = useState('');
+  const [newProjectRegion, setNewProjectRegion] = useState('');
+
+  const getCompany = (companyKey: string) => {
+    const dbRef = ref(getDatabase());
+    get(child(dbRef, `companies/${companyKey}`))
+      .then((snapshot: any) => {
+        if (snapshot.exists()) {
+          setCompany(snapshot.val());
+
+          if (regionFilter == "") {
+            setRegionFilter(snapshot.val().CompanyRegions.split(",")[0].trim());
+          }
+        } else {
+          console.log("No data available");
+        }
+      })
+      .catch((error: any) => {
+        console.error(error);
+      });
+  };
+
+  auth.onAuthStateChanged(function (user: any) {
+    if (user != null) {
+      const uid = user.uid;
+
+      const dbRef = ref(getDatabase());
+      get(child(dbRef, `users/${uid}`))
+        .then((snapshot: any) => {
+          if (snapshot.exists()) {
+            getCompany(snapshot.val().CompanyKey);
+          } else {
+            console.log("No data available");
+          }
+        })
+        .catch((error: any) => {
+          console.error(error);
+        });
+    } else {
+      console.log(null);
+    }
+  });
   const createNewProject = () => {
+    setNewProjectName('');
+    setNewProjectLocation('');
+    setNewProjectRegion(company.CompanyRegions.split(",")[0]);
     setIsShowNewProjectModal(true);
   };
+
+  const handleCreateNewProject = () => {
+    cCreateProject({
+      ProjectTitle: newProjectName,
+      ProjectLocation: newProjectLocation,
+      CompanyRegion: newProjectRegion,
+      AllowMarkups: true
+    }).then((result) => {
+      console.log(result);
+    }).catch((error) => {
+      console.log(error);
+    }).finally(() => {
+      setIsShowNewProjectModal(false);
+    })
+  }
 
   return (
     <div className="flex">
@@ -28,17 +109,32 @@ const ProjectPage = () => {
               <p className="ml-10 font-small font-light text-gray-10">
                 Filter by region
               </p>
-              <select className="custom-select bg-gray-3 border-gray-3 focus:border-gray-3 border-r-[30px] text-gray-11 placeholder:italic rounded-[25px] font-small px-[23px] py-[14px] w-[260px] m-2 mr-5 outline-none focus:ring-0 appearance-none ">
-                <option>NYRO</option>
-                <option>SERO</option>
-                <option>NERO</option>
+              <select
+                className="custom-select bg-gray-3 border-gray-3 focus:border-gray-3 border-r-[30px] text-gray-11 placeholder:italic rounded-[25px] font-small px-[23px] py-[14px] w-[260px] m-2 mr-5 outline-none focus:ring-0 appearance-none "
+                value={regionFilter}
+                onChange={(e) => {
+                  setRegionFilter(e.target.value);
+                }}
+              >
+                {company.CompanyRegions == null ||
+                company.CompanyRegions == undefined ? (
+                  <></>
+                ) : (
+                  company.CompanyRegions.split(",").map((item: any) => {
+                    return <option>{item}</option>;
+                  })
+                )}
               </select>
             </div>
             <div>
               <input
-                className="bg-gray-3 text-gray-11 placeholder:italic rounded-[26px] font-small px-[23px] py-[14px] w-[277px] m-2 focus:border-none outline-none ring-0 border-0"
+                className="bg-gray-3 text-gray-11 placeholder:italic rounded-[26px] font-small px-[23px] py-[14px] w-[277px] m-2 focus:border-none outline-none focus:ring-0 border-0"
                 type="text"
                 placeholder="Search Projects"
+                value={nameFilter}
+                onChange={(e) => {
+                  setNameFilter(e.target.value);
+                }}
               />
             </div>
           </div>
@@ -61,34 +157,46 @@ const ProjectPage = () => {
           </div>
 
           <div className="max-w-[1024px] flex flex-col bg-gray-3 h-ttable p-[22px] py-[6px] rounded-[24px]">
-            <div className="w-full grid grid-cols-8 p-[10px] border-b-[1px] border-gray-4">
-              <p className="text-white col-span-3 font-light">
-                <Link href={"/project-detail"}>South Hampton Library</Link>
-              </p>
-              <p className="text-white col-span-2 font-light">NYRO</p>
-              <p className="text-white col-span-2 font-light">Buffalo, NY</p>
-              <p className="text-white col-span-1 font-light">0</p>
-            </div>
-            <div className="w-full grid grid-cols-8 p-[10px] border-b-[1px] border-gray-4">
-              <p className="text-white col-span-3 font-light">
-                NASA Headquarters
-              </p>
-              <p className="text-white col-span-2 font-light">SERO</p>
-              <p className="text-white col-span-2 font-light">Houston, TX</p>
-              <p className="text-white col-span-1 font-light">0</p>
-            </div>
-            <div className="w-full grid grid-cols-8 p-[10px] border-b-[1px] border-gray-4">
-              <p className="text-white col-span-3 font-light">666 S Wall St.</p>
-              <p className="text-white col-span-2 font-light">NERO</p>
-              <p className="text-white col-span-2 font-light">Hell, NY</p>
-              <p className="text-white col-span-1 font-light">0</p>
-            </div>
+            {company.ProjectDirectory != null &&
+              company.ProjectDirectory != undefined &&
+              Object.keys(company.ProjectDirectory).map((key, id) => {
+                if (
+                  regionFilter != "All" &&
+                  company.ProjectDirectory[key].CompanyRegion != regionFilter && company.ProjectDirectory[key].CompanyRegion != "All"
+                ) {
+                  return <></>;
+                } else if (
+                  !company.ProjectDirectory[
+                    key
+                  ].ProjectTitle.toLowerCase().includes(
+                    nameFilter.toLowerCase()
+                  )
+                ) {
+                  return <></>;
+                }
+                return (
+                  <div className="w-full grid grid-cols-8 p-[10px] border-b-[1px] border-gray-4">
+                    <p className="text-white col-span-3 font-light">
+                      <Link href={"/project/" + key}>
+                        {company.ProjectDirectory[key].ProjectTitle}
+                      </Link>
+                    </p>
+                    <p className="text-white col-span-2 font-light">
+                      {company.ProjectDirectory[key].CompanyRegion}
+                    </p>
+                    <p className="text-white col-span-2 font-light">
+                      {company.ProjectDirectory[key].ProjectLocation}
+                    </p>
+                    <p className="text-white col-span-1 font-light">0</p>
+                  </div>
+                );
+              })}
           </div>
 
           <div className="max-w-[1024px] flex justify-end">
             <button
               className="mt-[16px] h-fit bg-red-primary rounded-[24px] px-[16px] py-[12px] font-small shadow-md drop-shadow-0 drop-shadow-y-3 blur-6 text-white flex items-center"
-              onClick={() => setIsShowNewProjectModal(true)}
+              onClick={createNewProject}
             >
               <Image
                 src={plusIcon}
@@ -134,16 +242,30 @@ const ProjectPage = () => {
                     Project Name
                   </p>
                 </div>
-                <input className="w-full bg-gray-3 border-gray-3 focus:border-gray-3 border-r-[30px] text-gray-9 placeholder:italic rounded-[25px] font-small px-[23px] py-[14px] m-2 mr-5 outline-none focus:ring-0 appearance-none font-semibold " placeholder="Enter Project Name..."/>
+                <input
+                  className="w-full bg-gray-3 border-gray-3 focus:border-gray-3 border-r-[30px] text-gray-9 placeholder:italic rounded-[25px] font-small px-[23px] py-[14px] m-2 mr-5 outline-none focus:ring-0 appearance-none font-semibold "
+                  placeholder="Enter Project Name..."
+                  value={newProjectName}
+                  onChange={(e) => {
+                    setNewProjectName(e.target.value);
+                  }}
+                />
               </div>
 
               <div className="mx-[82px] my-[20px]">
                 <div className="mx-[30px] flex justify-start w-full mt-[20px]">
                   <p className="text-primary text-white text-left ml-[20px] font-semibold">
-                    Project Name
+                    Project Location
                   </p>
                 </div>
-                <input className="w-full bg-gray-3 border-gray-3 focus:border-gray-3 border-r-[30px] text-gray-9 placeholder:italic rounded-[25px] font-small px-[23px] py-[14px] m-2 mr-5 outline-none focus:ring-0 appearance-none font-semibold " placeholder="Enter Project Name..."/>
+                <input
+                  className="w-full bg-gray-3 border-gray-3 focus:border-gray-3 border-r-[30px] text-gray-9 placeholder:italic rounded-[25px] font-small px-[23px] py-[14px] m-2 mr-5 outline-none focus:ring-0 appearance-none font-semibold "
+                  placeholder="Enter Project Location..."
+                  value={newProjectLocation}
+                  onChange={(e) => {
+                    setNewProjectLocation(e.target.value);
+                  }}
+                />
               </div>
 
               <div className="mx-[82px] my-[20px]">
@@ -152,14 +274,23 @@ const ProjectPage = () => {
                     Company Region
                   </p>
                 </div>
-                <select className="custom-black-select w-full bg-gray-3 border-gray-3 focus:border-gray-3 border-r-[30px] text-gray-9 placeholder:italic rounded-[25px] font-small px-[23px] py-[14px] m-2 mr-5 outline-none focus:ring-0 appearance-none font-semibold ">
-                  <option>ALL</option>
-                  <option>A</option>
-                  <option>B</option>
+                <select className="custom-black-select w-full bg-gray-3 border-gray-3 focus:border-gray-3 border-r-[30px] text-gray-9 placeholder:italic rounded-[25px] font-small px-[23px] py-[14px] m-2 mr-5 outline-none focus:ring-0 appearance-none font-semibold " value={newProjectRegion} onChange={(e) => {
+                  setNewProjectRegion(e.target.value);
+                }}>
+                  {company.CompanyRegions == null ||
+                  company.CompanyRegions == undefined ? (
+                    <></>
+                  ) : (
+                    company.CompanyRegions.split(",").map((item: any) => {
+                      return <option>{item}</option>;
+                    })
+                  )}
                 </select>
               </div>
               <div className="w-full flex justify-center my-[30px]">
-                <div className="rounded-[28px] bg-gray-5 px-[80px] py-[15px] w-fit text-ssmall text-white font-bold"> Create Project</div>
+                <button className="rounded-[28px] bg-gray-5 px-[80px] py-[15px] w-fit text-ssmall text-white font-bold" onClick={handleCreateNewProject}>
+                  Create Project
+                </button>
               </div>
             </div>
           </div>
