@@ -120,8 +120,8 @@ const ProjectPage = () => {
                 company.CompanyRegions == undefined ? (
                   <></>
                 ) : (
-                  company.CompanyRegions.split(",").map((item: any) => {
-                    return <option>{item}</option>;
+                  company.CompanyRegions.split(",").map((item: any, id:any) => {
+                    return <option key={id} value={item}>{item}</option>;
                   })
                 )}
               </select>
@@ -175,7 +175,7 @@ const ProjectPage = () => {
                   return <></>;
                 }
                 return (
-                  <div className="w-full grid grid-cols-8 p-[10px] border-b-[1px] border-gray-4">
+                  <div className="w-full grid grid-cols-8 p-[10px] border-b-[1px] border-gray-4" key={id}>
                     <p className="text-white col-span-3 font-light">
                       <Link href={"/project/" + key}>
                         {company.ProjectDirectory[key].ProjectTitle}
@@ -281,8 +281,8 @@ const ProjectPage = () => {
                   company.CompanyRegions == undefined ? (
                     <></>
                   ) : (
-                    company.CompanyRegions.split(",").map((item: any) => {
-                      return <option>{item}</option>;
+                    company.CompanyRegions.split(",").map((item: any, id:any) => {
+                      return <option key={id} value={item}>{item}</option>;
                     })
                   )}
                 </select>
