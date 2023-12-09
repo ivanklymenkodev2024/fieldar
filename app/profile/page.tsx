@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 
 import { child, get, getDatabase, ref, set } from "firebase/database";
+import fstorage, { getDownloadURL } from "firebase/storage";
 
 import firebase_app from "../../config";
 import profileImg from "../../public/images/profile.png";
@@ -18,24 +19,40 @@ import { getAuth } from "firebase/auth";
 import { getFirestore, onSnapshot } from "firebase/firestore";
 import { getFunctions, httpsCallable } from "firebase/functions";
 
+import React, { useRef } from "react";
+import Cropper, { ReactCropperElement } from "react-cropper";
+import "cropperjs/dist/cropper.css";
+import { getStorage, uploadBytes, ref as ref_storage } from "firebase/storage";
+
 const auth = getAuth();
 const functions = getFunctions();
 
 const database = getDatabase(firebase_app);
+const storage = getStorage(firebase_app);
 
 const cUpdateUsername = httpsCallable(functions, "updateUsername");
 const cUpdateEmail = httpsCallable(functions, "updateEmail");
 const cChangePassword = httpsCallable(functions, "changePassword");
 const cUpdatePhoneNumber = httpsCallable(functions, "updatePhoneNumber");
 const cUpdateJobTitle = httpsCallable(functions, "updateJobTitle");
+const cUpdateProfilePic = httpsCallable(functions, "updateProfilePic");
 
 const ProfilePage = () => {
+  const [resImg, setResImage] = useState("");
+
+  const cropperRef = useRef<ReactCropperElement>(null);
+  const onCrop = () => {
+    const cropper = cropperRef.current?.cropper;
+    setResImage(cropper.getCroppedCanvas().toDataURL());
+  };
+
   const [isShowSingleModal, setIsShowSingleModal] = useState(false);
   const [singleModalTitle, setSingleModalTitle] = useState("");
   const [singleModalPlaceholder, setSingleModalPlaceholder] = useState("");
   const [isShowPasswordModal, setIsShowPasswordModal] = useState(false);
   const [isShowCropImageModal, setIsShowCropImageModal] = useState(false);
 
+  const [userID, setUserID] = useState("");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
@@ -46,12 +63,12 @@ const ProfilePage = () => {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfrimPassword] = useState("");
 
-
   const [singleModalInput, setSingModalInput] = useState("");
 
   auth.onAuthStateChanged(function (user: any) {
     if (user != null) {
       const uid = user.uid;
+      setUserID(uid);
 
       const dbRef = ref(getDatabase());
       get(child(dbRef, `users/${uid}`))
@@ -74,8 +91,73 @@ const ProfilePage = () => {
     }
   });
 
+  const [imageData, setImageData] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const fileInputRef = useRef(null);
+
+  const uploadImageURLToDB = (file: any) => {
+    const pfpImagePath = `profile-pics/${userID}/profile.jpeg`;
+
+    const storageRef = ref_storage(storage, pfpImagePath);
+    uploadBytes(storageRef, file).then((snapshot) => {
+      getDownloadURL(storageRef).then((url) => {
+        cUpdateProfilePic({ profilePicURL: url })
+          .then((result) => {
+            console.log(result);
+          })
+          .catch((error) => {
+            console.log(error);
+          })
+          .finally(() => {
+            setIsShowCropImageModal(false);
+          });
+      });
+    });
+  };
+
+  const base64toFile = (base64Data: any, filename: any) => {
+    const byteCharacters = atob(base64Data.substring(22));
+    const byteArrays = [];
+
+    for (let offset = 0; offset < byteCharacters.length; offset += 1024) {
+      const chunk = byteCharacters.slice(offset, offset + 1024);
+
+      const byteNumbers = new Array(chunk.length);
+      for (let i = 0; i < chunk.length; i++) {
+        byteNumbers[i] = chunk.charCodeAt(i);
+      }
+
+      const byteArray = new Uint8Array(byteNumbers);
+      byteArrays.push(byteArray);
+    }
+
+    const blob = new Blob(byteArrays, { type: "image/jpeg" });
+    const file = new File([blob], filename, {
+      type: "image/jpeg",
+    });
+    return file;
+  };
+
+  const handleUpdateImage = () => {
+    uploadImageURLToDB(base64toFile(resImg, "profile.png"));
+  };
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    const reader = new FileReader();
+
+    if (file != undefined && file != null) {
+      reader.onload = (event) => {
+        setImageData(event.target.result);
+        setIsShowCropImageModal(true);
+      };
+
+      reader.readAsDataURL(file);
+    }
+  };
+
   const updateImage = () => {
-    setIsShowCropImageModal(true);
+    fileInputRef.current.click();
   };
 
   const updateName = () => {
@@ -113,69 +195,75 @@ const ProfilePage = () => {
       case "Update Username":
         func = cUpdateUsername;
         data = {
-          newUsername: singleModalInput
+          newUsername: singleModalInput,
         };
         break;
       case "Update Email":
         func = cUpdateEmail;
         data = {
-          newEmail: singleModalInput
+          newEmail: singleModalInput,
         };
         break;
       case "Update Phone number":
         func = cUpdatePhoneNumber;
         data = {
-          phoneNumber: singleModalInput
+          phoneNumber: singleModalInput,
         };
         break;
       case "Update Job Title":
         func = cUpdateJobTitle;
         data = {
-          jobTitle: singleModalInput
+          jobTitle: singleModalInput,
         };
         break;
     }
-    func(data).then((result:any) => {
-      console.log(result.data.message);
-    }).catch((error:any) => {
-      console.log(error);
-    }).finally(() => {
-      setIsShowSingleModal(false);
-    });
+    func(data)
+      .then((result: any) => {
+        console.log(result.data.message);
+      })
+      .catch((error: any) => {
+        console.log(error);
+      })
+      .finally(() => {
+        setIsShowSingleModal(false);
+      });
   };
 
   const updatePassword = () => {
-    setNewPassword('');
-    setOldPassword('');
-    setConfrimPassword('');
+    setNewPassword("");
+    setOldPassword("");
+    setConfrimPassword("");
     setIsShowPasswordModal(true);
   };
 
-  const handleOldPasswordChange = (e:any) => {
+  const handleOldPasswordChange = (e: any) => {
     setOldPassword(e.target.value);
-  }
+  };
 
-  const handleNewPasswordChange = (e:any) => {
+  const handleNewPasswordChange = (e: any) => {
     setNewPassword(e.target.value);
-  }
+  };
 
-  const handleConfirmPasswordChange = (e:any) => {
+  const handleConfirmPasswordChange = (e: any) => {
     setConfrimPassword(e.target.value);
-  }
+  };
 
   const handleSingleModalInputChange = (e: any) => {
     setSingModalInput(e.target.value);
   };
 
   const handleUpdatePassword = () => {
-    cChangePassword({currentPassword: oldPassword, newPassword}).then((result:any) => {
-      console.log(result.data.message);
-    }).catch((error) => {
-      console.log(error);
-    }).finally(() => {
-      setIsShowPasswordModal(false);
-    })
-  }
+    cChangePassword({ currentPassword: oldPassword, newPassword })
+      .then((result: any) => {
+        console.log(result.data.message);
+      })
+      .catch((error) => {
+        console.log(error);
+      })
+      .finally(() => {
+        setIsShowPasswordModal(false);
+      });
+  };
 
   return (
     <div className="flex">
@@ -193,6 +281,13 @@ const ProfilePage = () => {
               height={175}
               alt="Profile Image"
               className="rounded-[23px] ml-[40px]"
+            />
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              style={{ display: "none" }}
+              onChange={handleFileChange}
             />
             <button
               className="mx-[24px] mt-[24px] h-fit bg-gray-5 rounded-[24px] px-[16px] py-[12px] font-small shadow-md drop-shadow-0 drop-shadow-y-3 blur-6 text-white flex items-center"
@@ -293,31 +388,46 @@ const ProfilePage = () => {
                 </button>
               </div>
               <div className="mx-[50px] my-[30px] flex justify-center items-end">
-                <Image
+                <Cropper
+                  src={imageData}
+                  style={{ height: 224, width: 224 }}
+                  // Cropper.js options
+                  initialAspectRatio={16 / 9}
+                  guides={false}
+                  crop={onCrop}
+                  minCropBoxHeight={100}
+                  minCropBoxWidth={100}
+                  ref={cropperRef}
+                />
+                {/* <Image
                   src={profileImg}
                   width={224}
                   height={224}
                   alt="profile image"
                   className="mx-[13px]"
-                />
+                /> */}
                 <Image
-                  src={profileImg}
+                  src={resImg == "" ? profileImg : resImg}
                   width={142}
                   height={142}
                   alt="profile image"
-                  className="mx-[13px]"
+                  className="mx-[13px] w-[142px] max-h-[142px]"
                 />
               </div>
               <div className="flex justify-center items-center p-4 md:p-5 mx-[60px]">
                 <button
                   type="button"
                   className="rounded-[24px] text-white bg-gray-5 mx-[6px] py-[12px] shadow-md drop-shadow-0 drop-shadow-y-3 blur-6 w-full"
+                  onClick={() => {
+                    setIsShowCropImageModal(false);
+                  }}
                 >
                   Cancel
                 </button>
                 <button
                   type="button"
                   className="rounded-[24px] text-white bg-gray-7 mx-[6px] py-[12px] shadow-md drop-shadow-0 drop-shadow-y-3 blur-6 w-full"
+                  onClick={handleUpdateImage}
                 >
                   Save
                 </button>
