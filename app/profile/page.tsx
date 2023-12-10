@@ -26,6 +26,8 @@ import { getStorage, uploadBytes, ref as ref_storage } from "firebase/storage";
 
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import ReSideBar from "@/components/residebar";
+import ReHeader from "@/components/reheader";
 
 const auth = getAuth();
 const functions = getFunctions();
@@ -257,8 +259,8 @@ const ProfilePage = () => {
   };
 
   const handleUpdatePassword = () => {
-    if(newPassword != confirmPassword) {
-      toast.warning('Passwords are not match');
+    if (newPassword != confirmPassword) {
+      toast.warning("Passwords are not match");
       return;
     }
     cChangePassword({ currentPassword: oldPassword, newPassword })
@@ -273,103 +275,113 @@ const ProfilePage = () => {
       });
   };
 
+  const [isSide, setIsSide] = useState(false);
+
   return (
     <div className="flex">
       <SideBar index={-1} />
-      <div className="absolute left-[320px] w-panel h-[100vh] bg-gray-4">
-        <Header title={"My Profile"} />
+      {isSide && <ReSideBar index={-1} hide={setIsSide} />}
+      {!isSide && (
+        <div className="absolute lg:left-[320px] lg:w-panel w-[100vw] min-h-[100vh] h-fit bg-gray-4">
+          <ReHeader title={"My profile"} index={-1} show={setIsSide}/>
+          <Header title={"My Profile"} />
 
-        <div className="m-[40px] ml-[52px]">
-          <p className="m-[20px] text-gray-10 font-bold">Profile Image</p>
+          <div className="m-[40px] ml-[52px]">
+            <p className="m-[20px] text-gray-10 font-bold">Profile Image</p>
 
-          <div className="flex flex-wrap items-end">
-            <Image
-              src={picURL == "" ? defaultUser : picURL}
-              width={175}
-              height={175}
-              alt="Profile Image"
-              className="rounded-[23px] ml-[40px]"
-            />
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              style={{ display: "none" }}
-              onChange={handleFileChange}
-            />
-            <button
-              className="mx-[24px] mt-[24px] h-fit bg-gray-5 rounded-[24px] px-[16px] py-[12px] font-small shadow-md drop-shadow-0 drop-shadow-y-3 blur-6 text-white flex items-center"
-              onClick={updateImage}
-            >
-              <Image src={updateIcon} width={25} height={25} alt="close" />
-              <p className="ml-[10px] font-bold">Update</p>
-            </button>
+            <div className="flex flex-wrap items-end justify-center xm:justify-start">
+              <Image
+                src={picURL == "" ? defaultUser : picURL}
+                width={175}
+                height={175}
+                alt="Profile Image"
+                className="rounded-[23px] mx-[40px] xm:w-[180px] w-[80%]"
+              />
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                style={{ display: "none" }}
+                onChange={handleFileChange}
+              />
+              <button
+                className="mt-[24px] h-fit bg-gray-5 rounded-[24px] px-[16px] py-[12px] font-small shadow-md drop-shadow-0 drop-shadow-y-3 blur-6 text-white flex items-center"
+                onClick={updateImage}
+              >
+                <Image src={updateIcon} width={25} height={25} alt="close" />
+                <p className="ml-[10px] font-bold">Update</p>
+              </button>
+            </div>
+          </div>
+
+          <hr className="m-[40px] ml-[72px] h-[2px] bg-gray-10 max-w-[1072px] hidden lg:block" />
+
+          <div className="m-[40px] ml-[62px]">
+            <div className="flex items-center">
+              <p className="m-[10px] text-gray-10 font-bold w-[90px]">Name: </p>
+              <p className="m-[10px] text-white font-bold w-[200px]">{name}</p>
+              <button className="w-[20px] h-[20px]" onClick={updateName}>
+                <Image src={editIcon} width={20} height={20} alt="Edit Name" />
+              </button>
+            </div>
+            <div className="flex items-center">
+              <p className="m-[10px] text-gray-10 font-bold w-[90px]">
+                Email:{" "}
+              </p>
+              <p className="m-[10px] text-white font-bold w-[200px]">{email}</p>
+              <button className="w-[20px] h-[20px]" onClick={updateEmail}>
+                <Image src={editIcon} width={20} height={20} alt="Edit Email" />
+              </button>
+            </div>
+            <div className="flex items-center">
+              <p className="m-[10px] text-gray-10 font-bold w-[90px]">
+                Phone:{" "}
+              </p>
+              <p className="m-[10px] text-white font-bold w-[200px]">{phone}</p>
+              <button className="w-[20px] h-[20px]" onClick={updatePhone}>
+                <Image
+                  src={editIcon}
+                  width={20}
+                  height={20}
+                  alt="Edit Phone number"
+                />
+              </button>
+            </div>
+            <div className="flex items-center">
+              <p className="m-[10px] text-gray-10 font-bold w-[90px]">
+                Job Title
+              </p>
+              <p className="m-[10px] text-white font-bold w-[200px]">
+                {jobTitle}
+              </p>
+              <button className="w-[20px] h-[20px]" onClick={updateJobTitle}>
+                <Image
+                  src={editIcon}
+                  width={20}
+                  height={20}
+                  alt="Edit Job Title"
+                />
+              </button>
+            </div>
+            <div className="flex items-center">
+              <p className="m-[10px] text-gray-10 font-bold w-[90px]">
+                Password:{" "}
+              </p>
+              <p className="m-[10px] text-white font-bold w-[200px]">
+                ***************{" "}
+              </p>
+              <button className="w-[20px] h-[20px]" onClick={updatePassword}>
+                <Image
+                  src={editIcon}
+                  width={20}
+                  height={20}
+                  alt="Edit Password"
+                />
+              </button>
+            </div>
           </div>
         </div>
-
-        <hr className="m-[40px] ml-[72px] h-[2px] bg-gray-10 max-w-[1072px]" />
-
-        <div className="m-[40px] ml-[62px]">
-          <div className="flex items-center">
-            <p className="m-[10px] text-gray-10 font-bold w-[90px]">Name: </p>
-            <p className="m-[10px] text-white font-bold w-[200px]">{name}</p>
-            <button className="w-[20px] h-[20px]" onClick={updateName}>
-              <Image src={editIcon} width={20} height={20} alt="Edit Name" />
-            </button>
-          </div>
-          <div className="flex items-center">
-            <p className="m-[10px] text-gray-10 font-bold w-[90px]">Email: </p>
-            <p className="m-[10px] text-white font-bold w-[200px]">{email}</p>
-            <button className="w-[20px] h-[20px]" onClick={updateEmail}>
-              <Image src={editIcon} width={20} height={20} alt="Edit Email" />
-            </button>
-          </div>
-          <div className="flex items-center">
-            <p className="m-[10px] text-gray-10 font-bold w-[90px]">Phone: </p>
-            <p className="m-[10px] text-white font-bold w-[200px]">{phone}</p>
-            <button className="w-[20px] h-[20px]" onClick={updatePhone}>
-              <Image
-                src={editIcon}
-                width={20}
-                height={20}
-                alt="Edit Phone number"
-              />
-            </button>
-          </div>
-          <div className="flex items-center">
-            <p className="m-[10px] text-gray-10 font-bold w-[90px]">
-              Job Title
-            </p>
-            <p className="m-[10px] text-white font-bold w-[200px]">
-              {jobTitle}
-            </p>
-            <button className="w-[20px] h-[20px]" onClick={updateJobTitle}>
-              <Image
-                src={editIcon}
-                width={20}
-                height={20}
-                alt="Edit Job Title"
-              />
-            </button>
-          </div>
-          <div className="flex items-center">
-            <p className="m-[10px] text-gray-10 font-bold w-[90px]">
-              Password:{" "}
-            </p>
-            <p className="m-[10px] text-white font-bold w-[200px]">
-              ***************{" "}
-            </p>
-            <button className="w-[20px] h-[20px]" onClick={updatePassword}>
-              <Image
-                src={editIcon}
-                width={20}
-                height={20}
-                alt="Edit Password"
-              />
-            </button>
-          </div>
-        </div>
-      </div>
+      )}
 
       {isShowCropImageModal && (
         <div
@@ -428,7 +440,6 @@ const ProfilePage = () => {
                   className="rounded-[24px] text-white bg-gray-5 mx-[6px] py-[12px] shadow-md drop-shadow-0 drop-shadow-y-3 blur-6 w-full"
                   onClick={() => {
                     setIsShowCropImageModal(false);
-                    
                   }}
                 >
                   Cancel

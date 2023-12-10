@@ -8,13 +8,16 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      screens: {
+        xm: '480px'
+      },
       width: {
         panel: 'calc(100% - 320px)',
         sidebar: '320px',
       },
       height: {
         menu: 'calc(100% - 220px)',
-        ttable: 'calc(100vh - 400px)',
+        ttable: 'calc(100vh - 420px)',
         actable: 'calc(100vh - 280px)',
       },
       colors: {

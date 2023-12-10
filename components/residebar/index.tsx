@@ -11,6 +11,7 @@ import activityIcon from "../../public/icons/Comment.png";
 import subscriptionIcon from "../../public/icons/SubscriptionIcon.png";
 import settingsIcon from "../../public/icons/SettingsIcon.png";
 import logoutIcon from "../../public/icons/LogoutIcon.png";
+import closeIcon from '../../public/icons/CloseXIcon.png';
 
 import defaultUser from "../../public/icons/User.png";
 
@@ -28,7 +29,7 @@ import Link from "next/link";
 import { child, get, getDatabase, ref } from "firebase/database";
 import { useState } from "react";
 
-const SideBar: React.FC<SidebarProps> = ({ index }: SidebarProps) => {
+const ReSideBar: React.FC<ReSidebarProps> = ({ index, hide }: ReSidebarProps) => {
   const [picUrl, setPicUrl] = useState("");
 
   auth.onAuthStateChanged(function (user: any) {
@@ -53,15 +54,21 @@ const SideBar: React.FC<SidebarProps> = ({ index }: SidebarProps) => {
   });
 
   return (
-    <div className="left-0 top-0 min-h-[100vh] h-auto w-sidebar bg-gray-2 hidden lg:block border-none">
+    <div className="w-[100vw] min-h-[100vh] lg:hidden bg-gray-2">
       <div className=" w-full flex flex-col justify-center items-center my-[30px]">
-        <Image src={logoImage} width={176} height={46} alt="FieldAR Logo" />
+        <div className="w-full flex justify-end mx-[30px]" >
+          <button className="mr-[40px]" onClick={() => {
+            hide(false);
+          }}>
+            <Image src={closeIcon} width={40} height={40} alt="close" />
+          </button>
+        </div>
         <Link href="/profile">
           <div className="border-gray-4 border-[8px] rounded-[50%]">
             <Image
               src={picUrl == "" ? defaultUser : picUrl}
-              width={100}
-              height={100}
+              width={92}
+              height={92}
               alt="Profile Image"
               className="rounded-[50%] border-[4px] border-gray-3 shadow-md drop-shadow-0 drop-shadow-y-3 blur-6 w-[100px] h-[100px]"
             />
@@ -74,7 +81,7 @@ const SideBar: React.FC<SidebarProps> = ({ index }: SidebarProps) => {
           <Link href="/company">
             <div
               className={
-                "flex items-center justify-start h-[72px] w-full " +
+                "flex items-center justify-start h-[60px] w-full " +
                 (index == 0 ? "bg-gray-4" : "bg-gray-2")
               }
             >
@@ -93,7 +100,7 @@ const SideBar: React.FC<SidebarProps> = ({ index }: SidebarProps) => {
           <Link href="/team">
             <div
               className={
-                "flex items-center justify-start h-[72px] w-full " +
+                "flex items-center justify-start h-[60px] w-full " +
                 (index == 1 ? "bg-gray-4" : "bg-gray-2")
               }
             >
@@ -110,7 +117,7 @@ const SideBar: React.FC<SidebarProps> = ({ index }: SidebarProps) => {
           <Link href="/project">
             <div
               className={
-                "flex items-center justify-start h-[72px] w-full " +
+                "flex items-center justify-start h-[60px] w-full " +
                 (index == 2 ? "bg-gray-4" : "bg-gray-2")
               }
             >
@@ -129,7 +136,7 @@ const SideBar: React.FC<SidebarProps> = ({ index }: SidebarProps) => {
           <Link href="/activity">
             <div
               className={
-                "flex items-center justify-start h-[72px] w-full " +
+                "flex items-center justify-start h-[60px] w-full " +
                 (index == 3 ? "bg-gray-4" : "bg-gray-2")
               }
             >
@@ -148,7 +155,7 @@ const SideBar: React.FC<SidebarProps> = ({ index }: SidebarProps) => {
           <Link href="/subscription">
             <div
               className={
-                "flex items-center justify-start h-[72px] w-full " +
+                "flex items-center justify-start h-[60px] w-full " +
                 (index == 4 ? "bg-gray-4" : "bg-gray-2")
               }
             >
@@ -164,13 +171,10 @@ const SideBar: React.FC<SidebarProps> = ({ index }: SidebarProps) => {
               </p>
             </div>
           </Link>
-        </div>
-
-        <div className="flex flex-col">
           <Link href="/settings">
             <div
               className={
-                "flex items-center justify-start h-[72px] w-full " +
+                "flex items-center justify-start h-[60px] w-full " +
                 (index == 5 ? "bg-gray-4" : "bg-gray-2")
               }
             >
@@ -187,7 +191,7 @@ const SideBar: React.FC<SidebarProps> = ({ index }: SidebarProps) => {
             </div>
           </Link>
           <Link href={"/login"}>
-            <div className="flex items-center justify-start bg-gray-2 h-[72px] w-full">
+            <div className="flex items-center justify-start bg-gray-2 h-[60px] w-full">
               <Image
                 src={logoutIcon}
                 width={25}
@@ -201,9 +205,15 @@ const SideBar: React.FC<SidebarProps> = ({ index }: SidebarProps) => {
             </div>
           </Link>
         </div>
+        <div className="flex flex-col mb-[20px]">
+            <div className="text-gray-11 py-[15px] text-primary text-center">Home</div>
+            <div className="text-gray-11 py-[15px] text-primary text-center">Blog</div>
+            <div className="text-gray-11 py-[15px] text-primary text-center">Plugins</div>
+            <div className="text-gray-11 py-[15px] text-primary text-center">Support</div>
+        </div>
       </div>
     </div>
   );
 };
 
-export default SideBar;
+export default ReSideBar;

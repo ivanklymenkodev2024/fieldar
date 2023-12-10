@@ -22,12 +22,11 @@ const auth = getAuth();
 const database = getDatabase(firebase_app);
 
 import { getFunctions, httpsCallable } from "firebase/functions";
+import ReSideBar from "@/components/residebar";
+import ReHeader from "@/components/reheader";
 
 const functions = getFunctions();
-const cCreateProject = httpsCallable(
-  functions,
-  "createProject"
-);
+const cCreateProject = httpsCallable(functions, "createProject");
 
 const ProjectPage = () => {
   const [isShowNewProjectModal, setIsShowNewProjectModal] = useState(false);
@@ -36,9 +35,9 @@ const ProjectPage = () => {
   const [regionFilter, setRegionFilter] = useState("");
   const [nameFilter, setNameFilter] = useState("");
 
-  const [newProjectName, setNewProjectName] = useState('');
-  const [newProjectLocation, setNewProjectLocation] = useState('');
-  const [newProjectRegion, setNewProjectRegion] = useState('');
+  const [newProjectName, setNewProjectName] = useState("");
+  const [newProjectLocation, setNewProjectLocation] = useState("");
+  const [newProjectRegion, setNewProjectRegion] = useState("");
 
   const getCompany = (companyKey: string) => {
     const dbRef = ref(getDatabase());
@@ -80,8 +79,8 @@ const ProjectPage = () => {
     }
   });
   const createNewProject = () => {
-    setNewProjectName('');
-    setNewProjectLocation('');
+    setNewProjectName("");
+    setNewProjectLocation("");
     setNewProjectRegion(company.CompanyRegions.split(",")[0]);
     setIsShowNewProjectModal(true);
   };
@@ -91,128 +90,150 @@ const ProjectPage = () => {
       ProjectTitle: newProjectName,
       ProjectLocation: newProjectLocation,
       CompanyRegion: newProjectRegion,
-      AllowMarkups: true
-    }).then((result) => {
-      toast.success(result.data.message);
-    }).catch((error) => {
-      console.log(error);
-    }).finally(() => {
-      setIsShowNewProjectModal(false);
+      AllowMarkups: true,
     })
-  }
+      .then((result) => {
+        toast.success(result.data.message);
+      })
+      .catch((error) => {
+        console.log(error);
+      })
+      .finally(() => {
+        setIsShowNewProjectModal(false);
+      });
+  };
+
+  const [isSide, setIsSide] = useState(false);
 
   return (
-    <div className="flex">
+    <div className="flex min-h-[100vh] h-fit">
       <SideBar index={2} />
-      <div className="absolute left-[320px] w-panel h-[100vh] bg-gray-4">
-        <Header title={"Company Projects"} />
-        <div className="px-[32px] pb-[14px] flex flex-col">
-          <div className="max-w-[1024px] flex justify-end items-end">
-            <div className="flex flex-col">
-              <p className="ml-10 font-small font-light text-gray-10">
-                Filter by region
-              </p>
-              <select
-                className="custom-select bg-gray-3 border-gray-3 focus:border-gray-3 border-r-[30px] text-gray-11 placeholder:italic rounded-[25px] font-small px-[23px] py-[14px] w-[260px] m-2 mr-5 outline-none focus:ring-0 appearance-none "
-                value={regionFilter}
-                onChange={(e) => {
-                  setRegionFilter(e.target.value);
-                }}
+      {isSide && <ReSideBar index={2} hide={setIsSide} />}
+      {!isSide && (
+        <div className="lg:left-[320px] lg:w-panel w-full min-h-[100vh] h-fit bg-gray-4">
+          <Header title={"Project Management"} />
+          <ReHeader title={"Project Management"} index={2} show={setIsSide} />
+          <div className="px-[32px] pb-[14px] flex flex-col mt-[20px]">
+            <div className="max-w-[1024px] flex justify-around md:justify-end items-end">
+              <div className="flex flex-col w-[40%] md:w-auto">
+                <p className="md:ml-10 ml-0 font-small font-light text-gray-10">
+                  Filter by region
+                </p>
+                <select
+                  className="custom-select bg-gray-3 border-gray-3 focus:border-gray-3 border-r-[30px] text-gray-11 placeholder:italic rounded-[25px] font-small px-[23px] py-[14px] md:w-[260px] m-2 mr-5 outline-none focus:ring-0 appearance-none w-[100%]"
+                  value={regionFilter}
+                  onChange={(e) => {
+                    setRegionFilter(e.target.value);
+                  }}
+                >
+                  {company.CompanyRegions == null ||
+                  company.CompanyRegions == undefined ? (
+                    <></>
+                  ) : (
+                    company.CompanyRegions.split(",").map(
+                      (item: any, id: any) => {
+                        return (
+                          <option key={id} value={item}>
+                            {item}
+                          </option>
+                        );
+                      }
+                    )
+                  )}
+                </select>
+              </div>
+              <div className="w-[40%] md:w-auto">
+                <input
+                  className="bg-gray-3 text-gray-11 placeholder:italic rounded-[26px] font-small px-[23px] py-[14px] md:w-[277px] m-2 focus:border-none outline-none focus:ring-0 border-0 w-[100%]"
+                  type="text"
+                  placeholder="Search Projects"
+                  value={nameFilter}
+                  onChange={(e) => {
+                    setNameFilter(e.target.value);
+                  }}
+                />
+              </div>
+            </div>
+
+            <div className="max-w-[1024px] px-[32px] py-[11px]">
+              <div className="grid grid-cols-5 md:grid-cols-7 lg:grid-cols-8">
+                <p className="font-small text-gray-10 col-span-3 font-light">
+                  Project Name
+                </p>
+                <p className="font-small text-gray-10 col-span-2 font-light hidden md:block">
+                  Company Region
+                </p>
+                <p className="font-small text-gray-10 col-span-2 font-light">
+                  Project Location
+                </p>
+                <p className="font-small text-gray-10 col-span-1 font-light hidden lg:block">
+                  Editable
+                </p>
+              </div>
+            </div>
+
+            <div className="max-w-[1024px] flex flex-col bg-gray-3 h-ttable p-[22px] py-[6px] rounded-[24px]">
+              {company.ProjectDirectory != null &&
+                company.ProjectDirectory != undefined &&
+                Object.keys(company.ProjectDirectory).map((key, id) => {
+                  if (
+                    regionFilter != "All" &&
+                    company.ProjectDirectory[key].CompanyRegion !=
+                      regionFilter &&
+                    company.ProjectDirectory[key].CompanyRegion != "All"
+                  ) {
+                    return <></>;
+                  } else if (
+                    !company.ProjectDirectory[
+                      key
+                    ].ProjectTitle.toLowerCase().includes(
+                      nameFilter.toLowerCase()
+                    )
+                  ) {
+                    return <></>;
+                  }
+                  return (
+                    <div
+                      className="w-full grid grid-cols-5 md:grid-cols-7 lg:grid-cols-8 p-[10px] border-b-[1px] border-gray-4"
+                      key={id}
+                    >
+                      <p className="text-white col-span-3 font-light">
+                        <Link href={"/project/" + key}>
+                          {company.ProjectDirectory[key].ProjectTitle}
+                        </Link>
+                      </p>
+                      <p className="text-white col-span-2 font-light hidden md:block">
+                        {company.ProjectDirectory[key].CompanyRegion}
+                      </p>
+                      <p className="text-white col-span-2 font-light">
+                        {company.ProjectDirectory[key].ProjectLocation}
+                      </p>
+                      <p className="text-white col-span-1 font-light hidden lg:block">
+                        0
+                      </p>
+                    </div>
+                  );
+                })}
+            </div>
+
+            <div className="max-w-[1024px] flex sm:justify-end justify-center">
+              <button
+                className="mt-[16px] h-fit bg-red-primary rounded-[24px] px-[16px] py-[12px] font-small shadow-md drop-shadow-0 drop-shadow-y-3 blur-6 text-white flex items-center"
+                onClick={createNewProject}
               >
-                {company.CompanyRegions == null ||
-                company.CompanyRegions == undefined ? (
-                  <></>
-                ) : (
-                  company.CompanyRegions.split(",").map((item: any, id:any) => {
-                    return <option key={id} value={item}>{item}</option>;
-                  })
-                )}
-              </select>
+                <Image
+                  src={plusIcon}
+                  width={20}
+                  height={20}
+                  alt="plus"
+                  className="mr-[10px]"
+                />
+                <p className="font-light">Create New Project</p>
+              </button>
             </div>
-            <div>
-              <input
-                className="bg-gray-3 text-gray-11 placeholder:italic rounded-[26px] font-small px-[23px] py-[14px] w-[277px] m-2 focus:border-none outline-none focus:ring-0 border-0"
-                type="text"
-                placeholder="Search Projects"
-                value={nameFilter}
-                onChange={(e) => {
-                  setNameFilter(e.target.value);
-                }}
-              />
-            </div>
-          </div>
-
-          <div className="max-w-[1024px] px-[32px] py-[11px]">
-            <div className="grid grid-cols-8">
-              <p className="font-small text-gray-10 col-span-3 font-light">
-                Project Name
-              </p>
-              <p className="font-small text-gray-10 col-span-2 font-light">
-                Company Region
-              </p>
-              <p className="font-small text-gray-10 col-span-2 font-light">
-                Project Location
-              </p>
-              <p className="font-small text-gray-10 col-span-1 font-light">
-                Editable
-              </p>
-            </div>
-          </div>
-
-          <div className="max-w-[1024px] flex flex-col bg-gray-3 h-ttable p-[22px] py-[6px] rounded-[24px]">
-            {company.ProjectDirectory != null &&
-              company.ProjectDirectory != undefined &&
-              Object.keys(company.ProjectDirectory).map((key, id) => {
-                if (
-                  regionFilter != "All" &&
-                  company.ProjectDirectory[key].CompanyRegion != regionFilter && company.ProjectDirectory[key].CompanyRegion != "All"
-                ) {
-                  return <></>;
-                } else if (
-                  !company.ProjectDirectory[
-                    key
-                  ].ProjectTitle.toLowerCase().includes(
-                    nameFilter.toLowerCase()
-                  )
-                ) {
-                  return <></>;
-                }
-                return (
-                  <div className="w-full grid grid-cols-8 p-[10px] border-b-[1px] border-gray-4" key={id}>
-                    <p className="text-white col-span-3 font-light">
-                      <Link href={"/project/" + key}>
-                        {company.ProjectDirectory[key].ProjectTitle}
-                      </Link>
-                    </p>
-                    <p className="text-white col-span-2 font-light">
-                      {company.ProjectDirectory[key].CompanyRegion}
-                    </p>
-                    <p className="text-white col-span-2 font-light">
-                      {company.ProjectDirectory[key].ProjectLocation}
-                    </p>
-                    <p className="text-white col-span-1 font-light">0</p>
-                  </div>
-                );
-              })}
-          </div>
-
-          <div className="max-w-[1024px] flex justify-end">
-            <button
-              className="mt-[16px] h-fit bg-red-primary rounded-[24px] px-[16px] py-[12px] font-small shadow-md drop-shadow-0 drop-shadow-y-3 blur-6 text-white flex items-center"
-              onClick={createNewProject}
-            >
-              <Image
-                src={plusIcon}
-                width={20}
-                height={20}
-                alt="plus"
-                className="mr-[10px]"
-              />
-              <p className="font-light">Create New Project</p>
-            </button>
           </div>
         </div>
-      </div>
+      )}
 
       {isShowNewProjectModal && (
         <div
@@ -221,7 +242,7 @@ const ProjectPage = () => {
         >
           <div className="relative p-4 w-full max-w-[610px] max-h-full">
             <div
-              className="fixed bg-black opacity-30 w-[100vw] h-[100vh] left-0 top-0"
+              className="fixed bg-black opacity-30 w-full h-[100vh] left-0 top-0"
               onClick={() => setIsShowNewProjectModal(false)}
             ></div>
             <div className="relative bg-gray-4 border-[1px] border-gray-6 rounded-[26px] shadow-md drop-shadow-0 drop-shadow-y-3 blur-6">
@@ -277,21 +298,34 @@ const ProjectPage = () => {
                     Company Region
                   </p>
                 </div>
-                <select className="custom-black-select w-full bg-gray-3 border-gray-3 focus:border-gray-3 border-r-[30px] text-gray-9 placeholder:italic rounded-[25px] font-small px-[23px] py-[14px] m-2 mr-5 outline-none focus:ring-0 appearance-none font-semibold " value={newProjectRegion} onChange={(e) => {
-                  setNewProjectRegion(e.target.value);
-                }}>
+                <select
+                  className="custom-black-select w-full bg-gray-3 border-gray-3 focus:border-gray-3 border-r-[30px] text-gray-9 placeholder:italic rounded-[25px] font-small px-[23px] py-[14px] m-2 mr-5 outline-none focus:ring-0 appearance-none font-semibold "
+                  value={newProjectRegion}
+                  onChange={(e) => {
+                    setNewProjectRegion(e.target.value);
+                  }}
+                >
                   {company.CompanyRegions == null ||
                   company.CompanyRegions == undefined ? (
                     <></>
                   ) : (
-                    company.CompanyRegions.split(",").map((item: any, id:any) => {
-                      return <option key={id} value={item}>{item}</option>;
-                    })
+                    company.CompanyRegions.split(",").map(
+                      (item: any, id: any) => {
+                        return (
+                          <option key={id} value={item}>
+                            {item}
+                          </option>
+                        );
+                      }
+                    )
                   )}
                 </select>
               </div>
               <div className="w-full flex justify-center my-[30px]">
-                <button className="rounded-[28px] bg-gray-5 px-[80px] py-[15px] w-fit text-ssmall text-white font-bold" onClick={handleCreateNewProject}>
+                <button
+                  className="rounded-[28px] bg-gray-5 px-[80px] py-[15px] w-fit text-ssmall text-white font-bold"
+                  onClick={handleCreateNewProject}
+                >
                   Create Project
                 </button>
               </div>

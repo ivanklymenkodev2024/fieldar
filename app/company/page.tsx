@@ -35,6 +35,8 @@ const storage = getStorage(firebase_app);
 
 import trashIcon from "../../public/icons/TrashIcon.png";
 import companyIcon from "../../public/icons/CompanyIcon.png";
+import ReSideBar from "@/components/residebar";
+import ReHeader from "@/components/reheader";
 
 const cUpdateCompanyInfo = httpsCallable(functions, "updateCompanyInfo");
 const cRemoveCompanyLogo = httpsCallable(functions, "removeCompanyIcon");
@@ -225,16 +227,22 @@ const CompanyPage = () => {
     fileInputRef.current.click();
   };
 
+  const [isSide, setIsSide] = useState(false);
+
   return (
     <div className="flex">
+      
       <SideBar index={0} />
-      <div className="absolute left-[320px] w-panel h-[100vh] bg-gray-4">
-        <Header title={"My Profile"} />
+      {isSide && <ReSideBar index={-1} hide={setIsSide} />}
+      {!isSide && (
+      <div className="absolute lg:left-[320px] lg:w-panel w-[100vw] min-h-[100vh] h-fit bg-gray-4">
+        <ReHeader title={"My Company"} index={0} show={setIsSide}/>
+        <Header title={"My Company"} />
 
         <div className="m-[40px] ml-[52px]">
           <p className="m-[20px] text-gray-10 font-bold">Company Logo</p>
 
-          <div className="flex flex-wrap items-end">
+          <div className="flex flex-wrap justify-center sm:justify-start items-end">
             <div className="ml-[40px] w-[350px] h-[120px] rounded-[23px] text-white flex justify-center items-center">
               <Image
                 width={120}
@@ -253,16 +261,16 @@ const CompanyPage = () => {
                 onChange={handleFileChange}
               />
             </div>
-            <div className="flex flex-col justify-between h-[120px]">
+            <div className="flex sm:flex-col flex-row justify-between sm:h-[120px] my-[20px] sm:my-0">
               <button
-                className="mx-[24px] h-fit bg-gray-5 rounded-[24px] px-[16px] py-[12px] text-small shadow-md drop-shadow-0 drop-shadow-y-3 blur-6 text-white flex items-center"
+                className="ml-[24px] mr-0 h-fit bg-gray-5 rounded-[24px] px-[16px] py-[12px] text-small shadow-md drop-shadow-0 drop-shadow-y-3 blur-6 text-white flex items-center"
                 onClick={updateImage}
               >
                 <Image src={updateIcon} width={25} height={25} alt="close" />
                 <p className="ml-[10px] font-bold">Update</p>
               </button>
               <button
-                className="mx-[24px] h-fit bg-red-primary rounded-[24px] px-[16px] py-[12px] text-small shadow-md drop-shadow-0 drop-shadow-y-3 blur-6 text-white flex items-center"
+                className="ml-[24px] mr-0 h-fit bg-red-primary rounded-[24px] px-[16px] py-[12px] text-small shadow-md drop-shadow-0 drop-shadow-y-3 blur-6 text-white flex items-center"
                 onClick={removeImage}
               >
                 <Image src={trashIcon} width={25} height={25} alt="close" />
@@ -312,7 +320,7 @@ const CompanyPage = () => {
             <p className="ml-[10px] font-bold">Edit Info</p>
           </button>
         </div>
-      </div>
+      </div>)}
 
       {isRemoveImageModal && (
         <div

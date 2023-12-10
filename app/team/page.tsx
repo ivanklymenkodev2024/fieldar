@@ -25,6 +25,8 @@ const auth = getAuth();
 const database = getDatabase(firebase_app);
 
 import { getFunctions, httpsCallable } from "firebase/functions";
+import ReSideBar from "@/components/residebar";
+import ReHeader from "@/components/reheader";
 
 const functions = getFunctions();
 const cchangeProjectAccessRole = httpsCallable(
@@ -44,11 +46,7 @@ const cUnassignProjectFromMember = httpsCallable(
   "unassignProjectFromMember"
 );
 
-const cInviteToCompany = httpsCallable(
-  functions,
-  "inviteToCompany"
-);  
-
+const cInviteToCompany = httpsCallable(functions, "inviteToCompany");
 
 const TeamPage = () => {
   const [isShowInviteModal, setIsShowInviteModal] = useState(false);
@@ -67,10 +65,10 @@ const TeamPage = () => {
 
   const [confirmTitle, setConfirmTitle] = useState("");
   const [confirmContent, setConfirmContent] = useState("");
-  
+
   const [inviteeEmail, setInviteeEmail] = useState("");
 
-  const [filterString, setFilterString] = useState('');
+  const [filterString, setFilterString] = useState("");
 
   const getCompany = async (companyKey: string) => {
     const dbRef = ref(getDatabase());
@@ -181,7 +179,7 @@ const TeamPage = () => {
 
   const handleAddMemberDaysChange = (e: any) => {
     setDay(e.target.value);
-  }
+  };
 
   const handleConfirm = () => {
     if (confirmTitle == "Promote to Admin") {
@@ -221,104 +219,120 @@ const TeamPage = () => {
   const handleInviteToCompany = () => {
     cInviteToCompany({
       inviteeEmail,
-      daysToExpiration: day
-    }).then((result) => {
-      toast.success(result.data.message);
-    }).catch((error) => {
-      console.log(error);
-    }).finally(() => {
-      setIsShowInviteModal(false);
+      daysToExpiration: day,
     })
-  }
+      .then((result) => {
+        toast.success(result.data.message);
+      })
+      .catch((error) => {
+        console.log(error);
+      })
+      .finally(() => {
+        setIsShowInviteModal(false);
+      });
+  };
 
   const handleCancel = () => {
     setIsShowConfirmModal(false);
   };
 
-  return (
-    <div className="flex">
-      <SideBar index={1} />
-      <div className="absolute left-[320px] w-panel h-[100vh] bg-gray-4">
-        <Header title={"Company Team"} />
-        <div className="px-[32px] py-[14px] flex flex-col">
-          <div className="max-w-[1024px] flex justify-end">
-            <input
-              className="bg-gray-3 text-gray-11 placeholder:italic rounded-[26px] font-small px-[23px] py-[14px] w-[400px] m-2 focus:border-none outline-none focus:ring-0 border-none"
-              type="text"
-              placeholder="Search Team Members"
-              value={filterString}
-              onChange={(e:any) => {
-                setFilterString(e.target.value);
-              }}
-            />
-          </div>
+  const [isSide, setIsSide] = useState(false);
 
-          <div className="max-w-[1024px] px-[32px] py-[11px]">
-            <div className="grid grid-cols-3">
-              <p className="font-small text-gray-10 col-span-1 font-light">
-                Name
-              </p>
-              <p className="font-small text-gray-10 col-span-1 font-light">
-                Email
-              </p>
-              <p className="font-small text-gray-10 col-span-1 font-light">
-                Assigned Projects
-              </p>
+  return (
+    <div className="flex overflow-hidden">
+      <SideBar index={1} />
+      {isSide && <ReSideBar index={1} />}
+      {!isSide && (
+        <div
+          className={
+            "absolute lg:left-[320px] lg:w-panel w-[100vw] min-h-[100vh] h-fit bg-gray-4"
+          }
+        >
+          <ReHeader title={"Company Team"} index={1}/>
+          <Header title={"Company Team"} />
+          <div className="px-[32px] py-[14px] flex flex-col">
+            <div className="max-w-[1024px] flex justify-end">
+              <input
+                className="bg-gray-3 text-gray-11 placeholder:italic rounded-[26px] font-small px-[23px] py-[14px] sm:w-[400px] m-2 focus:border-none outline-none focus:ring-0 border-none w-[70%]"
+                type="text"
+                placeholder="Search Team Members"
+                value={filterString}
+                onChange={(e: any) => {
+                  setFilterString(e.target.value);
+                }}
+              />
+            </div>
+
+            <div className="max-w-[1024px] px-[32px] py-[11px]">
+              <div className="grid grid-cols-2 md:grid-cols-3">
+                <p className="font-small text-gray-10 col-span-1 font-light">
+                  Name
+                </p>
+                <p className="font-small text-gray-10 col-span-1 font-light hidden md:block">
+                  Email
+                </p>
+                <p className="font-small text-gray-10 col-span-1 font-light">
+                  Assigned Projects
+                </p>
+              </div>
+            </div>
+
+            <div className="max-w-[1024px] flex flex-col bg-gray-3 h-ttable rounded-[24px]">
+              {Object.keys(members).map((member_id: any, id: any) => {
+                if (
+                  members[member_id]?.MemberName.toLocaleLowerCase().includes(
+                    filterString.toLocaleLowerCase()
+                  )
+                ) {
+                  return (
+                    <div
+                      key={id}
+                      className={`grid grid-cols-2 md:grid-cols-3 p-[10px] border-b-[1px] border-gray-4 hover:bg-gray-7 px-[22px] ${
+                        id == 0 ? "rounded-t-[12px] pt-[16px]" : ""
+                      }`}
+                      onClick={() => {
+                        openUserProjectModal(id);
+                      }}
+                    >
+                      <button className="text-white col-span-1 font-light w-fit">
+                        {members[member_id]?.MemberName}
+                      </button>
+                      <p className="text-white col-span-1 font-light hidden md:block">
+                        {members[member_id]?.MemberEmail}
+                      </p>
+                      <p className="text-white col-span-1 font-light">
+                        {Object.keys(members[member_id]?.MemberProjects).length}
+                      </p>
+                    </div>
+                  );
+                } else {
+                  return <></>;
+                }
+              })}
+            </div>
+
+            <div className="max-w-[1024px] flex sm:justify-end justify-center">
+              <button
+                className="mt-[16px] h-fit bg-red-primary rounded-[24px] px-[16px] py-[12px] font-small shadow-md drop-shadow-0 drop-shadow-y-3 blur-6 text-white flex items-center"
+                onClick={() => {
+                  setIsShowInviteModal(true);
+                  setInviteeEmail("");
+                  setDay(1);
+                }}
+              >
+                <Image
+                  src={plusIcon}
+                  width={20}
+                  height={20}
+                  alt="plus"
+                  className="mr-[10px]"
+                />
+                <p className="font-light">Invite New Member</p>
+              </button>
             </div>
           </div>
-
-          <div className="max-w-[1024px] flex flex-col bg-gray-3 h-ttable rounded-[24px]">
-            {Object.keys(members).map((member_id: any, id: any) => {
-              if(members[member_id]?.MemberName.toLocaleLowerCase().includes(filterString.toLocaleLowerCase())) {
-                return (
-                  <div
-                    key={id}
-                    className={`grid grid-cols-3 p-[10px] border-b-[1px] border-gray-4 hover:bg-gray-7 px-[22px] ${
-                      id == 0 ? "rounded-t-[12px] pt-[16px]" : ""
-                    }`}
-                    onClick={() => {
-                      openUserProjectModal(id);
-                    }}
-                  >
-                    <button className="text-white col-span-1 font-light w-fit">
-                      {members[member_id]?.MemberName}
-                    </button>
-                    <p className="text-white col-span-1 font-light">
-                      {members[member_id]?.MemberEmail}
-                    </p>
-                    <p className="text-white col-span-1 font-light">
-                      {Object.keys(members[member_id]?.MemberProjects).length}
-                    </p>
-                  </div>
-                );
-              }
-              else {
-                return <></>
-              }
-            })}
-          </div>
-
-          <div className="max-w-[1024px] flex justify-end">
-            <button
-              className="mt-[16px] h-fit bg-red-primary rounded-[24px] px-[16px] py-[12px] font-small shadow-md drop-shadow-0 drop-shadow-y-3 blur-6 text-white flex items-center"
-              onClick={() => {
-                setIsShowInviteModal(true);
-                setInviteeEmail("");
-                setDay(1);
-              }}
-            >
-              <Image
-                src={plusIcon}
-                width={20}
-                height={20}
-                alt="plus"
-                className="mr-[10px]"
-              />
-              <p className="font-light">Invite New Member</p>
-            </button>
-          </div>
         </div>
-      </div>
+      )}
 
       {isShowInviteModal && (
         <div
@@ -359,7 +373,7 @@ const TeamPage = () => {
                   type="email"
                   placeholder="janedoe@email.com"
                   value={inviteeEmail}
-                  onChange={(e:any) => setInviteeEmail(e.target.value)}
+                  onChange={(e: any) => setInviteeEmail(e.target.value)}
                 />
                 <div className="mx-[30px] flex justify-start w-full mt-[20px]">
                   <p className="text-primary text-white text-left ml-[20px] font-semibold">
@@ -469,11 +483,11 @@ const TeamPage = () => {
                   }
                 )}
               </div>
-              <div className="mx-[30px] my-[20px] flex flex-col justify-start items-center bg-gray-3 rounded-[33px] h-[180px]">
+              <div className="mx-[30px] my-[20px] flex flex-col justify-start items-center bg-gray-3 rounded-[33px]">
                 <p className="text-ssmall text-gray-11 text-center my-[30px]">
                   Sensitive Features
                 </p>
-                <div className="flex justify-around">
+                <div className="flex justify-around mb-[20px]">
                   <button
                     className="mx-[24px] mt-[10px] h-fit bg-gray-5 rounded-[24px] px-[16px] py-[12px] font-small shadow-md drop-shadow-0 drop-shadow-y-3 blur-6 text-white flex items-center"
                     onClick={promoteToAdminFunc}

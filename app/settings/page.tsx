@@ -23,6 +23,8 @@ import { getFunctions, httpsCallable } from "firebase/functions";
 import { child, get, getDatabase, ref } from "firebase/database";
 import { Checkbox } from "flowbite-react";
 import { useState } from "react";
+import ReHeader from "@/components/reheader";
+import ReSideBar from "@/components/residebar";
 
 const functions = getFunctions();
 const cUpdateSettings = httpsCallable(functions, "updateSettings");
@@ -45,18 +47,20 @@ const SettingsPage = () => {
       subscriptionUpdates: newOption1,
       companyTeamUpdates: newOption2,
       projectUpdates: newOption3,
-      promotionUpdates: newOption4
-    }).then((result) => {
-      setOption1(option1);
-      setOption2(option2);
-      setOption3(option3);
-      setOption4(option4);
-      console.log(result);
-    }).catch((error) => {
-      console.log(error);
-    }).finally(() => {
+      promotionUpdates: newOption4,
     })
-  }
+      .then((result) => {
+        setOption1(option1);
+        setOption2(option2);
+        setOption3(option3);
+        setOption4(option4);
+        console.log(result);
+      })
+      .catch((error) => {
+        console.log(error);
+      })
+      .finally(() => {});
+  };
 
   const getCompany = (companyKey: string) => {
     const dbRef = ref(getDatabase());
@@ -93,112 +97,118 @@ const SettingsPage = () => {
     }
   });
 
+  const [isSide, setIsSide] = useState(false);
+
   return (
-    <div className="flex">
+    <div className="flex min-h-[100vh] w-auto h-full">
       <SideBar index={5} />
-      <div className="absolute left-[320px] w-panel min-h-[100vh] bg-gray-4">
-        <Header title={"My Settings"} />
-        <div className="m-[32px] flex flex-wrap">
-          <div className="w-[460px] flex flex-col justify-start items-center mr-[32px]">
-            <div className="w-full rounded-[26px] bg-gray-3 flex flex-col">
-              <div className="text-white  text-ssmall flex justify-center p-[14px] mb-[10px] border-b-[2px] border-gray-4 rounded-t-[26px] font-bold">
-                Email Settings
-              </div>
-              <p className="text-2xsmall text-white text-center mb-[20px]">
-                Receive email notifications for the following
-              </p>
-              <div className="flex flex-col items-start w-full">
-                <div className="flex items-center mx-[20px] my-[10px]">
-                  <div className="flex items-center">
-                    <input
-                      type="checkbox"
-                      value=""
-                      className="w-[30px] h-[30px] color-white bg-gray-5 mx-[10px] rounded-[6px]  focus:ring-0 focus:bg-gray-5 focus:border-none focus:outline-none active:bg-gray-5 ring-0"
-                      checked={isEdit ? newOption1 : option1}
-                      onClick={(e) => {
-                        if (!isEdit) return;
-                        setNewOption1(!newOption1);
-                      }}
-                    />
-                    <label className="ms-2 text-sm font-medium text-gray-400 dark:text-gray-500">
-                      Updates to your subscription
-                    </label>
+      {isSide && <ReSideBar index={5} hide={setIsSide} />}
+      {!isSide && (
+        <div className="lg:left-[320px] lg:w-panel w-full min-h-[100vh] h-fit bg-gray-4">
+          <Header title={"My Settings"} />
+          <ReHeader title={"My Settings"} index={5} show={setIsSide} />
+          <div className="m-[32px] flex flex-wrap">
+            <div className="w-full sm:w-[460px] flex flex-col justify-start items-center mr-[32px]">
+              <div className="w-full rounded-[26px] bg-gray-3 flex flex-col">
+                <div className="text-white  text-ssmall flex justify-center p-[14px] mb-[10px] border-b-[2px] border-gray-4 rounded-t-[26px] font-bold">
+                  Email Settings
+                </div>
+                <p className="text-2xsmall text-white text-center mb-[20px]">
+                  Receive email notifications for the following
+                </p>
+                <div className="flex flex-col items-start w-full">
+                  <div className="flex items-center mx-[20px] my-[10px]">
+                    <div className="flex items-center">
+                      <input
+                        type="checkbox"
+                        value=""
+                        className="w-[30px] h-[30px] color-white bg-gray-5 mx-[10px] rounded-[6px]  focus:ring-0 focus:bg-gray-5 focus:border-none focus:outline-none active:bg-gray-5 ring-0"
+                        checked={isEdit ? newOption1 : option1}
+                        onClick={(e) => {
+                          if (!isEdit) return;
+                          setNewOption1(!newOption1);
+                        }}
+                      />
+                      <label className="ms-2 text-sm font-medium text-gray-400 dark:text-gray-500">
+                        Updates to your subscription
+                      </label>
+                    </div>
+                  </div>
+                  <div className="flex items-center mx-[20px] my-[10px]">
+                    <div className="flex items-center">
+                      <input
+                        type="checkbox"
+                        value=""
+                        className="w-[30px] h-[30px] color-white bg-gray-5 mx-[10px] rounded-[6px]  focus:ring-0 focus:bg-gray-5 focus:border-none focus:outline-none active:bg-gray-5 ring-0"
+                        checked={isEdit ? newOption2 : option2}
+                        onClick={(e) => {
+                          if (!isEdit) return;
+                          setNewOption2(!newOption2);
+                        }}
+                      />
+                      <label className="ms-2 text-sm font-medium text-gray-400 dark:text-gray-500">
+                        Updates to your company Team
+                      </label>
+                    </div>
+                  </div>
+                  <div className="flex items-center mx-[20px] my-[10px]">
+                    <div className="flex items-center">
+                      <input
+                        type="checkbox"
+                        value=""
+                        className="w-[30px] h-[30px] color-white bg-gray-5 mx-[10px] rounded-[6px]  focus:ring-0 focus:bg-gray-5 focus:border-none focus:outline-none active:bg-gray-5 ring-0"
+                        checked={isEdit ? newOption3 : option3}
+                        onClick={(e) => {
+                          if (!isEdit) return;
+                          setNewOption3(!newOption3);
+                        }}
+                      />
+                      <label className="ms-2 text-sm font-medium text-gray-400 dark:text-gray-500">
+                        Updates to your projects
+                      </label>
+                    </div>
+                  </div>
+                  <div className="flex items-center mx-[20px] my-[10px]">
+                    <div className="flex items-center">
+                      <input
+                        type="checkbox"
+                        value=""
+                        className="w-[30px] h-[30px] color-white bg-gray-5 mx-[10px] rounded-[6px]  focus:ring-0 focus:bg-gray-5 focus:border-none focus:outline-none active:bg-gray-5 ring-0"
+                        checked={isEdit ? newOption4 : option4}
+                        onClick={(e) => {
+                          if (!isEdit) return;
+                          setNewOption4(!newOption4);
+                        }}
+                      />
+                      <label className="ms-2 text-sm font-medium text-gray-400 dark:text-gray-500">
+                        Promotional emails
+                      </label>
+                    </div>
                   </div>
                 </div>
-                <div className="flex items-center mx-[20px] my-[10px]">
-                  <div className="flex items-center">
-                    <input
-                      type="checkbox"
-                      value=""
-                      className="w-[30px] h-[30px] color-white bg-gray-5 mx-[10px] rounded-[6px]  focus:ring-0 focus:bg-gray-5 focus:border-none focus:outline-none active:bg-gray-5 ring-0"
-                      checked={isEdit ? newOption2 : option2}
-                      onClick={(e) => {
-                        if (!isEdit) return;
-                        setNewOption2(!newOption2);
-                      }}
-                    />
-                    <label className="ms-2 text-sm font-medium text-gray-400 dark:text-gray-500">
-                      Updates to your company Team
-                    </label>
-                  </div>
+                <div className="flex justify-center">
+                  <button
+                    className="bg-gray-5 rounded-[33px] px-[90px] py-[10px] my-[20px] text-white text-medium shadow-md drop-shadow-0 drop-shadow-y-3 blur-6 "
+                    onClick={() => {
+                      setIsEdit(!isEdit);
+                      if (isEdit == false) {
+                        updateSettings();
+                      } else {
+                        setNewOption1(option1);
+                        setNewOption2(option2);
+                        setNewOption3(option3);
+                        setNewOption4(option4);
+                      }
+                    }}
+                  >
+                    {isEdit == false ? "Edit" : "Save"}
+                  </button>
                 </div>
-                <div className="flex items-center mx-[20px] my-[10px]">
-                  <div className="flex items-center">
-                    <input
-                      type="checkbox"
-                      value=""
-                      className="w-[30px] h-[30px] color-white bg-gray-5 mx-[10px] rounded-[6px]  focus:ring-0 focus:bg-gray-5 focus:border-none focus:outline-none active:bg-gray-5 ring-0"
-                      checked={isEdit ? newOption3 : option3}
-                      onClick={(e) => {
-                        if (!isEdit) return;
-                        setNewOption3(!newOption3);
-                      }}
-                    />
-                    <label className="ms-2 text-sm font-medium text-gray-400 dark:text-gray-500">
-                      Updates to your projects
-                    </label>
-                  </div>
-                </div>
-                <div className="flex items-center mx-[20px] my-[10px]">
-                  <div className="flex items-center">
-                    <input
-                      type="checkbox"
-                      value=""
-                      className="w-[30px] h-[30px] color-white bg-gray-5 mx-[10px] rounded-[6px]  focus:ring-0 focus:bg-gray-5 focus:border-none focus:outline-none active:bg-gray-5 ring-0"
-                      checked={isEdit ? newOption4 : option4}
-                      onClick={(e) => {
-                        if (!isEdit) return;
-                        setNewOption4(!newOption4);
-                      }}
-                    />
-                    <label className="ms-2 text-sm font-medium text-gray-400 dark:text-gray-500">
-                      Promotional emails
-                    </label>
-                  </div>
-                </div>
-              </div>
-              <div className="flex justify-center">
-                <button
-                  className="bg-gray-5 rounded-[33px] px-[90px] py-[10px] my-[20px] text-white text-medium shadow-md drop-shadow-0 drop-shadow-y-3 blur-6 "
-                  onClick={() => {
-                    setIsEdit(!isEdit);
-                    if (isEdit == false) {
-                      updateSettings();
-                    } else {
-                      setNewOption1(option1);
-                      setNewOption2(option2);
-                      setNewOption3(option3);
-                      setNewOption4(option4);
-                    }
-                  }}
-                >
-                  {isEdit == false ? "Edit" : "Save"}
-                </button>
               </div>
             </div>
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };

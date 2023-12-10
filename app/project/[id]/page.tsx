@@ -26,13 +26,18 @@ const database = getDatabase(firebase_app);
 
 import { getFunctions, httpsCallable } from "firebase/functions";
 import { child, get, getDatabase, ref } from "firebase/database";
+import ReSideBar from "@/components/residebar";
+import ReHeader from "@/components/reheader";
 
 const functions = getFunctions();
 const cEditModelDetails = httpsCallable(functions, "editModelDetails");
 const cDeleteModelAndFiles = httpsCallable(functions, "deleteModelAndFiles");
 const cUpdateProjectInfo = httpsCallable(functions, "updateProjectInfo");
 const cdeleteProject = httpsCallable(functions, "deleteProject");
-const cAssignProjectToMember = httpsCallable(functions, 'assignProjectToMember');
+const cAssignProjectToMember = httpsCallable(
+  functions,
+  "assignProjectToMember"
+);
 const cChangeProjectAccessRole = httpsCallable(
   functions,
   "changeProjectAccessRole"
@@ -49,7 +54,7 @@ const ProjectDetailPage = ({ params }: any) => {
   const [members, setMembers] = useState({});
   const [filterString, setFilterString] = useState("");
 
-  const [selectedNewMember, setSelectedNewMember] = useState('');
+  const [selectedNewMember, setSelectedNewMember] = useState("");
 
   useEffect(() => {
     setProjectId(params.id);
@@ -224,17 +229,20 @@ const ProjectDetailPage = ({ params }: any) => {
     cAssignProjectToMember({
       userId: selectedNewMember,
       accessRole: newMemberRole,
-      projectKey: projectId
-    }).then((result) => {
-      toast.success(result.data.message);
-    }).catch((error) => {
-      if(error.code == 'functions/already-exists') {
-        toast.warning('User is already assigned to project');
-      }
-    }).finally(() => {
-      setIsShowAddTeamMemberModal(false);
+      projectKey: projectId,
     })
-  }
+      .then((result) => {
+        toast.success(result.data.message);
+      })
+      .catch((error) => {
+        if (error.code == "functions/already-exists") {
+          toast.warning("User is already assigned to project");
+        }
+      })
+      .finally(() => {
+        setIsShowAddTeamMemberModal(false);
+      });
+  };
 
   const updateRole = () => {
     cChangeProjectAccessRole({
@@ -270,168 +278,101 @@ const ProjectDetailPage = ({ params }: any) => {
     setIsShowConfirmModal(true);
   };
 
+  const [isSide, setIsSide] = useState(false);
+
   return (
-    <div className="flex">
+    <div className="flex min-h-[100vh] w-auto h-full">
       <SideBar index={2} />
-      <div className="absolute left-[320px] w-panel min-h-[100vh] bg-gray-4">
-        <Header title={"Project Details"} />
-        <div className="px-[32px] py-[10px] flex flex-col">
-          <Link
-            href={"/project"}
-            className="text-small px-[20px] py-[10px] flex items-center bg-gray-2 w-fit rounded-[29px]"
-          >
-            <Image
-              src={backIcon}
-              width={16}
-              height={19}
-              alt="back"
-              className="mr-[10px]"
-            />{" "}
-            <p className="text-small font-semibold text-white">Back</p>
-          </Link>
-        </div>
-        <div className="mx-[32px] my-[10px] bg-gray-2 rounded-[28px] max-w-[840px] flex justify-between">
-          <div className="px-[20px] py-[10px]">
-            <div className="flex my-2">
-              <p className="text-ssmall font-normal text-gray-10">Project: </p>
-              <p className="ml-[10px] text-ssmall font-bold text-white">
-                {project.ProjectTitle}
-              </p>
-            </div>
-            <div className="flex my-2">
-              <p className="text-ssmall font-normal text-gray-10">Location: </p>
-              <p className="ml-[10px] text-ssmall font-bold text-white">
-                {project.ProjectLocation}
-              </p>
-            </div>
-          </div>
-          <div className="px-[20px] py-[10px] flex flex-col justify-around items-center">
-            <button
-              className="h-fit bg-gray-5 rounded-[24px] px-[16px] py-[12px] text-small shadow-md drop-shadow-0 drop-shadow-y-3 blur-6 text-white flex items-center"
-              onClick={editProject}
+      {isSide && <ReSideBar index={2} hide={setIsSide} />}
+      {!isSide && (
+        <div className="lg:left-[320px] lg:w-panel w-full min-h-[100vh] h-fit bg-gray-4">
+          <Header title={"Project Details"} />
+          <ReHeader title={"Project Details"} index={2} show={setIsSide} />
+          <div className="px-[32px] py-[10px] flex flex-col">
+            <Link
+              href={"/project"}
+              className="text-small px-[20px] py-[10px] flex items-center bg-gray-2 w-fit rounded-[29px]"
             >
-              <Image src={editIcon} width={25} height={25} alt="edit" />
-              <p className="ml-[10px] text-primary font-normal">Edit Details</p>
-            </button>
-            <button
-              className="text-red-primary text-primary font-normal"
-              onClick={() => {
-                setIsShowDeleteProjectModal(true);
-              }}
-            >
-              Delete Project
-            </button>
-          </div>
-        </div>
-        <div className="px-[32px] py-[10px] flex flex-wrap">
-          <div className="flex flex-col mr-[20px]">
-            <p className="text-small text-gray-10 mx-[30px] my-[10px]">
-              Models
-            </p>
-            <div className="w-[450px] bg-gray-3 h-[500px] rounded-[24px] ">
-              {project.Models != null &&
-                project.Models != undefined &&
-                Object.keys(project.Models).map((key, id) => {
-                  return (
-                    <>
-                      <div
-                        className={
-                          (id == 0 ? "rounded-t-[24px]" : "") +
-                          " flex justify-between items-center mx-[30px] my-[15px]"
-                        }
-                      >
-                        <div className="flex justify-start items-center">
-                          <div className="w-[54px] h-[54px] bg-white rounded-[13px] mr-[18px]"></div>
-                          <p className="text-primary text-white font-normal">
-                            {project.Models[key].ModelTitle}
-                          </p>
-                        </div>
-                        <button
-                          onClick={() => {
-                            setSelectedModel(key);
-                            setNewModelName(project.Models[key].ModelTitle);
-                            setNewModelLocation(
-                              project.Models[key].ModelLocation
-                            );
-                            setIsShowEditModelModal(true);
-                          }}
-                        >
-                          <Image
-                            src={editIcon}
-                            width={22}
-                            height={22}
-                            alt="edit"
-                          />
-                        </button>
-                      </div>
-                      <hr className="w-full border-[1px] border-gray-7" />
-                    </>
-                  );
-                })}
-
-              {/* <div className="flex justify-between items-center mx-[30px] my-[15px]">
-                <div className="flex justify-start items-center">
-                  <div className="w-[54px] h-[54px] bg-white rounded-[13px] mr-[18px]"></div>
-                  <p className="text-primary text-white font-normal">
-                    Corridor 34f
-                  </p>
-                </div>
-                <Image src={editIcon} width={22} height={22} alt="edit" />
-              </div>
-              <hr className="w-full border-[1px] border-gray-7" /> */}
-            </div>
-          </div>
-
-          <div className="flex flex-col mr-[20px]">
-            <div className="flex items-center justify-start mx-[15px]">
               <Image
-                src={teamIcon}
-                width={25}
-                height={25}
-                alt={"team"}
-                className="opacity-30"
-              />
-              <p className="text-small text-gray-10 mx-[15px] my-[10px]">
-                Project Team Members
-              </p>
+                src={backIcon}
+                width={16}
+                height={19}
+                alt="back"
+                className="mr-[10px]"
+              />{" "}
+              <p className="text-small font-semibold text-white">Back</p>
+            </Link>
+          </div>
+          <div className="mx-[32px] my-[10px] bg-gray-2 rounded-[28px] max-w-[840px] flex justify-between">
+            <div className="px-[20px] py-[10px]">
+              <div className="flex my-2">
+                <p className="text-ssmall font-normal text-gray-10">
+                  Project:{" "}
+                </p>
+                <p className="ml-[10px] text-ssmall font-bold text-white">
+                  {project.ProjectTitle}
+                </p>
+              </div>
+              <div className="flex my-2">
+                <p className="text-ssmall font-normal text-gray-10">
+                  Location:{" "}
+                </p>
+                <p className="ml-[10px] text-ssmall font-bold text-white">
+                  {project.ProjectLocation}
+                </p>
+              </div>
             </div>
-            <div className="w-[520px] bg-gray-3 h-[500px] rounded-[24px] ">
-              {project.TeamMembers != undefined &&
-                project.TeamMembers != null &&
-                Object.keys(project.TeamMembers)
-                  .sort((m1, m2) => {
-                    let role1 = project.TeamMembers[m1].AccessRole;
-                    let role2 = project.TeamMembers[m2].AccessRole;
-                    if (role1 == "Manager") {
-                      return false;
-                    } else if (role1 == "Editor") {
-                      if (role2 != "Manager") {
-                        return false;
-                      }
-                    } else if (role1 == "Viewer") {
-                      if (role2 == "Viewer") {
-                        return false;
-                      }
-                    }
-                    return true;
-                  })
-                  .reverse()
-                  .map((key) => {
+            <div className="px-[20px] py-[10px] flex flex-col justify-around items-center">
+              <button
+                className="h-fit bg-gray-5 rounded-[24px] px-[16px] py-[12px] text-small shadow-md drop-shadow-0 drop-shadow-y-3 blur-6 text-white flex items-center"
+                onClick={editProject}
+              >
+                <Image src={editIcon} width={25} height={25} alt="edit" />
+                <p className="ml-[10px] text-primary font-normal">
+                  Edit Details
+                </p>
+              </button>
+              <button
+                className="text-red-primary text-primary font-normal"
+                onClick={() => {
+                  setIsShowDeleteProjectModal(true);
+                }}
+              >
+                Delete Project
+              </button>
+            </div>
+          </div>
+          <div className="px-[32px] py-[10px] flex flex-wrap md:flex-row flex-col">
+            <div className="flex flex-col mr-[20px]">
+              <p className="text-small text-gray-10 mx-[30px] my-[10px]">
+                Models
+              </p>
+              <div className="w-[100%] md:w-[450px] bg-gray-3 h-[500px] rounded-[24px] ">
+                {project.Models != null &&
+                  project.Models != undefined &&
+                  Object.keys(project.Models).map((key, id) => {
                     return (
                       <>
-                        <div className="rounded-t-[24px] flex justify-between items-center mx-[30px] my-[15px]">
-                          <div className="flex justify-between items-center grow mr-[40px]">
+                        <div
+                          className={
+                            (id == 0 ? "rounded-t-[24px]" : "") +
+                            " flex justify-between items-center mx-[30px] my-[15px]"
+                          }
+                        >
+                          <div className="flex justify-start items-center">
+                            <div className="w-[54px] h-[54px] bg-white rounded-[13px] mr-[18px]"></div>
                             <p className="text-primary text-white font-normal">
-                              {project.TeamMembers[key].MemberName}
-                            </p>
-                            <p className="text-primary text-white font-normal">
-                              {project.TeamMembers[key].AccessRole}
+                              {project.Models[key].ModelTitle}
                             </p>
                           </div>
                           <button
                             onClick={() => {
-                              setSelectedTeamMember(key);
-                              setIsShowUserRoleModal(true);
+                              setSelectedModel(key);
+                              setNewModelName(project.Models[key].ModelTitle);
+                              setNewModelLocation(
+                                project.Models[key].ModelLocation
+                              );
+                              setIsShowEditModelModal(true);
                             }}
                           >
                             <Image
@@ -446,28 +387,107 @@ const ProjectDetailPage = ({ params }: any) => {
                       </>
                     );
                   })}
+
+                {/* <div className="flex justify-between items-center mx-[30px] my-[15px]">
+                <div className="flex justify-start items-center">
+                  <div className="w-[54px] h-[54px] bg-white rounded-[13px] mr-[18px]"></div>
+                  <p className="text-primary text-white font-normal">
+                    Corridor 34f
+                  </p>
+                </div>
+                <Image src={editIcon} width={22} height={22} alt="edit" />
+              </div>
+              <hr className="w-full border-[1px] border-gray-7" /> */}
+              </div>
             </div>
-            <div className="w-full flex justify-end">
-              <button
-                className="bg-red-primary px-[30px] py-[15px] w-fit rounded-[29px] my-[10px] flex items-center"
-                onClick={() => {
-                  setNewMemberRole('Manager');
-                  setIsShowAddTeamMemberModal(true);
-                }}
-              >
+
+            <div className="flex flex-col mr-[20px] w-full md:w-auto">
+              <div className="flex items-center justify-start mx-[15px]">
                 <Image
-                  src={plusIcon}
-                  width={20}
-                  height={20}
-                  alt="plus"
-                  className="mr-[20px]"
+                  src={teamIcon}
+                  width={25}
+                  height={25}
+                  alt={"team"}
+                  className="opacity-30"
                 />
-                <p className="text-small text-white">Add Team Member</p>
-              </button>
+                <p className="text-small text-gray-10 mx-[15px] my-[10px]">
+                  Project Team Members
+                </p>
+              </div>
+              <div className="w-full md:w-[520px] bg-gray-3 h-[500px] rounded-[24px] ">
+                {project.TeamMembers != undefined &&
+                  project.TeamMembers != null &&
+                  Object.keys(project.TeamMembers)
+                    .sort((m1, m2) => {
+                      let role1 = project.TeamMembers[m1].AccessRole;
+                      let role2 = project.TeamMembers[m2].AccessRole;
+                      if (role1 == "Manager") {
+                        return false;
+                      } else if (role1 == "Editor") {
+                        if (role2 != "Manager") {
+                          return false;
+                        }
+                      } else if (role1 == "Viewer") {
+                        if (role2 == "Viewer") {
+                          return false;
+                        }
+                      }
+                      return true;
+                    })
+                    .reverse()
+                    .map((key) => {
+                      return (
+                        <>
+                          <div className="rounded-t-[24px] flex justify-between items-center mx-[30px] my-[15px]">
+                            <div className="flex justify-between items-center grow mr-[40px]">
+                              <p className="text-primary text-white font-normal">
+                                {project.TeamMembers[key].MemberName}
+                              </p>
+                              <p className="text-primary text-white font-normal">
+                                {project.TeamMembers[key].AccessRole}
+                              </p>
+                            </div>
+                            <button
+                              onClick={() => {
+                                setSelectedTeamMember(key);
+                                setIsShowUserRoleModal(true);
+                              }}
+                            >
+                              <Image
+                                src={editIcon}
+                                width={22}
+                                height={22}
+                                alt="edit"
+                              />
+                            </button>
+                          </div>
+                          <hr className="w-full border-[1px] border-gray-7" />
+                        </>
+                      );
+                    })}
+              </div>
+              <div className="w-full flex justify-center md:justify-end">
+                <button
+                  className="bg-red-primary px-[30px] py-[15px] w-fit rounded-[29px] my-[10px] flex items-center"
+                  onClick={() => {
+                    setNewMemberRole("Manager");
+                    setIsShowAddTeamMemberModal(true);
+                  }}
+                >
+                  <Image
+                    src={plusIcon}
+                    width={20}
+                    height={20}
+                    alt="plus"
+                    className="mr-[20px]"
+                  />
+                  <p className="text-small text-white">Add Team Member</p>
+                </button>
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      )}
       {isShowEditProjectModal && (
         <div
           id="modal_user_role"
@@ -972,15 +992,21 @@ const ProjectDetailPage = ({ params }: any) => {
                     return (
                       <>
                         {" "}
-                        <div className={"grid grid-cols-2 my-[14px] " + (selectedNewMember == member_id ? "opacity-50": "")} onClick={() => {
-                          setSelectedNewMember(member_id);
-                          console.log(member_id);
-                        }}>
+                        <div
+                          className={
+                            "grid grid-cols-2 my-[14px] " +
+                            (selectedNewMember == member_id ? "opacity-50" : "")
+                          }
+                          onClick={() => {
+                            setSelectedNewMember(member_id);
+                            console.log(member_id);
+                          }}
+                        >
                           <p className="col-span-1 text-primary text-white font-normal ml-[40px] grow">
-                            { members[member_id]?.MemberName }
+                            {members[member_id]?.MemberName}
                           </p>
                           <p className="col-span-1 text-primary text-white font-normal ml-[40px] grow">
-                            { members[member_id]?.MemberEmail }
+                            {members[member_id]?.MemberEmail}
                           </p>
                         </div>
                         <hr className="border-b-[1px] border-gray-7" />
@@ -996,10 +1022,13 @@ const ProjectDetailPage = ({ params }: any) => {
                 <p className="text-gray-10 text-primary font-normal">
                   Change Access Role
                 </p>
-                <select className="custom-select bg-gray-5 border-gray-5 focus:border-gray-5 text-white placeholder:italic rounded-[25px] font-small px-[23px] py-[14px] my-[10px] outline-none focus:ring-0 appearance-none font-semibold w-[400px]" value={newMemberRole}
+                <select
+                  className="custom-select bg-gray-5 border-gray-5 focus:border-gray-5 text-white placeholder:italic rounded-[25px] font-small px-[23px] py-[14px] my-[10px] outline-none focus:ring-0 appearance-none font-semibold w-[400px]"
+                  value={newMemberRole}
                   onChange={(e) => {
                     setNewMemberRole(e.target.value);
-                  }}>
+                  }}
+                >
                   <option value={"Manager"}>Manager</option>
                   <option value={"Editor"}>Editor</option>
                   <option value={"Viewer"}>Viewer</option>
