@@ -76,7 +76,7 @@ const ActivityPage = () => {
   return (
     <div className="flex">
       <SideBar index={3} />
-      <div className="absolute left-[320px] w-panel min-h-[100vh] h-full bg-gray-4">
+      <div className="absolute left-[320px] w-panel h-fit min-h-[100vh] bg-gray-4">
         <Header title={"Company Activity"} />
         <div className="px-[32px] pb-[14px] flex flex-col">
           <div className="max-w-[1024px] flex justify-end items-end">
@@ -110,7 +110,7 @@ const ActivityPage = () => {
             </div>
           </div>
 
-          <div className="max-w-[1024px] flex flex-col bg-gray-3 h-actable rounded-[24px]">
+          <div className="max-w-[1024px] flex flex-col bg-gray-3 rounded-[24px]">
             {company["Activity"] != null &&
               company["Activity"] != undefined &&
               Object.keys(company["Activity"]).map((key, id) => {

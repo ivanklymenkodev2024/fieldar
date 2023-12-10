@@ -24,6 +24,9 @@ import Cropper, { ReactCropperElement } from "react-cropper";
 import "cropperjs/dist/cropper.css";
 import { getStorage, uploadBytes, ref as ref_storage } from "firebase/storage";
 
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 const auth = getAuth();
 const functions = getFunctions();
 
@@ -103,7 +106,7 @@ const ProfilePage = () => {
       getDownloadURL(storageRef).then((url) => {
         cUpdateProfilePic({ profilePicURL: url })
           .then((result) => {
-            console.log(result);
+            toast.success(result.data.message);
           })
           .catch((error) => {
             console.log(error);
@@ -219,6 +222,7 @@ const ProfilePage = () => {
     }
     func(data)
       .then((result: any) => {
+        toast.success(result.data.message);
         console.log(result.data.message);
       })
       .catch((error: any) => {
@@ -253,9 +257,13 @@ const ProfilePage = () => {
   };
 
   const handleUpdatePassword = () => {
+    if(newPassword != confirmPassword) {
+      toast.warning('Passwords are not match');
+      return;
+    }
     cChangePassword({ currentPassword: oldPassword, newPassword })
       .then((result: any) => {
-        console.log(result.data.message);
+        toast.success(result.data.message);
       })
       .catch((error) => {
         console.log(error);
@@ -420,6 +428,7 @@ const ProfilePage = () => {
                   className="rounded-[24px] text-white bg-gray-5 mx-[6px] py-[12px] shadow-md drop-shadow-0 drop-shadow-y-3 blur-6 w-full"
                   onClick={() => {
                     setIsShowCropImageModal(false);
+                    
                   }}
                 >
                   Cancel
@@ -544,6 +553,7 @@ const ProfilePage = () => {
           </div>
         </div>
       )}
+      <ToastContainer />
     </div>
   );
 };

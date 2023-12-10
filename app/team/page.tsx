@@ -15,6 +15,9 @@ import promoteToAdmin from "../../public/icons/AdminIcon.png";
 import removeFromCompany from "../../public/icons/RemoveMember-Icon.png";
 import { child, get, getDatabase, ref } from "firebase/database";
 
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 import firebase_app from "../../config";
 import { getAuth } from "firebase/auth";
 
@@ -162,7 +165,7 @@ const TeamPage = () => {
       selectedAccessRole: newRole,
     })
       .then((result) => {
-        console.log(result);
+        toast.success(result.data.message);
       })
       .catch((error) => {
         console.log(error);
@@ -186,7 +189,7 @@ const TeamPage = () => {
         userIdToPromote: selectedUserId,
       })
         .then((result) => {
-          console.log(result);
+          toast.success(result.data.message);
         })
         .catch((error) => {
           console.log(error);
@@ -199,7 +202,7 @@ const TeamPage = () => {
         userIdToRemove: selectedUserId,
       })
         .then((result) => {
-          console.log(result);
+          toast.success(result.data.message);
         })
         .catch((error) => {
           console.log(error);
@@ -220,7 +223,7 @@ const TeamPage = () => {
       inviteeEmail,
       daysToExpiration: day
     }).then((result) => {
-      console.log(result);
+      toast.success(result.data.message);
     }).catch((error) => {
       console.log(error);
     }).finally(() => {
@@ -643,6 +646,7 @@ const TeamPage = () => {
           </div>
         </div>
       )}
+      <ToastContainer />
     </div>
   );
 };

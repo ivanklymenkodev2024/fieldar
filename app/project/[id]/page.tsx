@@ -6,6 +6,9 @@ import Link from "next/link";
 
 import Image from "next/image";
 
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 import backIcon from "../../../public/icons/DropdownArrowIcon.png";
 import editIcon from "../../../public/icons/EditIcon.png";
 import teamIcon from "../../../public/icons/TeamIcon.png";
@@ -29,6 +32,7 @@ const cEditModelDetails = httpsCallable(functions, "editModelDetails");
 const cDeleteModelAndFiles = httpsCallable(functions, "deleteModelAndFiles");
 const cUpdateProjectInfo = httpsCallable(functions, "updateProjectInfo");
 const cdeleteProject = httpsCallable(functions, "deleteProject");
+const cAssignProjectToMember = httpsCallable(functions, 'assignProjectToMember');
 const cChangeProjectAccessRole = httpsCallable(
   functions,
   "changeProjectAccessRole"
@@ -41,6 +45,11 @@ const cUnassignProjectFromMember = httpsCallable(
 const ProjectDetailPage = ({ params }: any) => {
   const router = useRouter();
   const [projectId, setProjectId] = useState("");
+
+  const [members, setMembers] = useState({});
+  const [filterString, setFilterString] = useState("");
+
+  const [selectedNewMember, setSelectedNewMember] = useState('');
 
   useEffect(() => {
     setProjectId(params.id);
@@ -79,6 +88,7 @@ const ProjectDetailPage = ({ params }: any) => {
     get(child(dbRef, `companies/${companyKey}`))
       .then((snapshot: any) => {
         if (snapshot.exists()) {
+          setMembers(snapshot.val().Team);
           setCompany(snapshot.val());
         } else {
           console.log("No data available");
@@ -94,7 +104,6 @@ const ProjectDetailPage = ({ params }: any) => {
     get(child(dbRef, `projects/${projectId}`))
       .then((snapshot: any) => {
         if (snapshot.exists()) {
-          console.log(snapshot.val());
           setProject(snapshot.val());
         } else {
           console.log("No data available");
@@ -139,7 +148,7 @@ const ProjectDetailPage = ({ params }: any) => {
         console.log(error);
       })
       .finally(() => {
-        setSelectedTeamMember('');
+        setSelectedTeamMember("");
         setIsShowConfirmModal(false);
       });
   };
@@ -211,6 +220,22 @@ const ProjectDetailPage = ({ params }: any) => {
       });
   };
 
+  const handleInviteNewMember = () => {
+    cAssignProjectToMember({
+      userId: selectedNewMember,
+      accessRole: newMemberRole,
+      projectKey: projectId
+    }).then((result) => {
+      toast.success(result.data.message);
+    }).catch((error) => {
+      if(error.code == 'functions/already-exists') {
+        toast.warning('User is already assigned to project');
+      }
+    }).finally(() => {
+      setIsShowAddTeamMemberModal(false);
+    })
+  }
+
   const updateRole = () => {
     cChangeProjectAccessRole({
       projectKey: projectId,
@@ -218,7 +243,7 @@ const ProjectDetailPage = ({ params }: any) => {
       selectedAccessRole: newMemberRole,
     })
       .then((result) => {
-        console.log(result);
+        toast.success(result.data.message);
       })
       .catch((error) => {
         console.log(error);
@@ -324,7 +349,6 @@ const ProjectDetailPage = ({ params }: any) => {
                         <button
                           onClick={() => {
                             setSelectedModel(key);
-                            console.log(project.Models[key]);
                             setNewModelName(project.Models[key].ModelTitle);
                             setNewModelLocation(
                               project.Models[key].ModelLocation
@@ -426,7 +450,10 @@ const ProjectDetailPage = ({ params }: any) => {
             <div className="w-full flex justify-end">
               <button
                 className="bg-red-primary px-[30px] py-[15px] w-fit rounded-[29px] my-[10px] flex items-center"
-                onClick={() => setIsShowAddTeamMemberModal(true)}
+                onClick={() => {
+                  setNewMemberRole('Manager');
+                  setIsShowAddTeamMemberModal(true);
+                }}
               >
                 <Image
                   src={plusIcon}
@@ -515,9 +542,15 @@ const ProjectDetailPage = ({ params }: any) => {
                   company.CompanyRegions == undefined ? (
                     <></>
                   ) : (
-                    company.CompanyRegions.split(",").map((item: any, id:any) => {
-                      return <option value={item} key={id}>{item}</option>;
-                    })
+                    company.CompanyRegions.split(",").map(
+                      (item: any, id: any) => {
+                        return (
+                          <option value={item} key={id}>
+                            {item}
+                          </option>
+                        );
+                      }
+                    )
                   )}
                 </select>
               </div>
@@ -857,8 +890,9 @@ const ProjectDetailPage = ({ params }: any) => {
               <div className="my-[30px] flex justify-center items-end">
                 <p className="text-small text-white font-semibold text-center mx-[30px]">
                   Are you sure you wish to remove{" "}
-                  {selectedTeamMember.trim().length !=0 && project.TeamMembers[selectedTeamMember].MemberName} from{" "}
-                  {project.ProjectTitle}?
+                  {selectedTeamMember.trim().length != 0 &&
+                    project.TeamMembers[selectedTeamMember].MemberName}{" "}
+                  from {project.ProjectTitle}?
                 </p>
               </div>
               <div className="flex justify-center items-center p-4 md:p-5 mx-[60px]">
@@ -918,59 +952,57 @@ const ProjectDetailPage = ({ params }: any) => {
               <div className="w-full flex justify-around items-center px-[70px] mt-[50px] mb-[10px]">
                 <p className="text-ssmall text-gray-10">Company Team Members</p>
                 <input
-                  className="bg-gray-3 text-gray-11 text-2xsmall placeholder:italic rounded-[26px] font-small px-[23px] py-[10px] focus:border-none outline-none "
+                  className="bg-gray-3 text-gray-11 text-2xsmall placeholder:italic rounded-[26px] font-small px-[23px] py-[10px] focus:border-none outline-none focus:ring-0 border-none"
                   type="text"
                   placeholder="Search Members"
+                  value={filterString}
+                  onChange={(e) => {
+                    setFilterString(e.target.value);
+                  }}
                 />
               </div>
 
               <div className="bg-gray-3 h-[317px] flex flex-col rounded-[24px] mx-[70px]">
-                <div className="grid grid-cols-2 rounded-t-[24px] my-[14px] ">
-                  <p className="col-span-1 text-primary text-white font-normal ml-[40px] grow">
-                    Kyle Szostek
-                  </p>
-                  <p className="col-span-1 text-primary text-white font-normal ml-[40px] grow">
-                    Kyle@email.com
-                  </p>
-                </div>
-                <hr className="border-b-[1px] border-gray-7" />
-                <div className="grid grid-cols-2 my-[14px]">
-                  <p className="col-span-1 text-primary text-white font-normal ml-[40px] grow">
-                    Morgan Smith
-                  </p>
-                  <p className="col-span-1 text-primary text-white font-normal ml-[40px] grow">
-                    John@email.com
-                  </p>
-                </div>
-                <hr className="border-b-[1px] border-gray-7" />
-                <div className="grid grid-cols-2 my-[14px]">
-                  <p className="col-span-1 text-primary text-white font-normal ml-[40px] grow">
-                    Buzz DaDoggie
-                  </p>
-                  <p className="col-span-1 text-primary text-white font-normal ml-[40px] grow">
-                    Buzz@email.com
-                  </p>
-                </div>
-                <hr className="border-b-[1px] border-gray-7" />
-                <div className="grid grid-cols-2 my-[14px]">
-                  <p className="col-span-1 text-primary text-white font-normal ml-[40px] grow">
-                    Buzz DaDoggie
-                  </p>
-                  <p className="col-span-1 text-primary text-white font-normal ml-[40px] grow">
-                    Buzz@email.com
-                  </p>
-                </div>
-                <hr className="border-b-[1px] border-gray-7" />
+                {Object.keys(members).map((member_id: any, id: any) => {
+                  if (
+                    members[member_id]?.MemberName.toLocaleLowerCase().includes(
+                      filterString.toLocaleLowerCase()
+                    )
+                  ) {
+                    return (
+                      <>
+                        {" "}
+                        <div className={"grid grid-cols-2 my-[14px] " + (selectedNewMember == member_id ? "opacity-50": "")} onClick={() => {
+                          setSelectedNewMember(member_id);
+                          console.log(member_id);
+                        }}>
+                          <p className="col-span-1 text-primary text-white font-normal ml-[40px] grow">
+                            { members[member_id]?.MemberName }
+                          </p>
+                          <p className="col-span-1 text-primary text-white font-normal ml-[40px] grow">
+                            { members[member_id]?.MemberEmail }
+                          </p>
+                        </div>
+                        <hr className="border-b-[1px] border-gray-7" />
+                      </>
+                    );
+                  } else {
+                    return <></>;
+                  }
+                })}
               </div>
 
               <div className="flex flex-col items-center mt-[50px]">
                 <p className="text-gray-10 text-primary font-normal">
                   Change Access Role
                 </p>
-                <select className="custom-select bg-gray-5 border-gray-5 focus:border-gray-5 text-white placeholder:italic rounded-[25px] font-small px-[23px] py-[14px] my-[10px] outline-none focus:ring-0 appearance-none font-semibold w-[400px]">
-                  <option>Manager</option>
-                  <option>Editor</option>
-                  <option>Guest</option>
+                <select className="custom-select bg-gray-5 border-gray-5 focus:border-gray-5 text-white placeholder:italic rounded-[25px] font-small px-[23px] py-[14px] my-[10px] outline-none focus:ring-0 appearance-none font-semibold w-[400px]" value={newMemberRole}
+                  onChange={(e) => {
+                    setNewMemberRole(e.target.value);
+                  }}>
+                  <option value={"Manager"}>Manager</option>
+                  <option value={"Editor"}>Editor</option>
+                  <option value={"Viewer"}>Viewer</option>
                 </select>
               </div>
 
@@ -978,6 +1010,7 @@ const ProjectDetailPage = ({ params }: any) => {
                 <button
                   type="button"
                   className="rounded-[24px] text-white bg-red-primary px-[90px] py-[12px] shadow-md drop-shadow-0 drop-shadow-y-3 blur-6"
+                  onClick={handleInviteNewMember}
                 >
                   Add Team Member
                 </button>
@@ -986,6 +1019,7 @@ const ProjectDetailPage = ({ params }: any) => {
           </div>
         </div>
       )}
+      <ToastContainer />
     </div>
   );
 };

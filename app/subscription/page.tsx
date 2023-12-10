@@ -17,7 +17,7 @@ const SubscriptionPage = () => {
   return (
     <div className="flex">
       <SideBar index={4} />
-      <div className="absolute left-[320px] w-panel h-fit bg-gray-4">
+      <div className="absolute left-[320px] w-panel h-fit min-h-[100vh] bg-gray-4">
         <Header title={"My Subscription"} />
         <div className="m-[32px] flex flex-wrap">
           <div className="w-[360px] flex flex-col justify-start items-center mr-[32px]">

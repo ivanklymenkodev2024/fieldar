@@ -8,6 +8,9 @@ import Image from "next/image";
 import { child, get, getDatabase, ref, set } from "firebase/database";
 import { getDownloadURL } from "firebase/storage";
 
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 import firebase_app from "../../config";
 import profileImg from "../../public/images/profile.png";
 
@@ -107,7 +110,7 @@ const CompanyPage = () => {
   const handleRemoveLogo = () => {
     cRemoveCompanyLogo()
       .then((result) => {
-        console.log(result);
+        toast.success(result.data.message);
       })
       .catch((error) => {
         console.log(error);
@@ -143,7 +146,7 @@ const CompanyPage = () => {
       CompanyRegions: reCompanyRegion,
     })
       .then((result) => {
-        console.log(result);
+        
       })
       .catch((error) => {
         console.log(error);
@@ -513,6 +516,7 @@ const CompanyPage = () => {
           </div>
         </div>
       )}
+      <ToastContainer />
     </div>
   );
 };

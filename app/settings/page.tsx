@@ -55,7 +55,6 @@ const SettingsPage = () => {
     }).catch((error) => {
       console.log(error);
     }).finally(() => {
-      setIsEdit(false);
     })
   }
 
@@ -118,7 +117,7 @@ const SettingsPage = () => {
                       checked={isEdit ? newOption1 : option1}
                       onClick={(e) => {
                         if (!isEdit) return;
-                        setNewOption4(!newOption1);
+                        setNewOption1(!newOption1);
                       }}
                     />
                     <label className="ms-2 text-sm font-medium text-gray-400 dark:text-gray-500">
@@ -135,7 +134,7 @@ const SettingsPage = () => {
                       checked={isEdit ? newOption2 : option2}
                       onClick={(e) => {
                         if (!isEdit) return;
-                        setNewOption4(!newOption2);
+                        setNewOption2(!newOption2);
                       }}
                     />
                     <label className="ms-2 text-sm font-medium text-gray-400 dark:text-gray-500">
@@ -152,7 +151,7 @@ const SettingsPage = () => {
                       checked={isEdit ? newOption3 : option3}
                       onClick={(e) => {
                         if (!isEdit) return;
-                        setNewOption4(!newOption3);
+                        setNewOption3(!newOption3);
                       }}
                     />
                     <label className="ms-2 text-sm font-medium text-gray-400 dark:text-gray-500">

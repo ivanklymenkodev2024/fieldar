@@ -5,6 +5,9 @@ import SideBar from "@/components/sidebar";
 import Link from "next/link";
 import { useState } from "react";
 
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 import Image from "next/image";
 
 import plusIcon from "../../public/icons/PlusIcon.png";
@@ -90,7 +93,7 @@ const ProjectPage = () => {
       CompanyRegion: newProjectRegion,
       AllowMarkups: true
     }).then((result) => {
-      console.log(result);
+      toast.success(result.data.message);
     }).catch((error) => {
       console.log(error);
     }).finally(() => {
@@ -296,6 +299,7 @@ const ProjectPage = () => {
           </div>
         </div>
       )}
+      <ToastContainer />
     </div>
   );
 };

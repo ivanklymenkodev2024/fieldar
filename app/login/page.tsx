@@ -13,6 +13,9 @@ import { useState } from "react";
 
 const auth = getAuth(firebase_app);
 
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 const LoginPage = () => {
   const router = useRouter();
   const [email, setEmail] = useState("");
@@ -21,15 +24,24 @@ const LoginPage = () => {
   const login = (e: any) => {
     e.preventDefault();
     signInWithEmailAndPassword(auth, email, password)
-    .then((userCredential) => {
-      const user = userCredential.user;
-      router.push('/profile');
-      console.log(user);
-    })
-    .catch((error) => {
-      const errorCode = error.code;
-      const errorMessage = error.message;
-    });
+      .then((userCredential) => {
+        const user = userCredential.user;
+        router.push("/profile");
+        console.log(user);
+      })
+      .catch((error) => {
+        if(error.code == 'auth/invalid-email') {
+          toast.warning('Invalid Email');
+        } else if(error.code == 'auth/user-not-found') {
+          toast.warning('Invalid User');
+        } else if(error.code == 'auth/wrong-password') {
+          toast.warning('Wrong Password');
+        }
+        console.log(JSON.stringify(error));
+        // const errorCode = error.code;
+        // const errorMessage = error.message;
+        // toast.warning(errorMessage);
+      });
   };
 
   const handleEmailChange = (e: any) => {
@@ -106,6 +118,7 @@ const LoginPage = () => {
           />
         </div>
       </div>
+      <ToastContainer />
     </form>
   );
 };
