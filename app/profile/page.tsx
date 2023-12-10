@@ -282,7 +282,7 @@ const ProfilePage = () => {
       <SideBar index={-1} />
       {isSide && <ReSideBar index={-1} hide={setIsSide} />}
       {!isSide && (
-        <div className="absolute lg:left-[320px] lg:w-panel w-[100vw] min-h-[100vh] h-fit bg-gray-4">
+        <div className="fixed lg:left-[320px] lg:w-panel w-[100vw] min-h-[100vh] h-fit bg-gray-4">
           <ReHeader title={"My profile"} index={-1} show={setIsSide}/>
           <Header title={"My Profile"} />
 

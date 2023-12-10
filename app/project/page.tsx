@@ -39,6 +39,8 @@ const ProjectPage = () => {
   const [newProjectLocation, setNewProjectLocation] = useState("");
   const [newProjectRegion, setNewProjectRegion] = useState("");
 
+  const [adminProject, setAdminProject] = useState([]);
+
   const getCompany = (companyKey: string) => {
     const dbRef = ref(getDatabase());
     get(child(dbRef, `companies/${companyKey}`))
@@ -67,6 +69,7 @@ const ProjectPage = () => {
         .then((snapshot: any) => {
           if (snapshot.exists()) {
             getCompany(snapshot.val().CompanyKey);
+            setAdminProject(Object.keys(snapshot.val()["CreatedProjects"]));
           } else {
             console.log("No data available");
           }
@@ -110,7 +113,7 @@ const ProjectPage = () => {
       <SideBar index={2} />
       {isSide && <ReSideBar index={2} hide={setIsSide} />}
       {!isSide && (
-        <div className="lg:left-[320px] lg:w-panel w-full min-h-[100vh] h-fit bg-gray-4">
+        <div className="absolute lg:left-[320px] lg:w-panel w-full min-h-[100vh] h-fit bg-gray-4">
           <Header title={"Project Management"} />
           <ReHeader title={"Project Management"} index={2} show={setIsSide} />
           <div className="px-[32px] pb-[14px] flex flex-col mt-[20px]">
@@ -172,7 +175,7 @@ const ProjectPage = () => {
               </div>
             </div>
 
-            <div className="max-w-[1024px] flex flex-col bg-gray-3 h-ttable p-[22px] py-[6px] rounded-[24px]">
+            <div className="max-w-[1024px] flex flex-col bg-gray-3 h-ttable rounded-[24px]">
               {company.ProjectDirectory != null &&
                 company.ProjectDirectory != undefined &&
                 Object.keys(company.ProjectDirectory).map((key, id) => {
@@ -194,10 +197,21 @@ const ProjectPage = () => {
                   }
                   return (
                     <div
-                      className="w-full grid grid-cols-5 md:grid-cols-7 lg:grid-cols-8 p-[10px] border-b-[1px] border-gray-4"
+                      className={
+                        "grid grid-cols-5 md:grid-cols-7 lg:grid-cols-8 p-[10px] border-b-[1px] border-gray-4 hover:bg-gray-7 px-[22px]" +
+                        (id == 0 ? " rounded-t-[24px]" : "")
+                      }
                       key={id}
                     >
-                      <p className="text-white col-span-3 font-light">
+                      <p className="text-white col-span-3 font-light flex items-center">
+                        <div
+                          className={
+                            "rounded-[100%] w-[10px] h-[10px] lg:hidden mr-[10px] " +
+                            (adminProject.includes(key)
+                              ? "bg-cyan-600"
+                              : "bg-gray-4")
+                          }
+                        ></div>
                         <Link href={"/project/" + key}>
                           {company.ProjectDirectory[key].ProjectTitle}
                         </Link>
@@ -208,8 +222,15 @@ const ProjectPage = () => {
                       <p className="text-white col-span-2 font-light">
                         {company.ProjectDirectory[key].ProjectLocation}
                       </p>
-                      <p className="text-white col-span-1 font-light hidden lg:block">
-                        0
+                      <p className="text-white col-span-1 font-light hidden lg:flex items-center">
+                        <div
+                          className={
+                            "rounded-[100%] w-[10px] h-[10px] " +
+                            (adminProject.includes(key)
+                              ? "bg-cyan-600"
+                              : "bg-gray-4")
+                          }
+                        ></div>
                       </p>
                     </div>
                   );

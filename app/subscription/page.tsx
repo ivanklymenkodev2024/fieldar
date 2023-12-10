@@ -24,7 +24,7 @@ const SubscriptionPage = () => {
       <SideBar index={4} />
       {isSide && <ReSideBar index={4} hide={setIsSide} />}
       {!isSide && (
-        <div className="lg:left-[320px] lg:w-panel w-full min-h-[100vh] h-fit bg-gray-4">
+        <div className="absolute lg:left-[320px] lg:w-panel w-full min-h-[100vh] h-fit bg-gray-4">
           <Header title={"My Subscription"} />
           <ReHeader title={"My Subscription"} index={5} show={setIsSide} />
           <div className="m-[32px] flex flex-wrap sm:justify-start justify-center">
@@ -176,7 +176,9 @@ const SubscriptionPage = () => {
                       <option>1 Project</option>
                       <option>2 Project</option>
                       <option>3 Project</option>
-                      <option>4 Project</option>
+                      <option>5 Project</option>
+                      <option>10 Project</option>
+                      <option>15 Project</option>
                     </select>
                   </div>
                   <div className="flex justify-center items-end">

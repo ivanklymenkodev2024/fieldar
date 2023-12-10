@@ -285,7 +285,7 @@ const ProjectDetailPage = ({ params }: any) => {
       <SideBar index={2} />
       {isSide && <ReSideBar index={2} hide={setIsSide} />}
       {!isSide && (
-        <div className="lg:left-[320px] lg:w-panel w-full min-h-[100vh] h-fit bg-gray-4">
+        <div className="absolute lg:left-[320px] lg:w-panel w-full min-h-[100vh] h-fit bg-gray-4">
           <Header title={"Project Details"} />
           <ReHeader title={"Project Details"} index={2} show={setIsSide} />
           <div className="px-[32px] py-[10px] flex flex-col">

@@ -30,13 +30,13 @@ const functions = getFunctions();
 const ActivityPage = () => {
   const [company, setCompany] = useState({});
   const [activityFilter, setActivityFilter] = useState("");
+  const [hiddenArray, setHiddenArray] = useState([]);
 
   const getCompany = (companyKey: string) => {
     const dbRef = ref(getDatabase());
     get(child(dbRef, `companies/${companyKey}`))
       .then((snapshot: any) => {
         if (snapshot.exists()) {
-          console.log(snapshot.val());
           setCompany(snapshot.val());
 
           if (activityFilter == "") {
@@ -64,6 +64,11 @@ const ActivityPage = () => {
         .then((snapshot: any) => {
           if (snapshot.exists()) {
             getCompany(snapshot.val().CompanyKey);
+            if (hiddenArray.length == 0)
+              setHiddenArray(Object.keys(company["Activity"]).map(() => false));
+            else {
+              console.log(hiddenArray);
+            }
           } else {
             console.log("No data available");
           }
@@ -83,7 +88,7 @@ const ActivityPage = () => {
       <SideBar index={3} />
       {isSide && <ReSideBar index={2} hide={setIsSide} />}
       {!isSide && (
-        <div className="lg:left-[320px] lg:w-panel w-full min-h-[100vh] h-fit bg-gray-4">
+        <div className="absolute lg:left-[320px] lg:w-panel w-full min-h-[100vh] h-fit bg-gray-4">
           <Header title={"Company Activity"} />
           <ReHeader title={"Company Activity"} index={3} show={setIsSide} />
           <div className="px-[32px] pb-[14px] flex flex-col">
@@ -116,14 +121,11 @@ const ActivityPage = () => {
                       );
                     })
                   )}
-                  {/* <option>South Hampton L...</option>
-                <option>South Hampton L...</option>
-                <option>South Hampton L...</option> */}
                 </select>
               </div>
             </div>
 
-            <div className="max-w-[1024px] flex flex-col bg-gray-3 rounded-[24px]">
+            <div className="max-w-[1024px] flex flex-col bg-gray-3 rounded-[24px] h-actable overflow-y-auto">
               {company["Activity"] != null &&
                 company["Activity"] != undefined &&
                 Object.keys(company["Activity"]).map((key, id) => {
@@ -149,7 +151,16 @@ const ActivityPage = () => {
                             {company["ProjectDirectory"][key].ProjectTitle}
                           </p>
                         </div>
-                        <button>
+                        <button
+                          onClick={() => {
+                            let arr: any[] = [...hiddenArray];
+                            arr[id] = !arr[id];
+                            setHiddenArray(arr);
+                          }}
+                          className={
+                            hiddenArray[id] == true ? "transform rotate-180" : ""
+                          }
+                        >
                           <Image
                             src={dropUpIcon}
                             width={25}
@@ -159,49 +170,51 @@ const ActivityPage = () => {
                           />
                         </button>
                       </div>
-                      {Object.keys(company.Activity[key]).map((aKey, id) => {
-                        return (
-                          <div
-                            className="flex bg-gray-3 px-[30px] py-[15px] justify-between items-center border-gray-4 border-b-[1px]"
-                            key={id}
-                          >
-                            <div className="flex justify-start items-center">
-                              <div className="w-[30px] h-[30px] mr-[17px] flex justify-center items-center">
-                                <Image
-                                  src={
-                                    company.Activity[key][aKey].ActivityType ==
-                                    "edited model details"
-                                      ? editIcon
-                                      : commentIcon
-                                  }
-                                  width={22}
-                                  height={20}
-                                  alt="commnet"
-                                  className="opacity-60"
-                                />
-                              </div>
-                              <div className="flex flex-col md:flex-row">
-                                <p className="text-gray-10 md:text-primary text-xsmall font-semibold mr-[40px]">
-                                  {company.Activity[key][aKey].AuthorName}
-                                </p>
-                                <div className="flex flex-wrap">
-                                  <p className="text-gray-10 md:text-primary text-xsmall font-semibold mr-1">
-                                    {company.Activity[key][aKey].ActivityType}:
+                      {hiddenArray[id] == true &&
+                        Object.keys(company.Activity[key]).map((aKey, id) => {
+                          return (
+                            <div
+                              className="flex bg-gray-3 px-[30px] py-[15px] justify-between items-center border-gray-4 border-b-[1px]"
+                              key={id}
+                            >
+                              <div className="flex justify-start items-center">
+                                <div className="w-[30px] h-[30px] mr-[17px] flex justify-center items-center">
+                                  <Image
+                                    src={
+                                      company.Activity[key][aKey]
+                                        .ActivityType == "edited model details"
+                                        ? editIcon
+                                        : commentIcon
+                                    }
+                                    width={22}
+                                    height={20}
+                                    alt="commnet"
+                                    className="opacity-60"
+                                  />
+                                </div>
+                                <div className="flex flex-col md:flex-row">
+                                  <p className="text-gray-10 md:text-primary text-xsmall font-semibold mr-[40px]">
+                                    {company.Activity[key][aKey].AuthorName}
                                   </p>
-                                  <p className="text-red-primary md:text-primary text-xsmall font-semibold">
-                                    {company.Activity[key][aKey].ModelTitle}
-                                  </p>
+                                  <div className="flex flex-wrap">
+                                    <p className="text-gray-10 md:text-primary text-xsmall font-semibold mr-1">
+                                      {company.Activity[key][aKey].ActivityType}
+                                      :
+                                    </p>
+                                    <p className="text-red-primary md:text-primary text-xsmall font-semibold">
+                                      {company.Activity[key][aKey].ModelTitle}
+                                    </p>
+                                  </div>
                                 </div>
                               </div>
+                              <div>
+                                <p className="text-gray-10 md:text-primary text-xsmall font-semibold mr-1">
+                                  {company.Activity[key][aKey].CreatedDateTime}
+                                </p>
+                              </div>
                             </div>
-                            <div>
-                              <p className="text-gray-10 md:text-primary text-xsmall font-semibold mr-1">
-                                {company.Activity[key][aKey].CreatedDateTime}
-                              </p>
-                            </div>
-                          </div>
-                        );
-                      })}
+                          );
+                        })}
                     </div>
                   );
                 })}

@@ -104,7 +104,7 @@ const SettingsPage = () => {
       <SideBar index={5} />
       {isSide && <ReSideBar index={5} hide={setIsSide} />}
       {!isSide && (
-        <div className="lg:left-[320px] lg:w-panel w-full min-h-[100vh] h-fit bg-gray-4">
+        <div className="absolute lg:left-[320px] lg:w-panel w-full min-h-[100vh] h-fit bg-gray-4">
           <Header title={"My Settings"} />
           <ReHeader title={"My Settings"} index={5} show={setIsSide} />
           <div className="m-[32px] flex flex-wrap">

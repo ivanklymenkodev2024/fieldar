@@ -164,6 +164,7 @@ const CompanyPage = () => {
 
   const uploadImageURLToDB = (file: any) => {
     const pfpImagePath = `company-files/${companyId}/company-icons/${companyId}`;
+    console.log(logoURL);
 
     const storageRef = ref_storage(storage, pfpImagePath);
     uploadBytes(storageRef, file).then((snapshot) => {
@@ -243,16 +244,17 @@ const CompanyPage = () => {
           <p className="m-[20px] text-gray-10 font-bold">Company Logo</p>
 
           <div className="flex flex-wrap justify-center sm:justify-start items-end">
-            <div className="ml-[40px] w-[350px] h-[120px] rounded-[23px] text-white flex justify-center items-center">
+            <div className={"ml-[39px] w-[350px] h-[120px] rounded-[23px] text-white flex justify-center items-center" + (logoURL == "" || logoURL == undefined?" bg-red-primary":"")}>
               <Image
-                width={120}
+                width={logoURL==""?400:120}
                 height={120}
                 src={
                   logoURL == "" || logoURL == undefined ? companyIcon : logoURL
                 }
                 alt={""}
-                className="w-[120px] h-[120px]"
-              />
+                className={logoURL == "" || logoURL == undefined?"w-[120px]":"w-[350px]" + " h-[120px]"}
+              /><p className="text-small font-bold text-white">Company Logo</p>
+
               <input
                 ref={fileInputRef}
                 type="file"

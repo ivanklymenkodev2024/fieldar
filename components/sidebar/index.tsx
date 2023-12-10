@@ -53,7 +53,7 @@ const SideBar: React.FC<SidebarProps> = ({ index }: SidebarProps) => {
   });
 
   return (
-    <div className="left-0 top-0 min-h-[100vh] h-auto w-sidebar bg-gray-2 hidden lg:block border-none">
+    <div className="left-0 top-0 fixed min-h-[100vh] h-[100vh] w-sidebar bg-gray-2 hidden lg:block border-none">
       <div className=" w-full flex flex-col justify-center items-center my-[30px]">
         <Image src={logoImage} width={176} height={46} alt="FieldAR Logo" />
         <Link href="/profile">

@@ -245,7 +245,7 @@ const TeamPage = () => {
       {!isSide && (
         <div
           className={
-            "absolute lg:left-[320px] lg:w-panel w-[100vw] min-h-[100vh] h-fit bg-gray-4"
+            "fixed lg:left-[320px] lg:w-panel w-[100vw] min-h-[100vh] h-fit bg-gray-4"
           }
         >
           <ReHeader title={"Company Team"} index={1}/>
@@ -386,8 +386,9 @@ const TeamPage = () => {
                   value={day}
                 >
                   <option value={7}>7 days</option>
-                  <option value={5}>5 days</option>
-                  <option value={1}>1 day</option>
+                  <option value={14}>14 days</option>
+                  <option value={30}>30 day</option>
+                  <option value={60}>60 day</option>
                 </select>
               </div>
               <div className="flex justify-center items-center p-4 md:p-5 mt-[30px]">
