@@ -45,3 +45,7 @@ body {
   background-position: right 10px;
   background-size: 25px !important;
 }
+
+input[type=checkbox]:checked{
+  background-color: #54B7B9;
+}

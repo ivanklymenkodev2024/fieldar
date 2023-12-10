@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 
 import { child, get, getDatabase, ref, set } from "firebase/database";
-import fstorage, { getDownloadURL } from "firebase/storage";
+import { getDownloadURL } from "firebase/storage";
 
 import firebase_app from "../../config";
 import profileImg from "../../public/images/profile.png";

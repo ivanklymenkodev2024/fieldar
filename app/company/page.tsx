@@ -2,28 +2,37 @@
 
 import Header from "@/components/header";
 import SideBar from "@/components/sidebar";
-
+import { useEffect, useState } from "react";
 import Image from "next/image";
 
+import { child, get, getDatabase, ref, set } from "firebase/database";
+import { getDownloadURL } from "firebase/storage";
+
+import firebase_app from "../../config";
 import profileImg from "../../public/images/profile.png";
 
 import editIcon from "../../public/icons/EditIcon.png";
 import closeIcon from "../../public/icons/CloseXIcon.png";
 import updateIcon from "../../public/icons/UpdateIcon.png";
-import trashIcon from "../../public/icons/TrashIcon.png";
-import companyIcon from "../../public/icons/CompanyIcon.png";
-import { useState } from "react";
-import { child, get, getDatabase, ref } from "firebase/database";
+import defaultUser from "../../public/icons/User.png";
 import { getAuth } from "firebase/auth";
-
-import firebase_app from "../../config";
-
-const auth = getAuth();
-const database = getDatabase(firebase_app);
-
+import { getFirestore, onSnapshot } from "firebase/firestore";
 import { getFunctions, httpsCallable } from "firebase/functions";
 
+import React, { useRef } from "react";
+import Cropper, { ReactCropperElement } from "react-cropper";
+import "cropperjs/dist/cropper.css";
+import { getStorage, uploadBytes, ref as ref_storage } from "firebase/storage";
+
+const auth = getAuth();
 const functions = getFunctions();
+
+const database = getDatabase(firebase_app);
+const storage = getStorage(firebase_app);
+
+import trashIcon from "../../public/icons/TrashIcon.png";
+import companyIcon from "../../public/icons/CompanyIcon.png";
+
 const cUpdateCompanyInfo = httpsCallable(functions, "updateCompanyInfo");
 const cRemoveCompanyLogo = httpsCallable(functions, "removeCompanyIcon");
 
@@ -41,7 +50,18 @@ const CompanyPage = () => {
   const [reCompanyBio, setReCompanyBio] = useState("");
   const [reCompanyRegion, setReCompanyRegion] = useState("");
 
+  const [resImg, setResImage] = useState("");
+  const [userID, setUserID] = useState("");
+  const [companyId, setCompanyId] = useState("");
+
+  const cropperRef = useRef<ReactCropperElement>(null);
+  const onCrop = () => {
+    const cropper = cropperRef.current?.cropper;
+    setResImage(cropper.getCroppedCanvas().toDataURL());
+  };
+
   const getCompany = async (companyKey: string) => {
+    setCompanyId(companyKey);
     const dbRef = ref(getDatabase());
     get(child(dbRef, `companies/${companyKey}`))
       .then((snapshot: any) => {
@@ -79,10 +99,6 @@ const CompanyPage = () => {
       console.log(null);
     }
   });
-
-  const updateImage = () => {
-    setIsShowCropImageModal(true);
-  };
 
   const removeImage = () => {
     setIsRemoveImageModal(true);
@@ -137,6 +153,75 @@ const CompanyPage = () => {
       });
   };
 
+  const [imageData, setImageData] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const fileInputRef = useRef(null);
+
+  const uploadImageURLToDB = (file: any) => {
+    const pfpImagePath = `company-files/${companyId}/company-icons/${companyId}`;
+
+    const storageRef = ref_storage(storage, pfpImagePath);
+    uploadBytes(storageRef, file).then((snapshot) => {
+      getDownloadURL(storageRef).then((url) => {
+        // cUpdateProfilePic({ profilePicURL: url })
+        //   .then((result) => {
+        //     console.log(result);
+        //   })
+        //   .catch((error) => {
+        //     console.log(error);
+        //   })
+        //   .finally(() => {
+        //     setIsShowCropImageModal(false);
+        //   });
+      });
+    });
+  };
+
+  const base64toFile = (base64Data: any, filename: any) => {
+    const byteCharacters = atob(base64Data.substring(22));
+    const byteArrays = [];
+
+    for (let offset = 0; offset < byteCharacters.length; offset += 1024) {
+      const chunk = byteCharacters.slice(offset, offset + 1024);
+
+      const byteNumbers = new Array(chunk.length);
+      for (let i = 0; i < chunk.length; i++) {
+        byteNumbers[i] = chunk.charCodeAt(i);
+      }
+
+      const byteArray = new Uint8Array(byteNumbers);
+      byteArrays.push(byteArray);
+    }
+
+    const blob = new Blob(byteArrays, { type: "image/jpeg" });
+    const file = new File([blob], filename, {
+      type: "image/jpeg",
+    });
+    return file;
+  };
+
+  const handleUpdateImage = () => {
+    uploadImageURLToDB(base64toFile(resImg, "profile.png"));
+  };
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    const reader = new FileReader();
+
+    if (file != undefined && file != null) {
+      reader.onload = (event) => {
+        setImageData(event.target.result);
+        setIsShowCropImageModal(true);
+      };
+
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const updateImage = () => {
+    fileInputRef.current.click();
+  };
+
   return (
     <div className="flex">
       <SideBar index={0} />
@@ -156,6 +241,13 @@ const CompanyPage = () => {
                 }
                 alt={""}
                 className="w-[120px] h-[120px]"
+              />
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                style={{ display: "none" }}
+                onChange={handleFileChange}
               />
             </div>
             <div className="flex flex-col justify-between h-[120px]">
@@ -270,7 +362,7 @@ const CompanyPage = () => {
 
       {isShowCropImageModal && (
         <div
-          id="modal_crop_image"
+          id="modal_image"
           className="flex overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full"
         >
           <div className="relative p-4 w-full max-w-[490px] max-h-full">
@@ -293,31 +385,46 @@ const CompanyPage = () => {
                 </button>
               </div>
               <div className="mx-[50px] my-[30px] flex justify-center items-end">
-                <Image
+                <Cropper
+                  src={imageData}
+                  style={{ height: 224, width: 224 }}
+                  // Cropper.js options
+                  initialAspectRatio={16 / 9}
+                  guides={false}
+                  crop={onCrop}
+                  minCropBoxHeight={100}
+                  minCropBoxWidth={100}
+                  ref={cropperRef}
+                />
+                {/* <Image
                   src={profileImg}
                   width={224}
                   height={224}
                   alt="profile image"
                   className="mx-[13px]"
-                />
+                /> */}
                 <Image
-                  src={profileImg}
+                  src={resImg == "" ? profileImg : resImg}
                   width={142}
                   height={142}
                   alt="profile image"
-                  className="mx-[13px]"
+                  className="mx-[13px] w-[142px] max-h-[142px]"
                 />
               </div>
               <div className="flex justify-center items-center p-4 md:p-5 mx-[60px]">
                 <button
                   type="button"
                   className="rounded-[24px] text-white bg-gray-5 mx-[6px] py-[12px] shadow-md drop-shadow-0 drop-shadow-y-3 blur-6 w-full"
+                  onClick={() => {
+                    setIsShowCropImageModal(false);
+                  }}
                 >
                   Cancel
                 </button>
                 <button
                   type="button"
                   className="rounded-[24px] text-white bg-gray-7 mx-[6px] py-[12px] shadow-md drop-shadow-0 drop-shadow-y-3 blur-6 w-full"
+                  onClick={handleUpdateImage}
                 >
                   Save
                 </button>
