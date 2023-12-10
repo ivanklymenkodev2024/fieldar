@@ -101,6 +101,7 @@ const ProfilePage = () => {
   const fileInputRef = useRef(null);
 
   const uploadImageURLToDB = (file: any) => {
+    setIsLoading(true);
     const pfpImagePath = `profile-pics/${userID}/profile.jpeg`;
 
     const storageRef = ref_storage(storage, pfpImagePath);
@@ -112,11 +113,17 @@ const ProfilePage = () => {
           })
           .catch((error) => {
             console.log(error);
+            setIsLoading(false);
           })
           .finally(() => {
+            setIsLoading(false);
             setIsShowCropImageModal(false);
           });
+      }).catch((error) => {
+        setIsLoading(false);
       });
+    }).catch((error) => {
+      setIsLoading(false);
     });
   };
 
@@ -438,6 +445,7 @@ const ProfilePage = () => {
                 <button
                   type="button"
                   className="rounded-[24px] text-white bg-gray-5 mx-[6px] py-[12px] shadow-md drop-shadow-0 drop-shadow-y-3 blur-6 w-full"
+                  disabled={isLoading}
                   onClick={() => {
                     setIsShowCropImageModal(false);
                   }}
@@ -446,6 +454,7 @@ const ProfilePage = () => {
                 </button>
                 <button
                   type="button"
+                  disabled={isLoading}
                   className="rounded-[24px] text-white bg-gray-7 mx-[6px] py-[12px] shadow-md drop-shadow-0 drop-shadow-y-3 blur-6 w-full"
                   onClick={handleUpdateImage}
                 >
