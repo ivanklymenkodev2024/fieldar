@@ -26,10 +26,18 @@ const database = getDatabase(firebase_app);
 
 import Link from "next/link";
 import { child, get, getDatabase, ref } from "firebase/database";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const SideBar: React.FC<SidebarProps> = ({ index }: SidebarProps) => {
-  const [picUrl, setPicUrl] = useState("");
+  let url = localStorage.getItem('picUrl');
+  if(url == undefined || url == null) url = "";
+  const [picUrl, setPicUrl] = useState(url);
+
+  useEffect(() => {
+    let url = localStorage.getItem('picUrl');
+    if(url == undefined || url == null) url = "";
+      setPicUrl(url);
+  })
 
   auth.onAuthStateChanged(function (user: any) {
     if (user != null) {

@@ -26,6 +26,7 @@ const LoginPage = () => {
     signInWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
         const user = userCredential.user;
+        localStorage.removeItem("picUrl");
         router.push("/profile");
         console.log(user);
       })

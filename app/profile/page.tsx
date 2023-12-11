@@ -84,6 +84,8 @@ const ProfilePage = () => {
             setJobTitle(snapshot.val().JobTitle);
             setPhone(snapshot.val().PhoneNumber);
             setPicUrl(snapshot.val().PhotoURL);
+            localStorage.setItem('picUrl', snapshot.val().PhotoURL);
+            
           } else {
             console.log("No data available");
           }
