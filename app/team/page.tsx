@@ -74,6 +74,7 @@ const TeamPage = () => {
   const [userID, setUserID] = useState("");
 
   const [isLoading, setIsLoading] = useState(false);
+  const [admins, setAdmins] = useState([]);
 
   const getCompany = async (companyKey: string) => {
     const dbRef = ref(getDatabase());
@@ -84,8 +85,8 @@ const TeamPage = () => {
         } else {
           console.log("No data available");
         }
-        if (isAdmin == false)
-          setIsAdmin(Object.keys(snapshot.val().Admins).includes(userID));
+        setAdmins(Object.keys(snapshot.val().Admins));
+        setIsAdmin(Object.keys(snapshot.val().Admins).includes(userID));
       })
       .catch((error: any) => {
         console.error(error);
@@ -118,6 +119,15 @@ const TeamPage = () => {
     setConfirmTitle("Promote to Admin");
     setConfirmContent(
       `Are you sure you wish to promote ${members[selectedUserId].MemberName} to Admin?`
+    );
+    setIsShowConfirmModal(true);
+  };
+
+  const removeAdminRoleFunc = () => {
+    setIsShowUserDetailModal(false);
+    setConfirmTitle("Remove Admin Role");
+    setConfirmContent(
+      `Are you sure you wish to remove admin role of ${members[selectedUserId].MemberName}?`
     );
     setIsShowConfirmModal(true);
   };
@@ -195,6 +205,20 @@ const TeamPage = () => {
     if (confirmTitle == "Promote to Admin") {
       cPromoteMemberToAdmin({
         userIdToPromote: selectedUserId,
+      })
+        .then((result) => {
+          toast.success(result.data.message);
+        })
+        .catch((error) => {
+          console.log(error);
+        })
+        .finally(() => {
+          setIsLoading(false);
+          setIsShowConfirmModal(false);
+        });
+    } else if (confirmTitle == "Remove Admin Role") {
+      cRemoveCompanyAdminRole({
+        userIdToRemove: selectedUserId,
       })
         .then((result) => {
           toast.success(result.data.message);
@@ -537,18 +561,33 @@ const TeamPage = () => {
                   Sensitive Features
                 </p>
                 <div className="flex justify-around mb-[20px]">
-                  <button
-                    className="mx-[24px] mt-[10px] h-fit bg-gray-5 rounded-[24px] px-[16px] py-[12px] font-small shadow-md drop-shadow-0 drop-shadow-y-3 blur-6 text-white flex items-center"
-                    onClick={promoteToAdminFunc}
-                  >
-                    <Image
-                      src={promoteToAdmin}
-                      width={25}
-                      height={25}
-                      alt="promote to admin"
-                    />
-                    <p className="ml-[10px] font-bold">Promote To Admin</p>
-                  </button>
+                  {!admins.includes(selectedUserId) ? (
+                    <button
+                      className="mx-[24px] mt-[10px] h-fit bg-gray-5 rounded-[24px] px-[16px] py-[12px] font-small shadow-md drop-shadow-0 drop-shadow-y-3 blur-6 text-white flex items-center"
+                      onClick={promoteToAdminFunc}
+                    >
+                      <Image
+                        src={promoteToAdmin}
+                        width={25}
+                        height={25}
+                        alt="promote to admin"
+                      />
+                      <p className="ml-[10px] font-bold">Promote To Admin</p>
+                    </button>
+                  ) : (
+                    <button
+                      className="mx-[24px] mt-[10px] h-fit bg-gray-5 rounded-[24px] px-[16px] py-[12px] font-small shadow-md drop-shadow-0 drop-shadow-y-3 blur-6 text-white flex items-center"
+                      onClick={removeAdminRoleFunc}
+                    >
+                      <Image
+                        src={promoteToAdmin}
+                        width={25}
+                        height={25}
+                        alt="promote to admin"
+                      />
+                      <p className="ml-[10px] font-bold">Remove Admin Role</p>
+                    </button>
+                  )}
 
                   <button
                     disabled={isLoading}

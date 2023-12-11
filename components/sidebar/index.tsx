@@ -57,7 +57,7 @@ const SideBar: React.FC<SidebarProps> = ({ index }: SidebarProps) => {
       <div className=" w-full flex flex-col justify-center items-center my-[30px]">
         <Image src={logoImage} width={176} height={46} alt="FieldAR Logo" />
         <Link href="/profile">
-          <div className="border-gray-4 border-[8px] rounded-[50%]">
+          <div className="border-gray-4 border-[8px] rounded-[50%] bg-red-primary">
             <Image
               src={picUrl == "" ? defaultUser : picUrl}
               width={100}

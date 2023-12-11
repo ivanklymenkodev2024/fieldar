@@ -64,7 +64,7 @@ const ReSideBar: React.FC<ReSidebarProps> = ({ index, hide }: ReSidebarProps) =>
           </button>
         </div>
         <Link href="/profile">
-          <div className="border-gray-4 border-[8px] rounded-[50%]">
+          <div className="border-gray-4 border-[8px] rounded-[50%] bg-red-primary">
             <Image
               src={picUrl == "" ? defaultUser : picUrl}
               width={92}
