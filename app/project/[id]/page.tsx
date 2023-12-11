@@ -88,6 +88,9 @@ const ProjectDetailPage = ({ params }: any) => {
 
   const [newCompanyRegion, setNewCompanyRegion] = useState("");
 
+  const [userID, setUserID] = useState("");
+  const [isAdmin, setIsAdmin] = useState(false);
+
   const getCompany = (companyKey: string) => {
     const dbRef = ref(getDatabase());
     get(child(dbRef, `companies/${companyKey}`))
@@ -95,6 +98,8 @@ const ProjectDetailPage = ({ params }: any) => {
         if (snapshot.exists()) {
           setMembers(snapshot.val().Team);
           setCompany(snapshot.val());
+          if (isAdmin == false)
+            setIsAdmin(Object.keys(snapshot.val().Admins).includes(userID));
         } else {
           console.log("No data available");
         }
@@ -123,6 +128,7 @@ const ProjectDetailPage = ({ params }: any) => {
     if (user != null) {
       getProject();
       const uid = user.uid;
+      setUserID(uid);
 
       const dbRef = ref(getDatabase());
       get(child(dbRef, `users/${uid}`))
@@ -298,7 +304,7 @@ const ProjectDetailPage = ({ params }: any) => {
                 width={16}
                 height={19}
                 alt="back"
-                className="mr-[10px]"
+                className="mr-[10px] transform rotate-90"
               />{" "}
               <p className="text-small font-semibold text-white">Back</p>
             </Link>
@@ -466,24 +472,26 @@ const ProjectDetailPage = ({ params }: any) => {
                       );
                     })}
               </div>
-              <div className="w-full flex justify-center md:justify-end">
-                <button
-                  className="bg-red-primary px-[30px] py-[15px] w-fit rounded-[29px] my-[10px] flex items-center"
-                  onClick={() => {
-                    setNewMemberRole("Manager");
-                    setIsShowAddTeamMemberModal(true);
-                  }}
-                >
-                  <Image
-                    src={plusIcon}
-                    width={20}
-                    height={20}
-                    alt="plus"
-                    className="mr-[20px]"
-                  />
-                  <p className="text-small text-white">Add Team Member</p>
-                </button>
-              </div>
+              {isAdmin&& (
+                <div className="w-full flex justify-center md:justify-end">
+                  <button
+                    className="bg-red-primary px-[30px] py-[15px] w-fit rounded-[29px] my-[10px] flex items-center"
+                    onClick={() => {
+                      setNewMemberRole("Manager");
+                      setIsShowAddTeamMemberModal(true);
+                    }}
+                  >
+                    <Image
+                      src={plusIcon}
+                      width={20}
+                      height={20}
+                      alt="plus"
+                      className="mr-[20px]"
+                    />
+                    <p className="text-small text-white">Add Team Member</p>
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -970,7 +978,9 @@ const ProjectDetailPage = ({ params }: any) => {
               </div>
 
               <div className="w-full flex justify-around items-center px-[30px] md:px-[70px] mt-[50px] mb-[10px]">
-                <p className="md:text-ssmall text-gray-10 text-primary text-center">Company Team Members</p>
+                <p className="md:text-ssmall text-gray-10 text-primary text-center">
+                  Company Team Members
+                </p>
                 <input
                   className="bg-gray-3 text-gray-11 text-2xsmall placeholder:italic rounded-[26px] font-small px-[23px] py-[10px] focus:border-none outline-none focus:ring-0 border-none"
                   type="text"
