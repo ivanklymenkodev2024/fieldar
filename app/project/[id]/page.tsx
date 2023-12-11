@@ -969,8 +969,8 @@ const ProjectDetailPage = ({ params }: any) => {
                 </p>
               </div>
 
-              <div className="w-full flex justify-around items-center px-[70px] mt-[50px] mb-[10px]">
-                <p className="text-ssmall text-gray-10">Company Team Members</p>
+              <div className="w-full flex justify-around items-center px-[30px] md:px-[70px] mt-[50px] mb-[10px]">
+                <p className="md:text-ssmall text-gray-10 text-primary text-center">Company Team Members</p>
                 <input
                   className="bg-gray-3 text-gray-11 text-2xsmall placeholder:italic rounded-[26px] font-small px-[23px] py-[10px] focus:border-none outline-none focus:ring-0 border-none"
                   type="text"
@@ -982,7 +982,7 @@ const ProjectDetailPage = ({ params }: any) => {
                 />
               </div>
 
-              <div className="bg-gray-3 h-[317px] flex flex-col rounded-[24px] mx-[70px]">
+              <div className="bg-gray-3 h-[317px] flex flex-col rounded-[24px] mx-[30px] md:mx-[70px]">
                 {Object.keys(members).map((member_id: any, id: any) => {
                   if (
                     members[member_id]?.MemberName.toLocaleLowerCase().includes(
@@ -1002,10 +1002,10 @@ const ProjectDetailPage = ({ params }: any) => {
                             console.log(member_id);
                           }}
                         >
-                          <p className="col-span-1 text-primary text-white font-normal ml-[40px] grow">
+                          <p className="col-span-1 text-2xsmall md:text-primary text-white font-normal ml-[40px] whitespace-pre">
                             {members[member_id]?.MemberName}
                           </p>
-                          <p className="col-span-1 text-primary text-white font-normal ml-[40px] grow">
+                          <p className="col-span-1 text-2xsmall md:text-primary text-white font-normal whitespace-pre">
                             {members[member_id]?.MemberEmail}
                           </p>
                         </div>
@@ -1023,7 +1023,7 @@ const ProjectDetailPage = ({ params }: any) => {
                   Change Access Role
                 </p>
                 <select
-                  className="custom-select bg-gray-5 border-gray-5 focus:border-gray-5 text-white placeholder:italic rounded-[25px] font-small px-[23px] py-[14px] my-[10px] outline-none focus:ring-0 appearance-none font-semibold w-[400px]"
+                  className="custom-select bg-gray-5 border-gray-5 focus:border-gray-5 text-white placeholder:italic rounded-[25px] font-small px-[23px] py-[14px] my-[10px] outline-none focus:ring-0 appearance-none font-semibold w-[80%] md:w-[400px]"
                   value={newMemberRole}
                   onChange={(e) => {
                     setNewMemberRole(e.target.value);

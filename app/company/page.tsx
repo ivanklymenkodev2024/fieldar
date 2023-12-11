@@ -40,6 +40,7 @@ import ReHeader from "@/components/reheader";
 
 const cUpdateCompanyInfo = httpsCallable(functions, "updateCompanyInfo");
 const cRemoveCompanyLogo = httpsCallable(functions, "removeCompanyIcon");
+const cUpdateCompanyIcon = httpsCallable(functions, "updateCompanyIcon");
 
 const CompanyPage = () => {
   const [isShowCropImageModal, setIsShowCropImageModal] = useState(false);
@@ -59,6 +60,8 @@ const CompanyPage = () => {
   const [userID, setUserID] = useState("");
   const [companyId, setCompanyId] = useState("");
 
+  const [isAdmin, setIsAdmin] = useState(false);
+
   const cropperRef = useRef<ReactCropperElement>(null);
   const onCrop = () => {
     const cropper = cropperRef.current?.cropper;
@@ -75,6 +78,10 @@ const CompanyPage = () => {
           setCompanyName(snapshot.val().CompanyName);
           setCompanyRegion(snapshot.val().CompanyRegions);
           setCompanyBio(snapshot.val().CompanyDescription);
+
+          if(isAdmin == false)
+            setIsAdmin(Object.keys(snapshot.val().Admins).includes(userID));
+
         } else {
           console.log("No data available");
         }
@@ -87,6 +94,7 @@ const CompanyPage = () => {
   auth.onAuthStateChanged(function (user: any) {
     if (user != null) {
       const uid = user.uid;
+      setUserID(uid);
 
       const dbRef = ref(getDatabase());
       get(child(dbRef, `users/${uid}`))
@@ -147,9 +155,7 @@ const CompanyPage = () => {
       CompanyDescription: reCompanyBio,
       CompanyRegions: reCompanyRegion,
     })
-      .then((result) => {
-        
-      })
+      .then((result) => {})
       .catch((error) => {
         console.log(error);
       })
@@ -163,23 +169,29 @@ const CompanyPage = () => {
   const fileInputRef = useRef(null);
 
   const uploadImageURLToDB = (file: any) => {
-    const pfpImagePath = `company-files/${companyId}/company-icons/${companyId}`;
-    console.log(logoURL);
+    setIsLoading(true);
+    const pfpImagePath = `temp/${companyId}.jpeg`;
 
     const storageRef = ref_storage(storage, pfpImagePath);
     uploadBytes(storageRef, file).then((snapshot) => {
       getDownloadURL(storageRef).then((url) => {
-        // cUpdateProfilePic({ profilePicURL: url })
-        //   .then((result) => {
-        //     console.log(result);
-        //   })
-        //   .catch((error) => {
-        //     console.log(error);
-        //   })
-        //   .finally(() => {
-        //     setIsShowCropImageModal(false);
-        //   });
+        cUpdateCompanyIcon()
+          .then((result) => {
+            toast.success(result.data.message);
+            setIsLoading(false);
+          })
+          .catch((error) => {
+            console.log(error);
+            setIsLoading(false);
+          })
+          .finally(() => {
+            setIsShowCropImageModal(false);
+          });
+      }).catch((error) => {
+        setIsLoading(false);
       });
+    }).catch((error) => {
+      setIsLoading(false);
     });
   };
 
@@ -232,97 +244,120 @@ const CompanyPage = () => {
 
   return (
     <div className="flex">
-      
       <SideBar index={0} />
       {isSide && <ReSideBar index={-1} hide={setIsSide} />}
       {!isSide && (
-      <div className="absolute lg:left-[320px] lg:w-panel w-[100vw] min-h-[100vh] h-fit bg-gray-4">
-        <ReHeader title={"My Company"} index={0} show={setIsSide}/>
-        <Header title={"My Company"} />
+        <div className="absolute lg:left-[320px] lg:w-panel w-[100vw] min-h-[100vh] h-fit bg-gray-4">
+          <ReHeader title={"My Company"} index={0} show={setIsSide} />
+          <Header title={"My Company"} />
 
-        <div className="m-[40px] ml-[52px]">
-          <p className="m-[20px] text-gray-10 font-bold">Company Logo</p>
+          <div className="m-[40px] ml-[52px]">
+            <p className="m-[20px] text-gray-10 font-bold">Company Logo</p>
 
-          <div className="flex flex-wrap justify-center sm:justify-start items-end">
-            <div className={"ml-[39px] w-[350px] h-[120px] rounded-[23px] text-white flex justify-center items-center" + (logoURL == "" || logoURL == undefined?" bg-red-primary":"")}>
-              <Image
-                width={logoURL==""?400:120}
-                height={120}
-                src={
-                  logoURL == "" || logoURL == undefined ? companyIcon : logoURL
+            <div className="flex flex-wrap justify-center sm:justify-start items-end">
+              <div
+                className={
+                  "ml-[39px] w-[350px] h-[120px] rounded-[23px] text-white flex justify-center items-center" +
+                  (logoURL == "" || logoURL == undefined
+                    ? " bg-red-primary"
+                    : "")
                 }
-                alt={""}
-                className={logoURL == "" || logoURL == undefined?"w-[120px]":"w-[350px]" + " h-[120px]"}
-              /><p className="text-small font-bold text-white">Company Logo</p>
+              >
+                <Image
+                  width={logoURL == "" ? 400 : 120}
+                  height={120}
+                  src={
+                    logoURL == "" || logoURL == undefined
+                      ? companyIcon
+                      : logoURL
+                  }
+                  alt={""}
+                  className={
+                    logoURL == "" || logoURL == undefined
+                      ? "w-[120px]"
+                      : "w-[350px]" + " h-[120px]"
+                  }
+                />
+                <p className="text-small font-bold text-white">Company Logo</p>
 
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                style={{ display: "none" }}
-                onChange={handleFileChange}
-              />
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  style={{ display: "none" }}
+                  onChange={handleFileChange}
+                />
+              </div>
+              {isAdmin && (
+                <div className="flex sm:flex-col flex-row justify-between sm:h-[120px] my-[20px] sm:my-0">
+                  <button
+                    className="ml-[24px] mr-0 h-fit bg-gray-5 rounded-[24px] px-[16px] py-[12px] text-small shadow-md drop-shadow-0 drop-shadow-y-3 blur-6 text-white flex items-center"
+                    onClick={updateImage}
+                  >
+                    <Image
+                      src={updateIcon}
+                      width={25}
+                      height={25}
+                      alt="close"
+                    />
+                    <p className="ml-[10px] font-bold">Update</p>
+                  </button>
+                  <button
+                    className="ml-[24px] mr-0 h-fit bg-red-primary rounded-[24px] px-[16px] py-[12px] text-small shadow-md drop-shadow-0 drop-shadow-y-3 blur-6 text-white flex items-center"
+                    onClick={removeImage}
+                  >
+                    <Image src={trashIcon} width={25} height={25} alt="close" />
+                    <p className="ml-[10px] font-bold">Remove</p>
+                  </button>
+                </div>
+              )}
             </div>
-            <div className="flex sm:flex-col flex-row justify-between sm:h-[120px] my-[20px] sm:my-0">
-              <button
-                className="ml-[24px] mr-0 h-fit bg-gray-5 rounded-[24px] px-[16px] py-[12px] text-small shadow-md drop-shadow-0 drop-shadow-y-3 blur-6 text-white flex items-center"
-                onClick={updateImage}
-              >
-                <Image src={updateIcon} width={25} height={25} alt="close" />
-                <p className="ml-[10px] font-bold">Update</p>
-              </button>
-              <button
-                className="ml-[24px] mr-0 h-fit bg-red-primary rounded-[24px] px-[16px] py-[12px] text-small shadow-md drop-shadow-0 drop-shadow-y-3 blur-6 text-white flex items-center"
-                onClick={removeImage}
-              >
-                <Image src={trashIcon} width={25} height={25} alt="close" />
-                <p className="ml-[10px] font-bold">Remove</p>
-              </button>
+            <div className="ml-[40px] mt-[5px]">
+              <p className="text-2xsmall font-bold text-gray-10">
+                Recommended size: 500x150px
+              </p>
+              <p className="text-2xsmall font-bold text-gray-10">
+                Required format: .jpg, .jpeg
+              </p>
             </div>
           </div>
-          <div className="ml-[40px] mt-[5px]">
-            <p className="text-2xsmall font-bold text-gray-10">
-              Recommended size: 500x150px
-            </p>
-            <p className="text-2xsmall font-bold text-gray-10">
-              Required format: .jpg, .jpeg
-            </p>
+
+          <hr className="m-[40px] ml-[72px] h-[2px] bg-gray-10 max-w-[1072px]" />
+
+          <div className="m-[40px] ml-[62px]">
+            <div className="my-[25px]">
+              <p className="text-gray-10 text-small font-bold">Company Name</p>
+              <p className="text-white text-small font-bold ml-[12px]">
+                {companyName}
+              </p>
+            </div>
+            <div className="my-[25px]">
+              <p className="text-gray-10 text-small font-bold">
+                Company Bio / Tag-Line
+              </p>
+              <p className="text-white text-small font-bold ml-[12px] max-w-[850px]">
+                {companyBio}
+              </p>
+            </div>
+            <div className="my-[25px]">
+              <p className="text-gray-10 text-small font-bold">
+                Company Regions
+              </p>
+              <p className="text-white text-small font-bold ml-[12px]">
+                {companyRegion}
+              </p>
+            </div>
+
+            <button
+              className="h-fit bg-gray-5 rounded-[24px] px-[16px] py-[12px] text-small shadow-md drop-shadow-0 drop-shadow-y-3 blur-6 text-white flex items-center"
+              onClick={updateCompanyDetail}
+            >
+              <Image src={editIcon} width={25} height={25} alt="edit" />
+              <p className="ml-[10px] font-bold">Edit Info</p>
+            </button>
           </div>
         </div>
-
-        <hr className="m-[40px] ml-[72px] h-[2px] bg-gray-10 max-w-[1072px]" />
-
-        <div className="m-[40px] ml-[62px]">
-          <div className="my-[25px]">
-            <p className="text-gray-10 text-small font-bold">Company Name</p>
-            <p className="text-white text-small font-bold ml-[12px]">
-              {companyName}
-            </p>
-          </div>
-          <div className="my-[25px]">
-            <p className="text-gray-10 text-small font-bold">
-              Company Bio / Tag-Line
-            </p>
-            <p className="text-white text-small font-bold ml-[12px] max-w-[850px]">
-              {companyBio}
-            </p>
-          </div>
-          <div className="my-[25px]">
-            <p className="text-gray-10 text-small font-bold">Company Regions</p>
-            <p className="text-white text-small font-bold ml-[12px]">
-              {companyRegion}
-            </p>
-          </div>
-
-          <button
-            className="h-fit bg-gray-5 rounded-[24px] px-[16px] py-[12px] text-small shadow-md drop-shadow-0 drop-shadow-y-3 blur-6 text-white flex items-center"
-            onClick={updateCompanyDetail}
-          >
-            <Image src={editIcon} width={25} height={25} alt="edit" />
-            <p className="ml-[10px] font-bold">Edit Info</p>
-          </button>
-        </div>
-      </div>)}
+      )}
 
       {isRemoveImageModal && (
         <div

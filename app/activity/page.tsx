@@ -104,6 +104,7 @@ const ActivityPage = () => {
                     setActivityFilter(e.target.value);
                   }}
                 >
+                  <option value={"All"}>All</option>
                   {company == null ||
                   company == undefined ||
                   company.ProjectDirectory == null ||
@@ -125,13 +126,26 @@ const ActivityPage = () => {
               </div>
             </div>
 
-            <div className="max-w-[1024px] flex flex-col bg-gray-3 rounded-[24px] h-actable overflow-y-auto">
+            <div
+              className={
+                "max-w-[1024px] flex flex-col bg-gray-3 rounded-[24px] h-actable overflow-y-auto" +
+                (company["Activity"] == null ||
+                company["Activity"] == undefined ||
+                Object.keys(company["Activity"]).filter(
+                  (item) =>
+                    company["ProjectDirectory"][item].ProjectTitle ==
+                    activityFilter || activityFilter == "All"
+                ).length == 0
+                  ? " justify-center items-center"
+                  : "")
+              }
+            >
               {company["Activity"] != null &&
                 company["Activity"] != undefined &&
                 Object.keys(company["Activity"]).map((key, id) => {
                   if (
                     company["ProjectDirectory"][key].ProjectTitle !=
-                    activityFilter
+                    activityFilter && activityFilter != "All"
                   ) {
                     return <></>;
                   }
@@ -158,7 +172,9 @@ const ActivityPage = () => {
                             setHiddenArray(arr);
                           }}
                           className={
-                            hiddenArray[id] == true ? "transform rotate-180" : ""
+                            hiddenArray[id] == true
+                              ? "transform rotate-180"
+                              : ""
                           }
                         >
                           <Image
@@ -218,6 +234,15 @@ const ActivityPage = () => {
                     </div>
                   );
                 })}
+              {company["Activity"] == null ||
+                company["Activity"] == undefined ||
+                (Object.keys(company["Activity"]).filter(
+                  (item) =>
+                    company["ProjectDirectory"][item].ProjectTitle ==
+                    activityFilter || activityFilter == "All"
+                ).length == 0 && (
+                  <p className="text-primary text-gray-10">No Project Yet</p>
+                ))}
             </div>
           </div>
         </div>

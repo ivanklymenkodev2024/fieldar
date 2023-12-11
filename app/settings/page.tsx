@@ -26,6 +26,9 @@ import { useState } from "react";
 import ReHeader from "@/components/reheader";
 import ReSideBar from "@/components/residebar";
 
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 const functions = getFunctions();
 const cUpdateSettings = httpsCallable(functions, "updateSettings");
 
@@ -54,7 +57,7 @@ const SettingsPage = () => {
         setOption2(option2);
         setOption3(option3);
         setOption4(option4);
-        console.log(result);
+        toast.success(result.data.message);
       })
       .catch((error) => {
         console.log(error);
@@ -209,6 +212,7 @@ const SettingsPage = () => {
           </div>
         </div>
       )}
+      <ToastContainer />
     </div>
   );
 };
