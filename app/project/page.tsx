@@ -41,6 +41,9 @@ const ProjectPage = () => {
 
   const [adminProject, setAdminProject] = useState([]);
 
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [userID, setUserID] = useState("");
+
   const getCompany = (companyKey: string) => {
     const dbRef = ref(getDatabase());
     get(child(dbRef, `companies/${companyKey}`))
@@ -51,6 +54,8 @@ const ProjectPage = () => {
           if (regionFilter == "") {
             setRegionFilter(snapshot.val().CompanyRegions.split(",")[0].trim());
           }
+          if (isAdmin == false)
+            setIsAdmin(Object.keys(snapshot.val().Admins).includes(userID));
         } else {
           console.log("No data available");
         }
@@ -63,6 +68,7 @@ const ProjectPage = () => {
   auth.onAuthStateChanged(function (user: any) {
     if (user != null) {
       const uid = user.uid;
+      setUserID(uid);
 
       const dbRef = ref(getDatabase());
       get(child(dbRef, `users/${uid}`))
@@ -237,21 +243,23 @@ const ProjectPage = () => {
                 })}
             </div>
 
-            <div className="max-w-[1024px] flex sm:justify-end justify-center">
-              <button
-                className="mt-[16px] h-fit bg-red-primary rounded-[24px] px-[16px] py-[12px] font-small shadow-md drop-shadow-0 drop-shadow-y-3 blur-6 text-white flex items-center"
-                onClick={createNewProject}
-              >
-                <Image
-                  src={plusIcon}
-                  width={20}
-                  height={20}
-                  alt="plus"
-                  className="mr-[10px]"
-                />
-                <p className="font-light">Create New Project</p>
-              </button>
-            </div>
+            {isAdmin && (
+              <div className="max-w-[1024px] flex sm:justify-end justify-center">
+                <button
+                  className="mt-[16px] h-fit bg-red-primary rounded-[24px] px-[16px] py-[12px] font-small shadow-md drop-shadow-0 drop-shadow-y-3 blur-6 text-white flex items-center"
+                  onClick={createNewProject}
+                >
+                  <Image
+                    src={plusIcon}
+                    width={20}
+                    height={20}
+                    alt="plus"
+                    className="mr-[10px]"
+                  />
+                  <p className="font-light">Create New Project</p>
+                </button>
+              </div>
+            )}
           </div>
         </div>
       )}

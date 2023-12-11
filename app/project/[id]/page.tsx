@@ -126,9 +126,9 @@ const ProjectDetailPage = ({ params }: any) => {
 
   auth.onAuthStateChanged(function (user: any) {
     if (user != null) {
-      getProject();
       const uid = user.uid;
       setUserID(uid);
+      getProject();
 
       const dbRef = ref(getDatabase());
       get(child(dbRef, `users/${uid}`))
@@ -328,25 +328,30 @@ const ProjectDetailPage = ({ params }: any) => {
                 </p>
               </div>
             </div>
-            <div className="px-[20px] py-[10px] flex flex-col justify-around items-center">
-              <button
-                className="h-fit bg-gray-5 rounded-[24px] px-[16px] py-[12px] text-small shadow-md drop-shadow-0 drop-shadow-y-3 blur-6 text-white flex items-center"
-                onClick={editProject}
-              >
-                <Image src={editIcon} width={25} height={25} alt="edit" />
-                <p className="ml-[10px] text-primary font-normal">
-                  Edit Details
-                </p>
-              </button>
-              <button
-                className="text-red-primary text-primary font-normal"
-                onClick={() => {
-                  setIsShowDeleteProjectModal(true);
-                }}
-              >
-                Delete Project
-              </button>
-            </div>
+            {(isAdmin ||
+              (project.TeamMembers != undefined &&
+                project.TeamMembers[userID] != undefined &&
+                project.TeamMembers[userID].AccessRole == "Manager")) && (
+              <div className="px-[20px] py-[10px] flex flex-col justify-around items-center">
+                <button
+                  className="h-fit bg-gray-5 rounded-[24px] px-[16px] py-[12px] text-small shadow-md drop-shadow-0 drop-shadow-y-3 blur-6 text-white flex items-center"
+                  onClick={editProject}
+                >
+                  <Image src={editIcon} width={25} height={25} alt="edit" />
+                  <p className="ml-[10px] text-primary font-normal">
+                    Edit Details
+                  </p>
+                </button>
+                <button
+                  className="text-red-primary text-primary font-normal"
+                  onClick={() => {
+                    setIsShowDeleteProjectModal(true);
+                  }}
+                >
+                  Delete Project
+                </button>
+              </div>
+            )}
           </div>
           <div className="px-[32px] py-[10px] flex flex-wrap md:flex-row flex-col">
             <div className="flex flex-col mr-[20px]">
@@ -371,23 +376,29 @@ const ProjectDetailPage = ({ params }: any) => {
                               {project.Models[key].ModelTitle}
                             </p>
                           </div>
-                          <button
-                            onClick={() => {
-                              setSelectedModel(key);
-                              setNewModelName(project.Models[key].ModelTitle);
-                              setNewModelLocation(
-                                project.Models[key].ModelLocation
-                              );
-                              setIsShowEditModelModal(true);
-                            }}
-                          >
-                            <Image
-                              src={editIcon}
-                              width={22}
-                              height={22}
-                              alt="edit"
-                            />
-                          </button>
+                          {(isAdmin ||
+                            (project.TeamMembers != undefined &&
+                              project.TeamMembers[userID] != undefined &&
+                              project.TeamMembers[userID].AccessRole ==
+                                "Manager")) && (
+                            <button
+                              onClick={() => {
+                                setSelectedModel(key);
+                                setNewModelName(project.Models[key].ModelTitle);
+                                setNewModelLocation(
+                                  project.Models[key].ModelLocation
+                                );
+                                setIsShowEditModelModal(true);
+                              }}
+                            >
+                              <Image
+                                src={editIcon}
+                                width={22}
+                                height={22}
+                                alt="edit"
+                              />
+                            </button>
+                          )}
                         </div>
                         <hr className="w-full border-[1px] border-gray-7" />
                       </>
@@ -453,26 +464,35 @@ const ProjectDetailPage = ({ params }: any) => {
                                 {project.TeamMembers[key].AccessRole}
                               </p>
                             </div>
-                            <button
-                              onClick={() => {
-                                setSelectedTeamMember(key);
-                                setIsShowUserRoleModal(true);
-                              }}
-                            >
-                              <Image
-                                src={editIcon}
-                                width={22}
-                                height={22}
-                                alt="edit"
-                              />
-                            </button>
+                            {(isAdmin ||
+                              (project.TeamMembers != undefined &&
+                                project.TeamMembers[userID] != undefined &&
+                                project.TeamMembers[userID].AccessRole ==
+                                  "Manager")) && (
+                              <button
+                                onClick={() => {
+                                  setSelectedTeamMember(key);
+                                  setIsShowUserRoleModal(true);
+                                }}
+                              >
+                                <Image
+                                  src={editIcon}
+                                  width={22}
+                                  height={22}
+                                  alt="edit"
+                                />
+                              </button>
+                            )}
                           </div>
                           <hr className="w-full border-[1px] border-gray-7" />
                         </>
                       );
                     })}
               </div>
-              {isAdmin&& (
+              {(isAdmin ||
+                (project.TeamMembers != undefined &&
+                  project.TeamMembers[userID] != undefined &&
+                  project.TeamMembers[userID].AccessRole == "Manager")) && (
                 <div className="w-full flex justify-center md:justify-end">
                   <button
                     className="bg-red-primary px-[30px] py-[15px] w-fit rounded-[29px] my-[10px] flex items-center"
