@@ -79,9 +79,8 @@ const CompanyPage = () => {
           setCompanyRegion(snapshot.val().CompanyRegions);
           setCompanyBio(snapshot.val().CompanyDescription);
 
-          if(isAdmin == false)
+          if (isAdmin == false)
             setIsAdmin(Object.keys(snapshot.val().Admins).includes(userID));
-
         } else {
           console.log("No data available");
         }
@@ -173,26 +172,30 @@ const CompanyPage = () => {
     const pfpImagePath = `temp/${companyId}.jpeg`;
 
     const storageRef = ref_storage(storage, pfpImagePath);
-    uploadBytes(storageRef, file).then((snapshot) => {
-      getDownloadURL(storageRef).then((url) => {
-        cUpdateCompanyIcon()
-          .then((result) => {
-            toast.success(result.data.message);
-            setIsLoading(false);
+    uploadBytes(storageRef, file)
+      .then((snapshot) => {
+        getDownloadURL(storageRef)
+          .then((url) => {
+            cUpdateCompanyIcon()
+              .then((result) => {
+                toast.success(result.data.message);
+                setIsLoading(false);
+              })
+              .catch((error) => {
+                console.log(error);
+                setIsLoading(false);
+              })
+              .finally(() => {
+                setIsShowCropImageModal(false);
+              });
           })
           .catch((error) => {
-            console.log(error);
             setIsLoading(false);
-          })
-          .finally(() => {
-            setIsShowCropImageModal(false);
           });
-      }).catch((error) => {
+      })
+      .catch((error) => {
         setIsLoading(false);
       });
-    }).catch((error) => {
-      setIsLoading(false);
-    });
   };
 
   const base64toFile = (base64Data: any, filename: any) => {
@@ -278,7 +281,11 @@ const CompanyPage = () => {
                       : "w-[350px]" + " h-[120px]"
                   }
                 />
-                <p className="text-small font-bold text-white">Company Logo</p>
+                {(logoURL == undefined || logoURL == "") && (
+                  <p className="text-small font-bold text-white">
+                    Company Logo
+                  </p>
+                )}
 
                 <input
                   ref={fileInputRef}
