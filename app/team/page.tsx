@@ -248,7 +248,7 @@ const TeamPage = () => {
             "fixed lg:left-[320px] lg:w-panel w-[100vw] min-h-[100vh] h-fit bg-gray-4"
           }
         >
-          <ReHeader title={"Company Team"} index={1}/>
+          <ReHeader title={"Company Team"} index={1} />
           <Header title={"Company Team"} />
           <div className="px-[32px] py-[14px] flex flex-col">
             <div className="max-w-[1024px] flex justify-end">
@@ -278,37 +278,41 @@ const TeamPage = () => {
             </div>
 
             <div className="max-w-[1024px] flex flex-col bg-gray-3 h-ttable rounded-[24px]">
-              {Object.keys(members).map((member_id: any, id: any) => {
-                if (
-                  members[member_id]?.MemberName.toLocaleLowerCase().includes(
-                    filterString.toLocaleLowerCase()
-                  )
-                ) {
-                  return (
-                    <div
-                      key={id}
-                      className={`grid grid-cols-2 md:grid-cols-3 p-[10px] border-b-[1px] border-gray-4 hover:bg-gray-7 px-[22px] ${
-                        id == 0 ? "rounded-t-[12px] pt-[16px]" : ""
-                      }`}
-                      onClick={() => {
-                        openUserProjectModal(id);
-                      }}
-                    >
-                      <button className="text-white col-span-1 font-light w-fit">
-                        {members[member_id]?.MemberName}
-                      </button>
-                      <p className="text-white col-span-1 font-light hidden md:block">
-                        {members[member_id]?.MemberEmail}
-                      </p>
-                      <p className="text-white col-span-1 font-light">
-                        {Object.keys(members[member_id]?.MemberProjects).length}
-                      </p>
-                    </div>
-                  );
-                } else {
-                  return <></>;
-                }
-              })}
+              {members != undefined &&
+                Object.keys(members).map((member_id: any, id: any) => {
+                  if (
+                    members[member_id]?.MemberName.toLocaleLowerCase().includes(
+                      filterString.toLocaleLowerCase()
+                    )
+                  ) {
+                    return (
+                      <div
+                        key={id}
+                        className={`grid grid-cols-2 md:grid-cols-3 p-[10px] border-b-[1px] border-gray-4 hover:bg-gray-7 px-[22px] ${
+                          id == 0 ? "rounded-t-[12px] pt-[16px]" : ""
+                        }`}
+                        onClick={() => {
+                          openUserProjectModal(id);
+                        }}
+                      >
+                        <button className="text-white col-span-1 font-light w-fit">
+                          {members[member_id]?.MemberName}
+                        </button>
+                        <p className="text-white col-span-1 font-light hidden md:block">
+                          {members[member_id]?.MemberEmail}
+                        </p>
+                        <p className="text-white col-span-1 font-light">
+                          {members[member_id]?.MemberProjects == undefined
+                            ? "0"
+                            : Object.keys(members[member_id]?.MemberProjects)
+                                .length}
+                        </p>
+                      </div>
+                    );
+                  } else {
+                    return <></>;
+                  }
+                })}
             </div>
 
             <div className="max-w-[1024px] flex sm:justify-end justify-center">
@@ -442,47 +446,50 @@ const TeamPage = () => {
                 </p>
               </div>
               <div className="mx-[30px] my-[10px] flex flex-col items-start bg-gray-3 rounded-[33px] h-[360px]">
-                {Object.keys(members[selectedUserId].MemberProjects).map(
-                  (project, id) => {
-                    return (
-                      <>
-                        <div
-                          key={id}
-                          className="flex justify-between items-center w-full px-[30px]"
-                        >
-                          <div className="flex justify-between grow">
-                            <p className="rounded-t-[33px] my-[20px] text-primary font-normal text-white">
-                              {
-                                members[selectedUserId].MemberProjects[project]
-                                  .ProjectName
-                              }
-                            </p>
-                            <p className="rounded-t-[33px] mx-[30px] my-[20px] text-primary font-normal text-white">
-                              {
-                                members[selectedUserId].MemberProjects[project]
-                                  .ProjectRole
-                              }
-                            </p>
-                          </div>
-                          <button
-                            onClick={() => {
-                              updateUserRole(id);
-                            }}
+                {members[selectedUserId].MemberProjects != undefined &&
+                  Object.keys(members[selectedUserId].MemberProjects).map(
+                    (project, id) => {
+                      return (
+                        <>
+                          <div
+                            key={id}
+                            className="flex justify-between items-center w-full px-[30px]"
                           >
-                            <Image
-                              src={editIcon}
-                              width={25}
-                              height={25}
-                              alt="edit"
-                              className="mx-[30px]"
-                            />
-                          </button>
-                        </div>
-                        <hr className="border-b-[1px] border-gray-7 w-full" />
-                      </>
-                    );
-                  }
-                )}
+                            <div className="flex justify-between grow">
+                              <p className="rounded-t-[33px] my-[20px] text-primary font-normal text-white">
+                                {
+                                  members[selectedUserId].MemberProjects[
+                                    project
+                                  ].ProjectName
+                                }
+                              </p>
+                              <p className="rounded-t-[33px] mx-[30px] my-[20px] text-primary font-normal text-white">
+                                {
+                                  members[selectedUserId].MemberProjects[
+                                    project
+                                  ].ProjectRole
+                                }
+                              </p>
+                            </div>
+                            <button
+                              onClick={() => {
+                                updateUserRole(id);
+                              }}
+                            >
+                              <Image
+                                src={editIcon}
+                                width={25}
+                                height={25}
+                                alt="edit"
+                                className="mx-[30px]"
+                              />
+                            </button>
+                          </div>
+                          <hr className="border-b-[1px] border-gray-7 w-full" />
+                        </>
+                      );
+                    }
+                  )}
               </div>
               <div className="mx-[30px] my-[20px] flex flex-col justify-start items-center bg-gray-3 rounded-[33px]">
                 <p className="text-ssmall text-gray-11 text-center my-[30px]">
