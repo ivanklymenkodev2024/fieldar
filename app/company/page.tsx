@@ -79,8 +79,14 @@ const CompanyPage = () => {
           setCompanyRegion(snapshot.val().CompanyRegions);
           setCompanyBio(snapshot.val().CompanyDescription);
 
-          if (isAdmin == false)
-            setIsAdmin(Object.keys(snapshot.val().Admins).includes(userID));
+          if (isAdmin == false){
+            if(snapshot.val().SubscriptionPlan != 'Trial') {
+              setIsAdmin(Object.keys(snapshot.val().Admins).includes(userID));
+            } else {
+              setIsAdmin(false);
+            }
+          }
+            
         } else {
           console.log("No data available");
         }

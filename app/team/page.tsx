@@ -86,7 +86,13 @@ const TeamPage = () => {
           console.log("No data available");
         }
         setAdmins(Object.keys(snapshot.val().Admins));
-        setIsAdmin(Object.keys(snapshot.val().Admins).includes(userID));
+        if (isAdmin == false) {
+          if (snapshot.val().SubscriptionPlan != "Trial") {
+            setIsAdmin(Object.keys(snapshot.val().Admins).includes(userID));
+          } else {
+            setIsAdmin(false);
+          }
+        }
       })
       .catch((error: any) => {
         console.error(error);
@@ -250,6 +256,7 @@ const TeamPage = () => {
         selectedMemberId: selectedUserId,
       })
         .then((result) => {
+          setIsShowConfirmModal(false);
           toast.success(result.data.message);
         })
         .finally(() => {
@@ -336,7 +343,7 @@ const TeamPage = () => {
                           id == 0 ? "rounded-t-[12px] pt-[16px]" : ""
                         }`}
                         onClick={() => {
-                          openUserProjectModal(id);
+                          if (isAdmin) openUserProjectModal(id);
                         }}
                       >
                         <button className="text-white col-span-1 font-light w-fit">

@@ -54,8 +54,13 @@ const ProjectPage = () => {
           if (regionFilter == "") {
             setRegionFilter(snapshot.val().CompanyRegions.split(",")[0].trim());
           }
-          if (isAdmin == false)
-            setIsAdmin(Object.keys(snapshot.val().Admins).includes(userID));
+          if (isAdmin == false) {
+            if (snapshot.val().SubscriptionPlan != "Trial") {
+              setIsAdmin(Object.keys(snapshot.val().Admins).includes(userID));
+            } else {
+              setIsAdmin(false);
+            }
+          }
         } else {
           console.log("No data available");
         }
@@ -75,7 +80,11 @@ const ProjectPage = () => {
         .then((snapshot: any) => {
           if (snapshot.exists()) {
             getCompany(snapshot.val().CompanyKey);
-            setAdminProject(Object.keys(snapshot.val()["CreatedProjects"]));
+            if (snapshot.val()["CreatedProjects"] == undefined) {
+              setAdminProject([]);
+            } else {
+              setAdminProject(Object.keys(snapshot.val()["CreatedProjects"]));
+            }
           } else {
             console.log("No data available");
           }
@@ -184,7 +193,15 @@ const ProjectPage = () => {
               </div>
             </div>
 
-            <div className="max-w-[1024px] flex flex-col bg-gray-3 h-ttable rounded-[24px]">
+            <div
+              className={
+                "max-w-[1024px] flex flex-col bg-gray-3 h-ttable rounded-[24px]" +
+                (company.ProjectDirectory == undefined ||
+                Object.keys(company.ProjectDirectory).length == 0
+                  ? " justify-center items-center"
+                  : "")
+              }
+            >
               {company.ProjectDirectory != null &&
                 company.ProjectDirectory != undefined &&
                 Object.keys(company.ProjectDirectory).map((key, id) => {
@@ -244,6 +261,12 @@ const ProjectPage = () => {
                     </div>
                   );
                 })}
+              {company.ProjectDirectory == undefined ||
+              Object.keys(company.ProjectDirectory).length == 0 ? (
+                <p className="text-gray-10">No projects created yet</p>
+              ) : (
+                <></>
+              )}
             </div>
 
             {isAdmin && (
