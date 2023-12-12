@@ -29,12 +29,12 @@ import { child, get, getDatabase, ref } from "firebase/database";
 import { useEffect, useState } from "react";
 
 const SideBar: React.FC<SidebarProps> = ({ index }: SidebarProps) => {
-  let url = localStorage.getItem('picUrl');
+  let url = typeof window !== "undefined" ? localStorage.getItem('picUrl') : "";
   if(url == undefined || url == null) url = "";
   const [picUrl, setPicUrl] = useState(url);
 
   useEffect(() => {
-    let url = localStorage.getItem('picUrl');
+    let url = typeof window !== "undefined" ? localStorage.getItem('picUrl') : "";
     if(url == undefined || url == null) url = "";
       setPicUrl(url);
   })
