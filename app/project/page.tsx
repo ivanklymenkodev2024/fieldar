@@ -266,7 +266,7 @@ const ProjectPage = () => {
                         <div
                           className={
                             "rounded-[100%] w-[10px] h-[10px] lg:hidden mr-[10px] " +
-                            (adminProject.includes(key)
+                            ((adminProject.includes(key) || (company.Team[userID] != undefined && company.Team[userID].MemberProjects[key] != undefined && company.Team[userID].MemberProjects[key].AccessRole == 'Manager'))
                               ? "bg-cyan-600"
                               : "bg-gray-4")
                           }
@@ -285,7 +285,7 @@ const ProjectPage = () => {
                         <div
                           className={
                             "rounded-[100%] w-[10px] h-[10px] " +
-                            ((isAdmin == true || adminProject.includes(key))
+                            ((adminProject.includes(key) || (company.Team[userID] != undefined && company.Team[userID].MemberProjects[key] != undefined && company.Team[userID].MemberProjects[key].AccessRole == 'Manager'))
                               ? "bg-cyan-600"
                               : "bg-gray-4")
                           }
