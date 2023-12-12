@@ -1193,8 +1193,8 @@ const ProjectDetailPage = ({ params }: any) => {
                         {" "}
                         <div
                           className={
-                            "grid grid-cols-2 my-[14px] " +
-                            (selectedNewMember == member_id ? "opacity-50" : "")
+                            "grid grid-cols-2 py-[14px] " +
+                            (selectedNewMember == member_id ? (id == 0? " rounded-t-[24px] ":"") + "bg-gray-7" : "")
                           }
                           onClick={() => {
                             setSelectedNewMember(member_id);

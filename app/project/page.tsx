@@ -252,7 +252,7 @@ const ProjectPage = () => {
                         <div
                           className={
                             "rounded-[100%] w-[10px] h-[10px] " +
-                            (adminProject.includes(key)
+                            ((isAdmin || adminProject.includes(key))
                               ? "bg-cyan-600"
                               : "bg-gray-4")
                           }
