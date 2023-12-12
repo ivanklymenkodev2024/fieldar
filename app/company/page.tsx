@@ -85,7 +85,8 @@ const CompanyPage = () => {
     console.log(company);
 
     if (company.SubscriptionPlan != "Trial") {
-      setIsAdmin(true)
+      setIsAdmin(Object.keys(company.Admins).includes(user.uid));
+      console.log(Object.keys(company.Admins).includes(user.uid));
     } else {
       setIsAdmin(false);
     }
