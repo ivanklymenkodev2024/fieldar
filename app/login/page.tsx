@@ -15,6 +15,8 @@ const auth = getAuth(firebase_app);
 
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useGlobalContext } from "@/contexts/state";
+import { child, get, getDatabase, ref } from "firebase/database";
 
 const LoginPage = () => {
   const router = useRouter();
@@ -23,6 +25,29 @@ const LoginPage = () => {
 
   const [isLoading, setIsLoading] = useState(false);
 
+  const {profile, setUser, setProfile, setProject, setCompany } = useGlobalContext();
+
+  const getCompany = (companyKey: string) => {
+    const dbRef = ref(getDatabase());
+    get(child(dbRef, `companies/${companyKey}`))
+      .then((snapshot: any) => {
+        if (snapshot.exists()) {
+          setCompany(snapshot.val());
+          if (typeof window !== 'undefined') {
+            localStorage.setItem('company', JSON.stringify(snapshot.val()));
+          }
+          router.push('/profile');
+        } else {
+          console.log("No data available");
+        }
+      })
+      .catch((error: any) => {
+        console.error(error);
+      }).finally(() => {
+        setIsLoading(false);
+      });
+  };
+
   const login = (e: any) => {
     e.preventDefault();
     setIsLoading(true);
@@ -30,8 +55,30 @@ const LoginPage = () => {
       .then((userCredential) => {
         const user = userCredential.user;
         if (typeof window !== "undefined") localStorage.removeItem("picUrl");
-        router.push("/profile");
         console.log(user);
+        setUser(user);
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('user', JSON.stringify(user));
+        }
+
+        const dbRef = ref(getDatabase());
+        get(child(dbRef, `users/${user.uid}`))
+          .then((snapshot: any) => {
+            if (snapshot.exists()) {
+              setProfile(snapshot.val());
+              console.log(profile);
+              console.log('Profile', snapshot.val());
+              if (typeof window !== 'undefined') {
+                localStorage.setItem('profile', JSON.stringify(snapshot.val()));
+              }
+              getCompany(snapshot.val().CompanyKey);
+            } else {
+              console.log("No data available");
+            }
+          })
+          .catch((error: any) => {
+            console.error(error);
+          });
       })
       .catch((error) => {
         if (error.code == "auth/invalid-email") {
@@ -42,12 +89,12 @@ const LoginPage = () => {
           toast.warning("Wrong Password");
         }
         console.log(JSON.stringify(error));
+        setIsLoading(false);
         // const errorCode = error.code;
         // const errorMessage = error.message;
         // toast.warning(errorMessage);
       })
       .finally(() => {
-        setIsLoading(false);
       });
   };
 

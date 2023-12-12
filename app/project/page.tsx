@@ -3,7 +3,7 @@
 import Header from "@/components/header";
 import SideBar from "@/components/sidebar";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -24,6 +24,7 @@ const database = getDatabase(firebase_app);
 import { getFunctions, httpsCallable } from "firebase/functions";
 import ReSideBar from "@/components/residebar";
 import ReHeader from "@/components/reheader";
+import { useGlobalContext } from "@/contexts/state";
 
 const functions = getFunctions();
 const cCreateProject = httpsCallable(functions, "createProject");
@@ -31,7 +32,6 @@ const cCreateProject = httpsCallable(functions, "createProject");
 const ProjectPage = () => {
   const [isShowNewProjectModal, setIsShowNewProjectModal] = useState(false);
 
-  const [company, setCompany] = useState({});
   const [regionFilter, setRegionFilter] = useState("");
   const [nameFilter, setNameFilter] = useState("");
 
@@ -44,58 +44,90 @@ const ProjectPage = () => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [userID, setUserID] = useState("");
 
-  const getCompany = (companyKey: string) => {
-    const dbRef = ref(getDatabase());
-    get(child(dbRef, `companies/${companyKey}`))
-      .then((snapshot: any) => {
-        if (snapshot.exists()) {
-          setCompany(snapshot.val());
+  const {
+    user,
+    setUser,
+    profile,
+    setProfile,
+    project,
+    setProject,
+    company,
+    setCompany,
+    updateContext
+  } = useGlobalContext();
 
-          if (regionFilter == "") {
-            setRegionFilter(snapshot.val().CompanyRegions.split(",")[0].trim());
-          }
-          if (isAdmin == false) {
-            if (snapshot.val().SubscriptionPlan != "Trial") {
-              setIsAdmin(Object.keys(snapshot.val().Admins).includes(userID));
-            } else {
-              setIsAdmin(false);
-            }
-          }
-        } else {
-          console.log("No data available");
-        }
-      })
-      .catch((error: any) => {
-        console.error(error);
-      });
-  };
+  useEffect(() => {
+    setUserID(user.uid);
 
-  auth.onAuthStateChanged(function (user: any) {
-    if (user != null) {
-      const uid = user.uid;
-      setUserID(uid);
-
-      const dbRef = ref(getDatabase());
-      get(child(dbRef, `users/${uid}`))
-        .then((snapshot: any) => {
-          if (snapshot.exists()) {
-            getCompany(snapshot.val().CompanyKey);
-            if (snapshot.val()["CreatedProjects"] == undefined) {
-              setAdminProject([]);
-            } else {
-              setAdminProject(Object.keys(snapshot.val()["CreatedProjects"]));
-            }
-          } else {
-            console.log("No data available");
-          }
-        })
-        .catch((error: any) => {
-          console.error(error);
-        });
-    } else {
-      console.log(null);
+    if (regionFilter == "") {
+      setRegionFilter(company.CompanyRegions.split(",")[0].trim());
     }
-  });
+    console.log(company);
+    if (company.SubscriptionPlan != "Trial") {
+      setIsAdmin(true);
+    } else {
+      setIsAdmin(false);
+    }
+
+    if (profile["CreatedProjects"] == undefined) {
+      setAdminProject([]);
+    } else {
+      setAdminProject(Object.keys(profile["CreatedProjects"]));
+    }
+  }, [profile, company]);
+
+  // const getCompany = (companyKey: string) => {
+  //   const dbRef = ref(getDatabase());
+  //   get(child(dbRef, `companies/${companyKey}`))
+  //     .then((snapshot: any) => {
+  //       if (snapshot.exists()) {
+  //         setCompany(snapshot.val());
+
+  //         if (regionFilter == "") {
+  //           setRegionFilter(snapshot.val().CompanyRegions.split(",")[0].trim());
+  //         }
+  //         if (isAdmin == false) {
+  //           if (snapshot.val().SubscriptionPlan != "Trial") {
+  //             setIsAdmin(Object.keys(snapshot.val().Admins).includes(userID));
+  //           } else {
+  //             setIsAdmin(false);
+  //           }
+  //         }
+  //       } else {
+  //         console.log("No data available");
+  //       }
+  //     })
+  //     .catch((error: any) => {
+  //       console.error(error);
+  //     });
+  // };
+
+  // auth.onAuthStateChanged(function (user: any) {
+  //   if (user != null) {
+  //     const uid = user.uid;
+  //     setUserID(uid);
+
+  //     const dbRef = ref(getDatabase());
+  //     get(child(dbRef, `users/${uid}`))
+  //       .then((snapshot: any) => {
+  //         if (snapshot.exists()) {
+  //           getCompany(snapshot.val().CompanyKey);
+  //           if (snapshot.val()["CreatedProjects"] == undefined) {
+  //             setAdminProject([]);
+  //           } else {
+  //             setAdminProject(Object.keys(snapshot.val()["CreatedProjects"]));
+  //           }
+  //         } else {
+  //           console.log("No data available");
+  //         }
+  //       })
+  //       .catch((error: any) => {
+  //         console.error(error);
+  //       });
+  //   } else {
+  //     console.log(null);
+  //   }
+  // });
   const createNewProject = () => {
     setNewProjectName("");
     setNewProjectLocation("");
@@ -112,6 +144,7 @@ const ProjectPage = () => {
       AllowMarkups: true,
     })
       .then((result) => {
+        updateContext();
         toast.success(result.data.message);
       })
       .catch((error) => {
@@ -252,7 +285,7 @@ const ProjectPage = () => {
                         <div
                           className={
                             "rounded-[100%] w-[10px] h-[10px] " +
-                            ((isAdmin || adminProject.includes(key))
+                            ((isAdmin == true || adminProject.includes(key))
                               ? "bg-cyan-600"
                               : "bg-gray-4")
                           }

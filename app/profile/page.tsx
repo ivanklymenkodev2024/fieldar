@@ -28,6 +28,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import ReSideBar from "@/components/residebar";
 import ReHeader from "@/components/reheader";
+import { useGlobalContext } from "@/contexts/state";
 
 const auth = getAuth();
 const functions = getFunctions();
@@ -70,34 +71,49 @@ const ProfilePage = () => {
 
   const [singleModalInput, setSingModalInput] = useState("");
 
-  auth.onAuthStateChanged(function (user: any) {
-    if (user != null) {
-      const uid = user.uid;
-      setUserID(uid);
+  const { user, setUser, profile, setProfile, project, setProject, company, setCompany, updateContext } = useGlobalContext();
 
-      const dbRef = ref(getDatabase());
-      get(child(dbRef, `users/${uid}`))
-        .then((snapshot: any) => {
-          if (snapshot.exists()) {
-            setName(snapshot.val().DisplayName);
-            setEmail(snapshot.val().Email);
-            setJobTitle(snapshot.val().JobTitle);
-            setPhone(snapshot.val().PhoneNumber);
-            setPicUrl(snapshot.val().PhotoURL);
-            if(typeof window !== "undefined")
-              localStorage.setItem('picUrl', snapshot.val().PhotoURL);
-
-          } else {
-            console.log("No data available");
-          }
-        })
-        .catch((error: any) => {
-          console.error(error);
-        });
-    } else {
-      console.log(null);
+  useEffect(() => {
+    console.log('Profile', profile);
+    setUserID(user.uid);
+    setName(profile.DisplayName);
+    setEmail(profile.Email);
+    setJobTitle(profile.JobTitle);
+    setPhone(profile.PhoneNumber);
+    setPicUrl(profile.PhotoURL); 
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('picUrl', profile.PhotoURL);
     }
-  });
+  }, [profile])
+
+  // auth.onAuthStateChanged(function (user: any) {
+  //   if (user != null) {
+  //     const uid = user.uid;
+  //     setUserID(uid);
+
+  //     const dbRef = ref(getDatabase());
+  //     get(child(dbRef, `users/${uid}`))
+  //       .then((snapshot: any) => {
+  //         if (snapshot.exists()) {
+  //           setName(snapshot.val().DisplayName);
+  //           setEmail(snapshot.val().Email);
+  //           setJobTitle(snapshot.val().JobTitle);
+  //           setPhone(snapshot.val().PhoneNumber);
+  //           setPicUrl(snapshot.val().PhotoURL);
+  //           if(typeof window !== "undefined")
+  //             localStorage.setItem('picUrl', snapshot.val().PhotoURL);
+
+  //         } else {
+  //           console.log("No data available");
+  //         }
+  //       })
+  //       .catch((error: any) => {
+  //         console.error(error);
+  //       });
+  //   } else {
+  //     console.log(null);
+  //   }
+  // });
 
   const [imageData, setImageData] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -114,6 +130,7 @@ const ProfilePage = () => {
           .then((url) => {
             cUpdateProfilePic({ profilePicURL: url })
               .then((result) => {
+                updateContext();
                 toast.success(result.data.message);
               })
               .catch((error) => {
@@ -239,6 +256,7 @@ const ProfilePage = () => {
     }
     func(data)
       .then((result: any) => {
+        updateContext();
         toast.success(result.data.message);
         console.log(result.data.message);
       })
@@ -282,6 +300,7 @@ const ProfilePage = () => {
     setIsLoading(true);
     cChangePassword({ currentPassword: oldPassword, newPassword })
       .then((result: any) => {
+        updateContext();
         toast.success(result.data.message);
       })
       .catch((error) => {
@@ -309,7 +328,7 @@ const ProfilePage = () => {
 
             <div className="flex flex-wrap items-end justify-center xm:justify-start">
               <Image
-                src={picURL == "" ? defaultUser : picURL}
+                src={profile.PhotoURL == "" || profile.PhotoURL == undefined ? defaultUser : profile.PhotoURL}
                 width={175}
                 height={175}
                 alt="Profile Image"

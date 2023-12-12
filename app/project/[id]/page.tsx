@@ -28,6 +28,7 @@ import { getFunctions, httpsCallable } from "firebase/functions";
 import { child, get, getDatabase, ref } from "firebase/database";
 import ReSideBar from "@/components/residebar";
 import ReHeader from "@/components/reheader";
+import { useGlobalContext } from "@/contexts/state";
 
 const functions = getFunctions();
 const cEditModelDetails = httpsCallable(functions, "editModelDetails");
@@ -56,11 +57,6 @@ const ProjectDetailPage = ({ params }: any) => {
 
   const [selectedNewMember, setSelectedNewMember] = useState("");
 
-  useEffect(() => {
-    setProjectId(params.id);
-    //    setProjectId(router.query.slug);
-  }, []);
-
   const [isShowEditProjectModal, setIsShowEditProjectModal] = useState(false);
   const [isShowDeleteProjectModal, setIsShowDeleteProjectModal] =
     useState(false);
@@ -71,7 +67,6 @@ const ProjectDetailPage = ({ params }: any) => {
   const [isShowAddTeamMemberModal, setIsShowAddTeamMemberModal] =
     useState(false);
 
-  const [company, setCompany] = useState({});
   const [project, setProject] = useState({});
 
   const [selectedModel, setSelectedModel] = useState("");
@@ -92,32 +87,32 @@ const ProjectDetailPage = ({ params }: any) => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  const getCompany = (companyKey: string) => {
-    const dbRef = ref(getDatabase());
-    get(child(dbRef, `companies/${companyKey}`))
-      .then((snapshot: any) => {
-        if (snapshot.exists()) {
-          setMembers(snapshot.val().Team);
-          setCompany(snapshot.val());
-          if (isAdmin == false) {
-            if (snapshot.val() != "Trial") {
-              setIsAdmin(Object.keys(snapshot.val().Admins).includes(userID));
-            } else {
-              setIsAdmin(false);
-            }
-          }
-        } else {
-          console.log("No data available");
-        }
-      })
-      .catch((error: any) => {
-        console.error(error);
-      });
-  };
+  // const getCompany = (companyKey: string) => {
+  //   const dbRef = ref(getDatabase());
+  //   get(child(dbRef, `companies/${companyKey}`))
+  //     .then((snapshot: any) => {
+  //       if (snapshot.exists()) {
+  //         setMembers(snapshot.val().Team);
+  //         setCompany(snapshot.val());
+  //         if (isAdmin == false) {
+  //           if (snapshot.val() != "Trial") {
+  //             setIsAdmin(Object.keys(snapshot.val().Admins).includes(userID));
+  //           } else {
+  //             setIsAdmin(false);
+  //           }
+  //         }
+  //       } else {
+  //         console.log("No data available");
+  //       }
+  //     })
+  //     .catch((error: any) => {
+  //       console.error(error);
+  //     });
+  // };
 
-  const getProject = () => {
+  const getProject = (pid) => {
     const dbRef = ref(getDatabase());
-    get(child(dbRef, `projects/${projectId}`))
+    get(child(dbRef, `projects/${pid}`))
       .then((snapshot: any) => {
         if (snapshot.exists()) {
           setProject(snapshot.val());
@@ -130,28 +125,43 @@ const ProjectDetailPage = ({ params }: any) => {
       });
   };
 
-  auth.onAuthStateChanged(function (user: any) {
-    if (user != null) {
-      const uid = user.uid;
-      setUserID(uid);
-      getProject();
+  const { user, setUser, profile, setProfile, company, setCompany, updateContext } =
+    useGlobalContext();
 
-      const dbRef = ref(getDatabase());
-      get(child(dbRef, `users/${uid}`))
-        .then((snapshot: any) => {
-          if (snapshot.exists()) {
-            getCompany(snapshot.val().CompanyKey);
-          } else {
-            console.log("No data available");
-          }
-        })
-        .catch((error: any) => {
-          console.error(error);
-        });
+  useEffect(() => {
+    setProjectId(params.id);
+    setUserID(user.uid);
+    getProject(params.id);
+    setMembers(company.Team);
+    if (company.SubscriptionPlan != "Trial") {
+      setIsAdmin(true)
     } else {
-      console.log(null);
+      setIsAdmin(false);
     }
-  });
+  }, [profile, project, company]);
+
+  // auth.onAuthStateChanged(function (user: any) {
+  //   if (user != null) {
+  //     const uid = user.uid;
+  //     setUserID(uid);
+  //     getProject();
+
+  //     const dbRef = ref(getDatabase());
+  //     get(child(dbRef, `users/${uid}`))
+  //       .then((snapshot: any) => {
+  //         if (snapshot.exists()) {
+  //           getCompany(snapshot.val().CompanyKey);
+  //         } else {
+  //           console.log("No data available");
+  //         }
+  //       })
+  //       .catch((error: any) => {
+  //         console.error(error);
+  //       });
+  //   } else {
+  //     console.log(null);
+  //   }
+  // });
 
   const handleRemoveUserFromProject = () => {
     setIsLoading(true);
@@ -160,6 +170,7 @@ const ProjectDetailPage = ({ params }: any) => {
       selectedMemberId: selectedTeamMember,
     })
       .then((result) => {
+        updateContext();
         toast.success(result.data.message);
       })
       .catch((error) => {
@@ -181,6 +192,7 @@ const ProjectDetailPage = ({ params }: any) => {
       ProjectKey: projectId,
     })
       .then((result) => {
+        updateContext();
         toast.success(result.data.message);
       })
       .catch((error) => {
@@ -201,6 +213,7 @@ const ProjectDetailPage = ({ params }: any) => {
       ModelLocation: newModelLocation,
     })
       .then((result) => {
+        updateContext();
         toast.success(result.data.message);
       })
       .catch((error) => {
@@ -220,6 +233,7 @@ const ProjectDetailPage = ({ params }: any) => {
       fileType: project.Models[selectedModel].FileType,
     })
       .then((result) => {
+        updateContext();
         toast.success(result.data.message);
       })
       .catch((error) => {
@@ -237,6 +251,7 @@ const ProjectDetailPage = ({ params }: any) => {
       projectId: projectId,
     })
       .then((result) => {
+        updateContext();
         toast.success(result.data.message);
         router.push("/project");
       })
@@ -257,6 +272,7 @@ const ProjectDetailPage = ({ params }: any) => {
       projectKey: projectId,
     })
       .then((result) => {
+        updateContext();
         toast.success(result.data.message);
       })
       .catch((error) => {
@@ -278,6 +294,7 @@ const ProjectDetailPage = ({ params }: any) => {
       selectedAccessRole: newMemberRole,
     })
       .then((result) => {
+        updateContext();
         toast.success(result.data.message);
       })
       .catch((error) => {
@@ -498,6 +515,7 @@ const ProjectDetailPage = ({ params }: any) => {
                                 disabled={isLoading}
                                 onClick={() => {
                                   setSelectedTeamMember(key);
+                                  setNewMemberRole(project.TeamMembers[key].AccessRole);
                                   setIsShowUserRoleModal(true);
                                 }}
                               >
@@ -1194,7 +1212,10 @@ const ProjectDetailPage = ({ params }: any) => {
                         <div
                           className={
                             "grid grid-cols-2 py-[14px] " +
-                            (selectedNewMember == member_id ? (id == 0? " rounded-t-[24px] ":"") + "bg-gray-7" : "")
+                            (selectedNewMember == member_id
+                              ? (id == 0 ? " rounded-t-[24px] " : "") +
+                                "bg-gray-7"
+                              : "")
                           }
                           onClick={() => {
                             setSelectedNewMember(member_id);

@@ -21,65 +21,84 @@ const auth = getAuth();
 const database = getDatabase(firebase_app);
 
 import { getFunctions, httpsCallable } from "firebase/functions";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ReHeader from "@/components/reheader";
 import ReSideBar from "@/components/residebar";
+import { useGlobalContext } from "@/contexts/state";
 
 const functions = getFunctions();
 
 const ActivityPage = () => {
-  const [company, setCompany] = useState({});
   const [activityFilter, setActivityFilter] = useState("");
   const [hiddenArray, setHiddenArray] = useState([]);
 
-  const getCompany = (companyKey: string) => {
-    const dbRef = ref(getDatabase());
-    get(child(dbRef, `companies/${companyKey}`))
-      .then((snapshot: any) => {
-        if (snapshot.exists()) {
-          setCompany(snapshot.val());
+  // const getCompany = (companyKey: string) => {
+  //   const dbRef = ref(getDatabase());
+  //   get(child(dbRef, `companies/${companyKey}`))
+  //     .then((snapshot: any) => {
+  //       if (snapshot.exists()) {
+  //         setCompany(snapshot.val());
 
-          if (activityFilter == "") {
-            setActivityFilter(
-              snapshot.val().ProjectDirectory[
-                Object.keys(snapshot.val().ProjectDirectory)[0]
-              ].ProjectTitle
-            );
-          }
-        } else {
-          console.log("No data available");
-        }
-      })
-      .catch((error: any) => {
-        console.error(error);
-      });
-  };
+  //         if (activityFilter == "") {
+  //           setActivityFilter(
+  //             snapshot.val().ProjectDirectory[
+  //               Object.keys(snapshot.val().ProjectDirectory)[0]
+  //             ].ProjectTitle
+  //           );
+  //         }
+  //       } else {
+  //         console.log("No data available");
+  //       }
+  //     })
+  //     .catch((error: any) => {
+  //       console.error(error);
+  //     });
+  // };
 
-  auth.onAuthStateChanged(function (user: any) {
-    if (user != null) {
-      const uid = user.uid;
+  // auth.onAuthStateChanged(function (user: any) {
+  //   if (user != null) {
+  //     const uid = user.uid;
 
-      const dbRef = ref(getDatabase());
-      get(child(dbRef, `users/${uid}`))
-        .then((snapshot: any) => {
-          if (snapshot.exists()) {
-            getCompany(snapshot.val().CompanyKey);
-            if (hiddenArray.length == 0)
-              setHiddenArray(Object.keys(company["Activity"]).map(() => false));
-            else {
-              console.log(hiddenArray);
-            }
-          } else {
-            console.log("No data available");
-          }
-        })
-        .catch((error: any) => {
-          console.error(error);
-        });
-    } else {
-      console.log(null);
-    }
-  });
+  //     const dbRef = ref(getDatabase());
+  //     get(child(dbRef, `users/${uid}`))
+  //       .then((snapshot: any) => {
+  //         if (snapshot.exists()) {
+  //           getCompany(snapshot.val().CompanyKey);
+  //           if (hiddenArray.length == 0)
+  //             setHiddenArray(Object.keys(company["Activity"]).map(() => false));
+  //           else {
+  //             console.log(hiddenArray);
+  //           }
+  //         } else {
+  //           console.log("No data available");
+  //         }
+  //       })
+  //       .catch((error: any) => {
+  //         console.error(error);
+  //       });
+  //   } else {
+  //     console.log(null);
+  //   }
+  // });
+
+  const {
+    user,
+    setUser,
+    profile,
+    setProfile,
+    project,
+    setProject,
+    company,
+    setCompany,
+  } = useGlobalContext();
+  useEffect(() => {
+    console.log(company);
+    setHiddenArray(Object.keys(company["Activity"]).map(() => false));
+    setActivityFilter(
+      company.ProjectDirectory[Object.keys(company.ProjectDirectory)[0]]
+        .ProjectTitle
+    );
+  }, []);
 
   const [isSide, setIsSide] = useState(false);
 
@@ -134,7 +153,7 @@ const ActivityPage = () => {
                 Object.keys(company["Activity"]).filter(
                   (item) =>
                     company["ProjectDirectory"][item].ProjectTitle ==
-                    activityFilter || activityFilter == "All"
+                      activityFilter || activityFilter == "All"
                 ).length == 0
                   ? " justify-center items-center"
                   : "")
@@ -145,7 +164,8 @@ const ActivityPage = () => {
                 Object.keys(company["Activity"]).map((key, id) => {
                   if (
                     company["ProjectDirectory"][key].ProjectTitle !=
-                    activityFilter && activityFilter != "All"
+                      activityFilter &&
+                    activityFilter != "All"
                   ) {
                     return <></>;
                   }
@@ -239,7 +259,7 @@ const ActivityPage = () => {
                 (Object.keys(company["Activity"]).filter(
                   (item) =>
                     company["ProjectDirectory"][item].ProjectTitle ==
-                    activityFilter || activityFilter == "All"
+                      activityFilter || activityFilter == "All"
                 ).length == 0 && (
                   <p className="text-primary text-gray-10">No Project Yet</p>
                 ))}

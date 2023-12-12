@@ -22,7 +22,7 @@ const database = getDatabase(firebase_app);
 import { getFunctions, httpsCallable } from "firebase/functions";
 import { child, get, getDatabase, ref } from "firebase/database";
 import { Checkbox } from "flowbite-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ReHeader from "@/components/reheader";
 import ReSideBar from "@/components/residebar";
 
@@ -65,40 +65,40 @@ const SettingsPage = () => {
       .finally(() => {});
   };
 
-  const getCompany = (companyKey: string) => {
-    const dbRef = ref(getDatabase());
-    get(child(dbRef, `companies/${companyKey}`))
-      .then((snapshot: any) => {
-        if (snapshot.exists()) {
-        } else {
-          console.log("No data available");
-        }
-      })
-      .catch((error: any) => {
-        console.error(error);
-      });
-  };
+  // const getCompany = (companyKey: string) => {
+  //   const dbRef = ref(getDatabase());
+  //   get(child(dbRef, `companies/${companyKey}`))
+  //     .then((snapshot: any) => {
+  //       if (snapshot.exists()) {
+  //       } else {
+  //         console.log("No data available");
+  //       }
+  //     })
+  //     .catch((error: any) => {
+  //       console.error(error);
+  //     });
+  // };
 
-  auth.onAuthStateChanged(function (user: any) {
-    if (user != null) {
-      const uid = user.uid;
+  // auth.onAuthStateChanged(function (user: any) {
+  //   if (user != null) {
+  //     const uid = user.uid;
 
-      const dbRef = ref(getDatabase());
-      get(child(dbRef, `users/${uid}`))
-        .then((snapshot: any) => {
-          if (snapshot.exists()) {
-            getCompany(snapshot.val().CompanyKey);
-          } else {
-            console.log("No data available");
-          }
-        })
-        .catch((error: any) => {
-          console.error(error);
-        });
-    } else {
-      console.log(null);
-    }
-  });
+  //     const dbRef = ref(getDatabase());
+  //     get(child(dbRef, `users/${uid}`))
+  //       .then((snapshot: any) => {
+  //         if (snapshot.exists()) {
+  //           getCompany(snapshot.val().CompanyKey);
+  //         } else {
+  //           console.log("No data available");
+  //         }
+  //       })
+  //       .catch((error: any) => {
+  //         console.error(error);
+  //       });
+  //   } else {
+  //     console.log(null);
+  //   }
+  // });
 
   const [isSide, setIsSide] = useState(false);
 

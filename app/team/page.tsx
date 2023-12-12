@@ -2,7 +2,7 @@
 
 import Header from "@/components/header";
 import SideBar from "@/components/sidebar";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import Image from "next/image";
 
@@ -27,6 +27,7 @@ const database = getDatabase(firebase_app);
 import { getFunctions, httpsCallable } from "firebase/functions";
 import ReSideBar from "@/components/residebar";
 import ReHeader from "@/components/reheader";
+import { useGlobalContext } from "@/contexts/state";
 
 const functions = getFunctions();
 const cchangeProjectAccessRole = httpsCallable(
@@ -76,49 +77,62 @@ const TeamPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [admins, setAdmins] = useState([]);
 
-  const getCompany = async (companyKey: string) => {
-    const dbRef = ref(getDatabase());
-    get(child(dbRef, `companies/${companyKey}`))
-      .then((snapshot: any) => {
-        if (snapshot.exists()) {
-          setMembers(snapshot.val().Team);
-        } else {
-          console.log("No data available");
-        }
-        setAdmins(Object.keys(snapshot.val().Admins));
-        if (isAdmin == false) {
-          if (snapshot.val().SubscriptionPlan != "Trial") {
-            setIsAdmin(Object.keys(snapshot.val().Admins).includes(userID));
-          } else {
-            setIsAdmin(false);
-          }
-        }
-      })
-      .catch((error: any) => {
-        console.error(error);
-      });
-  };
+  const { user, setUser, profile, setProfile, project, setProject, company, setCompany, updateContext } = useGlobalContext();
 
-  auth.onAuthStateChanged(function (user: any) {
-    if (user != null) {
-      const uid = user.uid;
-      setUserID(uid);
-      const dbRef = ref(getDatabase());
-      get(child(dbRef, `users/${uid}`))
-        .then((snapshot: any) => {
-          if (snapshot.exists()) {
-            getCompany(snapshot.val().CompanyKey);
-          } else {
-            console.log("No data available");
-          }
-        })
-        .catch((error: any) => {
-          console.error(error);
-        });
+  useEffect(() => {
+    setUserID(user.uid);
+    setMembers(company.Team);
+    setAdmins(Object.keys(company.Admins));
+    if (company.SubscriptionPlan != "Trial") {
+      setIsAdmin(true);
     } else {
-      console.log(null);
+      setIsAdmin(false);
     }
-  });
+  }, [profile, company])
+
+  // const getCompany = async (companyKey: string) => {
+  //   const dbRef = ref(getDatabase());
+  //   get(child(dbRef, `companies/${companyKey}`))
+  //     .then((snapshot: any) => {
+  //       if (snapshot.exists()) {
+  //         setMembers(snapshot.val().Team);
+  //       } else {
+  //         console.log("No data available");
+  //       }
+  //       setAdmins(Object.keys(snapshot.val().Admins));
+  //       if (isAdmin == false) {
+  //         if (snapshot.val().SubscriptionPlan != "Trial") {
+  //           setIsAdmin(Object.keys(snapshot.val().Admins).includes(userID));
+  //         } else {
+  //           setIsAdmin(false);
+  //         }
+  //       }
+  //     })
+  //     .catch((error: any) => {
+  //       console.error(error);
+  //     });
+  // };
+
+  // auth.onAuthStateChanged(function (user: any) {
+  //   if (user != null) {
+  //     const uid = user.uid;
+  //     setUserID(uid);
+  //     const dbRef = ref(getDatabase());
+  //     get(child(dbRef, `users/${uid}`))
+  //       .then((snapshot: any) => {
+  //         if (snapshot.exists()) {
+  //           getCompany(snapshot.val().CompanyKey);
+  //         } else {
+  //           console.log("No data available");
+  //         }
+  //       })
+  //       .catch((error: any) => {
+  //         console.error(error);
+  //       });
+  //   } else {
+  //     console.log(null);
+  //   }
+  // });
 
   const promoteToAdminFunc = () => {
     setIsShowUserDetailModal(false);
@@ -187,6 +201,7 @@ const TeamPage = () => {
       selectedAccessRole: newRole,
     })
       .then((result) => {
+        updateContext();
         toast.success(result.data.message);
       })
       .catch((error) => {
@@ -213,6 +228,7 @@ const TeamPage = () => {
         userIdToPromote: selectedUserId,
       })
         .then((result) => {
+          updateContext();
           toast.success(result.data.message);
         })
         .catch((error) => {
@@ -227,6 +243,7 @@ const TeamPage = () => {
         userIdToRemove: selectedUserId,
       })
         .then((result) => {
+          updateContext();
           toast.success(result.data.message);
         })
         .catch((error) => {
@@ -241,6 +258,7 @@ const TeamPage = () => {
         userIdToRemove: selectedUserId,
       })
         .then((result) => {
+          updateContext();
           toast.success(result.data.message);
         })
         .catch((error) => {
@@ -257,6 +275,7 @@ const TeamPage = () => {
       })
         .then((result) => {
           setIsShowConfirmModal(false);
+          updateContext();
           toast.success(result.data.message);
         })
         .finally(() => {
@@ -272,6 +291,7 @@ const TeamPage = () => {
       daysToExpiration: day,
     })
       .then((result) => {
+        updateContext();
         toast.success(result.data.message);
       })
       .catch((error) => {

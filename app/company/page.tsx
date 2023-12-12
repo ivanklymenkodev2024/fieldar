@@ -1,7 +1,6 @@
 "use client";
 
 import Header from "@/components/header";
-import SideBar from "@/components/sidebar";
 import { useEffect, useState } from "react";
 import Image from "next/image";
 
@@ -37,6 +36,8 @@ import trashIcon from "../../public/icons/TrashIcon.png";
 import companyIcon from "../../public/icons/CompanyIcon.png";
 import ReSideBar from "@/components/residebar";
 import ReHeader from "@/components/reheader";
+import { useGlobalContext } from "@/contexts/state";
+import SideBar from "@/components/sidebar";
 
 const cUpdateCompanyInfo = httpsCallable(functions, "updateCompanyInfo");
 const cRemoveCompanyLogo = httpsCallable(functions, "removeCompanyIcon");
@@ -69,60 +70,88 @@ const CompanyPage = () => {
     setResImage(cropper.getCroppedCanvas().toDataURL());
   };
 
-  const getCompany = async (companyKey: string) => {
-    setCompanyId(companyKey);
-    const dbRef = ref(getDatabase());
-    get(child(dbRef, `companies/${companyKey}`))
-      .then((snapshot: any) => {
-        if (snapshot.exists()) {
-          setLogoURL(snapshot.val().CompanyIconURL);
-          setCompanyName(snapshot.val().CompanyName);
-          setCompanyRegion(snapshot.val().CompanyRegions);
-          setCompanyBio(snapshot.val().CompanyDescription);
+  const { user, setUser, profile, setProfile, project, setProject, company, setCompany, updateContext } = useGlobalContext();
 
-          if (isAdmin == false) {
-            if (snapshot.val().SubscriptionPlan != "Trial") {
-              setIsAdmin(Object.keys(snapshot.val().Admins).includes(userID));
-            } else {
-              setIsAdmin(false);
-            }
-          }
-          console.log(snapshot.val().SubscriptionPlan);
-          if (snapshot.val().SubscriptionPlan == "Trial") {
-            setIsTrial(true);
-          } else {
-            setIsTrial(false);
-          }
-        } else {
-          console.log("No data available");
-        }
-      })
-      .catch((error: any) => {
-        console.error(error);
-      });
-  };
+  useEffect(() => {
 
-  auth.onAuthStateChanged(function (user: any) {
-    if (user != null) {
-      const uid = user.uid;
-      setUserID(uid);
+    setCompanyId(user.CompanyKey);
 
-      const dbRef = ref(getDatabase());
-      get(child(dbRef, `users/${uid}`))
-        .then((snapshot: any) => {
-          if (snapshot.exists()) {
-            getCompany(snapshot.val().CompanyKey);
-          } else {
-            console.log("No data available");
-          }
-        })
-        .catch((error: any) => {
-          console.error(error);
-        });
+    setUserID(user.uid);
+    setLogoURL(company.CompanyIconURL);
+    setCompanyName(company.CompanyName);
+    setCompanyRegion(company.CompanyRegions);
+    setCompanyBio(company.CompanyDescription);
+
+    console.log(company);
+
+    if (company.SubscriptionPlan != "Trial") {
+      setIsAdmin(true)
     } else {
-      console.log(null);
+      setIsAdmin(false);
     }
-  });
+
+    if (company.SubscriptionPlan == "Trial") {
+      setIsTrial(true);
+    } else {
+      setIsTrial(false);
+    }
+
+  })
+
+  // const getCompany = async (companyKey: string) => {
+  //   setCompanyId(companyKey);
+  //   const dbRef = ref(getDatabase());
+  //   get(child(dbRef, `companies/${companyKey}`))
+  //     .then((snapshot: any) => {
+  //       if (snapshot.exists()) {
+  //         setLogoURL(snapshot.val().CompanyIconURL);
+  //         setCompanyName(snapshot.val().CompanyName);
+  //         setCompanyRegion(snapshot.val().CompanyRegions);
+  //         setCompanyBio(snapshot.val().CompanyDescription);
+
+  //         if (isAdmin == false) {
+  //           if (snapshot.val().SubscriptionPlan != "Trial") {
+  //             setIsAdmin(Object.keys(snapshot.val().Admins).includes(userID));
+  //           } else {
+  //             setIsAdmin(false);
+  //           }
+  //         }
+  //         console.log(snapshot.val().SubscriptionPlan);
+  //         if (snapshot.val().SubscriptionPlan == "Trial") {
+  //           setIsTrial(true);
+  //         } else {
+  //           setIsTrial(false);
+  //         }
+  //       } else {
+  //         console.log("No data available");
+  //       }
+  //     })
+  //     .catch((error: any) => {
+  //       console.error(error);
+  //     });
+  // };
+
+  // auth.onAuthStateChanged(function (user: any) {
+  //   if (user != null) {
+  //     const uid = user.uid;
+  //     setUserID(uid);
+
+  //     const dbRef = ref(getDatabase());
+  //     get(child(dbRef, `users/${uid}`))
+  //       .then((snapshot: any) => {
+  //         if (snapshot.exists()) {
+  //           getCompany(snapshot.val().CompanyKey);
+  //         } else {
+  //           console.log("No data available");
+  //         }
+  //       })
+  //       .catch((error: any) => {
+  //         console.error(error);
+  //       });
+  //   } else {
+  //     console.log(null);
+  //   }
+  // });
 
   const removeImage = () => {
     setIsRemoveImageModal(true);
@@ -131,6 +160,7 @@ const CompanyPage = () => {
   const handleRemoveLogo = () => {
     cRemoveCompanyLogo()
       .then((result) => {
+        updateContext();
         toast.success(result.data.message);
       })
       .catch((error) => {
@@ -168,6 +198,7 @@ const CompanyPage = () => {
       CompanyRegions: reCompanyRegion,
     })
       .then((result) => {
+        updateContext();
         toast.success(result.data.message);
       })
       .catch((error) => {
@@ -195,6 +226,7 @@ const CompanyPage = () => {
           .then((url) => {
             cUpdateCompanyIcon()
               .then((result) => {
+                updateContext();
                 toast.success(result.data.message);
                 setIsLoading(false);
               })

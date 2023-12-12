@@ -2,7 +2,7 @@ import Image from "next/image";
 
 import logoImage from "../../public/images/logo.png";
 import profilePic from "../../public/images/profile.png";
-import { SidebarProps } from "@/configs";
+import { ReSidebarProps, SidebarProps } from "@/configs";
 
 import companyIcon from "../../public/icons/CompanyIcon.png";
 import teamIcon from "../../public/icons/TeamIcon.png";
@@ -27,31 +27,35 @@ const database = getDatabase(firebase_app);
 
 import Link from "next/link";
 import { child, get, getDatabase, ref } from "firebase/database";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const ReSideBar: React.FC<ReSidebarProps> = ({ index, hide }: ReSidebarProps) => {
   const [picUrl, setPicUrl] = useState("");
 
-  auth.onAuthStateChanged(function (user: any) {
-    if (user != null) {
-      const uid = user.uid;
+  useEffect(() => {
+    setPicUrl(profile.PhotoURL);    
+  })
 
-      const dbRef = ref(getDatabase());
-      get(child(dbRef, `users/${uid}`))
-        .then((snapshot: any) => {
-          if (snapshot.exists()) {
-            setPicUrl(snapshot.val().PhotoURL);
-          } else {
-            console.log("No data available");
-          }
-        })
-        .catch((error: any) => {
-          console.error(error);
-        });
-    } else {
-      console.log(null);
-    }
-  });
+  // auth.onAuthStateChanged(function (user: any) {
+  //   if (user != null) {
+  //     const uid = user.uid;
+
+  //     const dbRef = ref(getDatabase());
+  //     get(child(dbRef, `users/${uid}`))
+  //       .then((snapshot: any) => {
+  //         if (snapshot.exists()) {
+  //           setPicUrl(snapshot.val().PhotoURL);
+  //         } else {
+  //           console.log("No data available");
+  //         }
+  //       })
+  //       .catch((error: any) => {
+  //         console.error(error);
+  //       });
+  //   } else {
+  //     console.log(null);
+  //   }
+  // });
 
   return (
     <div className="w-[100vw] min-h-[100vh] lg:hidden bg-gray-2">

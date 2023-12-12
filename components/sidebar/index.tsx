@@ -29,11 +29,20 @@ import Link from "next/link";
 import { child, get, getDatabase, ref } from "firebase/database";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useGlobalContext } from "@/contexts/state";
 
 const SideBar: React.FC<SidebarProps> = ({ index }: SidebarProps) => {
-  let url = typeof window !== "undefined" ? localStorage.getItem('picUrl') : "";
-  if(url == undefined || url == null) url = "";
-  const [picUrl, setPicUrl] = useState(url);
+  const {
+    user,
+    setUser,
+    profile,
+    setProfile,
+    project,
+    setProject,
+    company,
+    setCompany,
+  } = useGlobalContext();
+  const [picUrl, setPicUrl] = useState(profile.PhotoURL);
 
   const router = useRouter();
 
@@ -43,43 +52,51 @@ const SideBar: React.FC<SidebarProps> = ({ index }: SidebarProps) => {
   const handleLogOut = () => {
     setIsLoading(true);
     signOut(auth).then(() => {
-      router.push('/login');
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("user");
+        localStorage.removeItem("profile");
+        localStorage.removeItem("company");
+      }
+      router.push("/login");
     });
-  }
+  };
 
   const logOut = () => {
     setIsShowConfirmModal(true);
-  }
+  };
 
   useEffect(() => {
-    let url = typeof window !== "undefined" ? localStorage.getItem('picUrl') : "";
-    if(url == undefined || url == null) url = "";
-      setPicUrl(url);
-  })
-
-  auth.onAuthStateChanged(function (user: any) {
-    if (user != null) {
-      const uid = user.uid;
-
-      const dbRef = ref(getDatabase());
-      get(child(dbRef, `users/${uid}`))
-        .then((snapshot: any) => {
-          if (snapshot.exists()) {
-            setPicUrl(snapshot.val().PhotoURL);
-          } else {
-            console.log("No data available");
-          }
-        })
-        .catch((error: any) => {
-          console.error(error);
-        });
-    } else {
-      console.log(null);
-    }
+    setPicUrl(profile.PhotoURL);
   });
 
+  // auth.onAuthStateChanged(function (user: any) {
+  //   if (user != null) {
+  //     const uid = user.uid;
+
+  //     const dbRef = ref(getDatabase());
+  //     get(child(dbRef, `users/${uid}`))
+  //       .then((snapshot: any) => {
+  //         if (snapshot.exists()) {
+  //           setPicUrl(snapshot.val().PhotoURL);
+  //         } else {
+  //           console.log("No data available");
+  //         }
+  //       })
+  //       .catch((error: any) => {
+  //         console.error(error);
+  //       });
+  //   } else {
+  //     console.log(null);
+  //   }
+  // });
+
   return (
-    <div className="left-0 top-0 fixed min-h-[100vh] h-[100vh] w-sidebar bg-gray-2 hidden lg:block border-none z-[299]">
+    <div
+      className={
+        "left-0 top-0 fixed min-h-[100vh] h-[100vh] w-sidebar bg-gray-2 hidden lg:block border-none" +
+        (isShowConfirmModal ? " z-[299]" : "")
+      }
+    >
       <div className=" w-full flex flex-col justify-center items-center my-[30px]">
         <Image src={logoImage} width={176} height={46} alt="FieldAR Logo" />
         <Link href="/profile">
