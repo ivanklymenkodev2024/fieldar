@@ -92,12 +92,19 @@ const ActivityPage = () => {
     setCompany,
   } = useGlobalContext();
   useEffect(() => {
-    console.log(company);
-    setHiddenArray(Object.keys(company["Activity"]).map(() => false));
-    setActivityFilter(
-      company.ProjectDirectory[Object.keys(company.ProjectDirectory)[0]]
-        .ProjectTitle
-    );
+    if (company["Activity"] == undefined) {
+      setHiddenArray([]);
+    } else {
+      setHiddenArray(Object.keys(company["Activity"]).map(() => false));
+    }
+    if (company.ProjectDirectory == undefined) {
+      setActivityFilter("");
+    } else {
+      setActivityFilter(
+        company.ProjectDirectory[Object.keys(company.ProjectDirectory)[0]]
+          .ProjectTitle
+      );
+    }
   }, []);
 
   const [isSide, setIsSide] = useState(false);
