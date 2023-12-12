@@ -61,6 +61,7 @@ const CompanyPage = () => {
   const [companyId, setCompanyId] = useState("");
 
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isTrial, setIsTrial] = useState(null);
 
   const cropperRef = useRef<ReactCropperElement>(null);
   const onCrop = () => {
@@ -79,14 +80,19 @@ const CompanyPage = () => {
           setCompanyRegion(snapshot.val().CompanyRegions);
           setCompanyBio(snapshot.val().CompanyDescription);
 
-          if (isAdmin == false){
-            if(snapshot.val().SubscriptionPlan != 'Trial') {
+          if (isAdmin == false) {
+            if (snapshot.val().SubscriptionPlan != "Trial") {
               setIsAdmin(Object.keys(snapshot.val().Admins).includes(userID));
             } else {
               setIsAdmin(false);
             }
           }
-            
+          console.log(snapshot.val().SubscriptionPlan);
+          if (snapshot.val().SubscriptionPlan == "Trial") {
+            setIsTrial(true);
+          } else {
+            setIsTrial(false);
+          }
         } else {
           console.log("No data available");
         }
@@ -175,6 +181,7 @@ const CompanyPage = () => {
 
   const [imageData, setImageData] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+
   const fileInputRef = useRef(null);
 
   const uploadImageURLToDB = (file: any) => {
@@ -264,117 +271,130 @@ const CompanyPage = () => {
           <ReHeader title={"My Company"} index={0} show={setIsSide} />
           <Header title={"My Company"} />
 
-          <div className="m-[40px] ml-[52px]">
-            <p className="m-[20px] text-gray-10 font-bold">Company Logo</p>
+          {isTrial == false ? (
+            <>
+              <div className="m-[40px] ml-[52px]">
+                <p className="m-[20px] text-gray-10 font-bold">Company Logo</p>
 
-            <div className="flex flex-wrap justify-center sm:justify-start items-end">
-              <div
-                className={
-                  "ml-[39px] w-[350px] h-[120px] rounded-[23px] text-white flex justify-center items-center" +
-                  (logoURL == "" || logoURL == undefined
-                    ? " bg-red-primary"
-                    : "")
-                }
-              >
-                <Image
-                  width={logoURL == "" ? 400 : 120}
-                  height={120}
-                  src={
-                    logoURL == "" || logoURL == undefined
-                      ? companyIcon
-                      : logoURL
-                  }
-                  alt={""}
-                  className={
-                    logoURL == "" || logoURL == undefined
-                      ? "w-[120px]"
-                      : "w-[350px]" + " h-[120px]"
-                  }
-                />
-                {(logoURL == undefined || logoURL == "") && (
-                  <p className="text-small font-bold text-white">
-                    Company Logo
-                  </p>
-                )}
-
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  style={{ display: "none" }}
-                  onChange={handleFileChange}
-                />
-              </div>
-              {isAdmin && (
-                <div className="flex sm:flex-col flex-row justify-between sm:h-[120px] my-[20px] sm:my-0">
-                  <button
-                    className="ml-[24px] mr-0 h-fit bg-gray-5 rounded-[24px] px-[16px] py-[12px] text-small shadow-md drop-shadow-0 drop-shadow-y-3 blur-6 text-white flex items-center"
-                    onClick={updateImage}
+                <div className="flex flex-wrap justify-center sm:justify-start items-end">
+                  <div
+                    className={
+                      "ml-[39px] w-[350px] h-[120px] rounded-[23px] text-white flex justify-center items-center" +
+                      (logoURL == "" || logoURL == undefined
+                        ? " bg-red-primary"
+                        : "")
+                    }
                   >
                     <Image
-                      src={updateIcon}
-                      width={25}
-                      height={25}
-                      alt="close"
+                      width={logoURL == "" ? 400 : 120}
+                      height={120}
+                      src={
+                        logoURL == "" || logoURL == undefined
+                          ? companyIcon
+                          : logoURL
+                      }
+                      alt={""}
+                      className={
+                        logoURL == "" || logoURL == undefined
+                          ? "w-[120px]"
+                          : "w-[350px]" + " h-[120px]"
+                      }
                     />
-                    <p className="ml-[10px] font-bold">Update</p>
-                  </button>
-                  <button
-                    className="ml-[24px] mr-0 h-fit bg-red-primary rounded-[24px] px-[16px] py-[12px] text-small shadow-md drop-shadow-0 drop-shadow-y-3 blur-6 text-white flex items-center"
-                    onClick={removeImage}
-                  >
-                    <Image src={trashIcon} width={25} height={25} alt="close" />
-                    <p className="ml-[10px] font-bold">Remove</p>
-                  </button>
+                    {(logoURL == undefined || logoURL == "") && (
+                      <p className="text-small font-bold text-white">
+                        Company Logo
+                      </p>
+                    )}
+
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      style={{ display: "none" }}
+                      onChange={handleFileChange}
+                    />
+                  </div>
+                  {isAdmin && (
+                    <div className="flex sm:flex-col flex-row justify-between sm:h-[120px] my-[20px] sm:my-0">
+                      <button
+                        className="ml-[24px] mr-0 h-fit bg-gray-5 rounded-[24px] px-[16px] py-[12px] text-small shadow-md drop-shadow-0 drop-shadow-y-3 blur-6 text-white flex items-center"
+                        onClick={updateImage}
+                      >
+                        <Image
+                          src={updateIcon}
+                          width={25}
+                          height={25}
+                          alt="close"
+                        />
+                        <p className="ml-[10px] font-bold">Update</p>
+                      </button>
+                      <button
+                        className="ml-[24px] mr-0 h-fit bg-red-primary rounded-[24px] px-[16px] py-[12px] text-small shadow-md drop-shadow-0 drop-shadow-y-3 blur-6 text-white flex items-center"
+                        onClick={removeImage}
+                      >
+                        <Image
+                          src={trashIcon}
+                          width={25}
+                          height={25}
+                          alt="close"
+                        />
+                        <p className="ml-[10px] font-bold">Remove</p>
+                      </button>
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
-            <div className="ml-[40px] mt-[5px]">
-              <p className="text-2xsmall font-bold text-gray-10">
-                Recommended size: 500x150px
-              </p>
-              <p className="text-2xsmall font-bold text-gray-10">
-                Required format: .jpg, .jpeg
-              </p>
-            </div>
-          </div>
+                <div className="ml-[40px] mt-[5px]">
+                  <p className="text-2xsmall font-bold text-gray-10">
+                    Recommended size: 500x150px
+                  </p>
+                  <p className="text-2xsmall font-bold text-gray-10">
+                    Required format: .jpg, .jpeg
+                  </p>
+                </div>
+              </div>
 
-          <hr className="m-[40px] ml-[72px] h-[2px] bg-gray-10 max-w-[1072px]" />
+              <hr className="m-[40px] ml-[72px] h-[2px] bg-gray-10 max-w-[1072px]" />
 
-          <div className="m-[40px] ml-[62px]">
-            <div className="my-[25px]">
-              <p className="text-gray-10 text-small font-bold">Company Name</p>
-              <p className="text-white text-small font-bold ml-[12px]">
-                {companyName}
-              </p>
-            </div>
-            <div className="my-[25px]">
-              <p className="text-gray-10 text-small font-bold">
-                Company Bio / Tag-Line
-              </p>
-              <p className="text-white text-small font-bold ml-[12px] max-w-[850px]">
-                {companyBio}
-              </p>
-            </div>
-            <div className="my-[25px]">
-              <p className="text-gray-10 text-small font-bold">
-                Company Regions
-              </p>
-              <p className="text-white text-small font-bold ml-[12px]">
-                {companyRegion}
-              </p>
-            </div>
+              <div className="m-[40px] ml-[62px]">
+                <div className="my-[25px]">
+                  <p className="text-gray-10 text-small font-bold">
+                    Company Name
+                  </p>
+                  <p className="text-white text-small font-bold ml-[12px]">
+                    {companyName}
+                  </p>
+                </div>
+                <div className="my-[25px]">
+                  <p className="text-gray-10 text-small font-bold">
+                    Company Bio / Tag-Line
+                  </p>
+                  <p className="text-white text-small font-bold ml-[12px] max-w-[850px]">
+                    {companyBio}
+                  </p>
+                </div>
+                <div className="my-[25px]">
+                  <p className="text-gray-10 text-small font-bold">
+                    Company Regions
+                  </p>
+                  <p className="text-white text-small font-bold ml-[12px]">
+                    {companyRegion}
+                  </p>
+                </div>
 
-            {isAdmin && (
-              <button
-                className="h-fit bg-gray-5 rounded-[24px] px-[16px] py-[12px] text-small shadow-md drop-shadow-0 drop-shadow-y-3 blur-6 text-white flex items-center"
-                onClick={updateCompanyDetail}
-              >
-                <Image src={editIcon} width={25} height={25} alt="edit" />
-                <p className="ml-[10px] font-bold">Edit Info</p>
-              </button>
-            )}
-          </div>
+                {isAdmin && (
+                  <button
+                    className="h-fit bg-gray-5 rounded-[24px] px-[16px] py-[12px] text-small shadow-md drop-shadow-0 drop-shadow-y-3 blur-6 text-white flex items-center"
+                    onClick={updateCompanyDetail}
+                  >
+                    <Image src={editIcon} width={25} height={25} alt="edit" />
+                    <p className="ml-[10px] font-bold">Edit Info</p>
+                  </button>
+                )}
+              </div>
+            </>
+          ) : isTrial == true ? (
+            <div className="mt-[20px] mx-[30px] rounded-[24px] max-w-[350px] sm:w-[350px] w-[80%] bg-gray-3 text-white font-bold p-[30px]">This area is reserved for Enterprise customers. Visit Subscriptions for more information about the Enterprise options.</div>
+          ): <></>}
         </div>
       )}
 
