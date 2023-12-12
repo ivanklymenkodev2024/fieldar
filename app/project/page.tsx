@@ -25,11 +25,13 @@ import { getFunctions, httpsCallable } from "firebase/functions";
 import ReSideBar from "@/components/residebar";
 import ReHeader from "@/components/reheader";
 import { useGlobalContext } from "@/contexts/state";
+import { useRouter } from "next/navigation";
 
 const functions = getFunctions();
 const cCreateProject = httpsCallable(functions, "createProject");
 
 const ProjectPage = () => {
+  const router = useRouter();
   const [isShowNewProjectModal, setIsShowNewProjectModal] = useState(false);
 
   const [regionFilter, setRegionFilter] = useState("");
@@ -271,9 +273,13 @@ const ProjectPage = () => {
                               : "bg-gray-4")
                           }
                         ></div>
-                        <Link href={"/project/" + key}>
+                        <button onClick={() => {
+                          if((adminProject.includes(key) || (company.Team[userID] != undefined && company.Team[userID].MemberProjects[key] != undefined && company.Team[userID].MemberProjects[key].AccessRole == 'Manager'))) {
+                            router.push('/project/' + key);
+                          }
+                        }}>
                           {company.ProjectDirectory[key].ProjectTitle}
-                        </Link>
+                        </button>
                       </p>
                       <p className="text-white col-span-2 font-light hidden md:block">
                         {company.ProjectDirectory[key].CompanyRegion}
