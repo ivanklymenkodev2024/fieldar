@@ -275,7 +275,7 @@ const ProjectPage = () => {
                           }
                         ></div>
                         <button onClick={() => {
-                          if((adminProject.includes(key) || (company.Team[userID] != undefined && company.Team[userID].MemberProjects[key] != undefined && company.Team[userID].MemberProjects[key].AccessRole == 'Manager'))) {
+                          if((isAdmin == true || adminProject.includes(key) || (company.Team[userID] != undefined && company.Team[userID].MemberProjects[key] != undefined && company.Team[userID].MemberProjects[key].AccessRole == 'Manager'))) {
                             router.push('/project/' + key);
                           }
                         }}>
