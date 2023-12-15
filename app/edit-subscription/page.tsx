@@ -145,7 +145,6 @@ const EditSubscriptionPage = () => {
           ? company.SubscriptionDetails.projectQuantity
           : 0
       );
-      console.log(proje);
       setAvailableCount(
         Math.max(
           0,
@@ -372,10 +371,10 @@ const EditSubscriptionPage = () => {
 
                   <div
                     className={
-                      "w-full md:w-[620px] flex flex-col bg-gray-3 h-ttable rounded-[24px]" +
+                      "w-full md:w-[620px] flex flex-col bg-gray-3 h-ttable rounded-[24px] overflow-y-auto " +
                       (company.ProjectDirectory == undefined ||
                       Object.keys(company.ProjectDirectory).length == 0
-                        ? " justify-center items-center"
+                        ? "items-center"
                         : "")
                     }
                   >
@@ -404,7 +403,11 @@ const EditSubscriptionPage = () => {
                       return (
                         <div
                           className={
-                            "grid grid-cols-4 md:grid-cols-7 p-[10px] border-b-[1px] border-gray-4 hover:bg-gray-7 px-[22px] flex items-center"
+                            "grid grid-cols-4 md:grid-cols-7 p-[10px] border-b-[1px] border-gray-4 hover:bg-gray-7 px-[22px] flex items-center w-full" +
+                            (companyProjectCount == selectedProjects.length &&
+                            id == 0
+                              ? " rounded-t-[24px]"
+                              : "")
                           }
                           key={id}
                         >

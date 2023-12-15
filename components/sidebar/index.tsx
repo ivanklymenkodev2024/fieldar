@@ -99,9 +99,10 @@ const SideBar: React.FC<SidebarProps> = ({ index }: SidebarProps) => {
     >
       <div className=" w-full flex flex-col justify-center items-center my-[30px]">
         <Image src={logoImage} width={176} height={46} alt="FieldAR Logo" />
-        <Link href="/profile">
-          <div className="border-gray-4 border-[8px] rounded-[50%] bg-red-primary">
-            {picUrl == "" || picUrl == undefined}
+
+        <div className="border-gray-4 border-[8px] rounded-[50%] bg-red-primary">
+          {picUrl == "" || picUrl == undefined}
+          <Link href="/profile">
             {picUrl == "" || picUrl == undefined ? (
               <Image
                 src={picUrl == "" ? defaultUser : picUrl}
@@ -119,8 +120,8 @@ const SideBar: React.FC<SidebarProps> = ({ index }: SidebarProps) => {
                 className="rounded-[50%] border-[4px] border-gray-3 shadow-md drop-shadow-0 drop-shadow-y-3 blur-6 w-[100px] h-[100px]"
               />
             )}
-          </div>
-        </Link>
+          </Link>
+        </div>
       </div>
 
       <div className="flex flex-col h-menu justify-between">

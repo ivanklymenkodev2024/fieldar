@@ -265,7 +265,7 @@ const ProjectPage = () => {
                       }
                       key={id}
                     >
-                      <p className="text-white col-span-3 font-light flex items-center">
+                      <div className="text-white col-span-3 font-light flex items-center">
                         <div
                           className={
                             "rounded-[100%] w-[10px] h-[10px] lg:hidden mr-[10px] " +
@@ -281,14 +281,14 @@ const ProjectPage = () => {
                         }}>
                           {company.ProjectDirectory[key].ProjectTitle}
                         </button>
-                      </p>
+                      </div>
                       <p className="text-white col-span-2 font-light hidden md:block">
                         {company.ProjectDirectory[key].CompanyRegion}
                       </p>
                       <p className="text-white col-span-2 font-light">
                         {company.ProjectDirectory[key].ProjectLocation}
                       </p>
-                      <p className="text-white col-span-1 font-light hidden lg:flex items-center">
+                      <div className="text-white col-span-1 font-light hidden lg:flex items-center">
                         <div
                           className={
                             "rounded-[100%] w-[10px] h-[10px] " +
@@ -297,7 +297,7 @@ const ProjectPage = () => {
                               : "bg-gray-4")
                           }
                         ></div>
-                      </p>
+                      </div>
                     </div>
                   );
                 })}
