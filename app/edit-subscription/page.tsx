@@ -107,10 +107,16 @@ const EditSubscriptionPage = () => {
 
   const getFormatData = (dateString: any) => {
     let date = new Date(dateString);
+    console.log(
+      dateString,
+      date.getFullYear(),
+      date.getMonth(),
+      date.getDate()
+    );
 
-    let year = date.getFullYear() - 1; // Subtract 1 year to get 2023
+    let year = date.getFullYear(); // Subtract 1 year to get 2023
     let month = date.getMonth() + 1; // Add 1 to get 1-based month
-    let day = date.getDate() + 1; // Add 1 to get the next day
+    let day = date.getDate(); // Add 1 to get the next day
 
     let formattedDate = `${year}/${month}/${day}`;
     return formattedDate;
