@@ -513,7 +513,7 @@ const SubscriptionPage = () => {
                           {" "}
                           Total: $
                           {(
-                            (projectCount + Number(companyProjectCount)) *
+                            (Number(projectCount) + Number(companyProjectCount)) *
                             projectCost *
                             12
                           ).toLocaleString()}{" "}
