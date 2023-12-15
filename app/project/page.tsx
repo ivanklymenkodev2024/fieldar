@@ -64,7 +64,6 @@ const ProjectPage = () => {
     if (regionFilter == "") {
       setRegionFilter(company.CompanyRegions.split(",")[0].trim());
     }
-    console.log(company);
     if (company.SubscriptionPlan != "Trial") {
       setIsAdmin(Object.keys(company.Admins).includes(user.uid));
       console.log(Object.keys(company.Admins).includes(user.uid));

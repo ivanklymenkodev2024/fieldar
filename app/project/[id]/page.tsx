@@ -125,8 +125,15 @@ const ProjectDetailPage = ({ params }: any) => {
       });
   };
 
-  const { user, setUser, profile, setProfile, company, setCompany, updateContext } =
-    useGlobalContext();
+  const {
+    user,
+    setUser,
+    profile,
+    setProfile,
+    company,
+    setCompany,
+    updateContext,
+  } = useGlobalContext();
 
   useEffect(() => {
     setProjectId(params.id);
@@ -134,7 +141,8 @@ const ProjectDetailPage = ({ params }: any) => {
     getProject(params.id);
     setMembers(company.Team);
     if (company.SubscriptionPlan != "Trial") {
-      setIsAdmin(true)
+      setIsAdmin(Object.keys(company.Admins).includes(user.uid));
+      console.log(Object.keys(company.Admins).includes(user.uid));
     } else {
       setIsAdmin(false);
     }
@@ -515,7 +523,9 @@ const ProjectDetailPage = ({ params }: any) => {
                                 disabled={isLoading}
                                 onClick={() => {
                                   setSelectedTeamMember(key);
-                                  setNewMemberRole(project.TeamMembers[key].AccessRole);
+                                  setNewMemberRole(
+                                    project.TeamMembers[key].AccessRole
+                                  );
                                   setIsShowUserRoleModal(true);
                                 }}
                               >
