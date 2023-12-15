@@ -32,14 +32,16 @@ const database = getDatabase(firebase_app);
 import { getFunctions, httpsCallable } from "firebase/functions";
 import { loadStripe } from "@stripe/stripe-js";
 import {
+  AddressElement,
+  CardNumberElement,
+  CardExpiryElement,
+  CardCvcElement,
   CardElement,
   Elements,
   useElements,
   useStripe,
+  PaymentElement,
 } from "@stripe/react-stripe-js";
-
-import Stripe from "stripe";
-const stripe = new Stripe(process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY);
 
 import { useRouter } from "next/navigation";
 
@@ -186,7 +188,12 @@ const SubscriptionPage = () => {
 
   const getFormatData = (dateString: any) => {
     let date = new Date(dateString);
-    console.log(dateString, date.getFullYear(), date.getMonth(), date.getDate());
+    console.log(
+      dateString,
+      date.getFullYear(),
+      date.getMonth(),
+      date.getDate()
+    );
 
     let year = date.getFullYear(); // Subtract 1 year to get 2023
     let month = date.getMonth() + 1; // Add 1 to get 1-based month
@@ -513,7 +520,8 @@ const SubscriptionPage = () => {
                           {" "}
                           Total: $
                           {(
-                            (Number(projectCount) + Number(companyProjectCount)) *
+                            (Number(projectCount) +
+                              Number(companyProjectCount)) *
                             projectCost *
                             12
                           ).toLocaleString()}{" "}
@@ -600,7 +608,7 @@ const SubscriptionPage = () => {
 
                 {(isTrial || isUpdatePayment) && (
                   <div className="w-full bg-gray-10 p-[20px] rounded-md">
-                    <CardElement />
+                    <CardNumberElement />
                   </div>
                 )}
               </div>

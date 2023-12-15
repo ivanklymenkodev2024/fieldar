@@ -35,15 +35,15 @@ const cUpdateSettings = httpsCallable(functions, "updateSettings");
 const SettingsPage = () => {
   const [isEdit, setIsEdit] = useState(false);
 
-  const [option1, setOption1] = useState(false);
-  const [option2, setOption2] = useState(false);
-  const [option3, setOption3] = useState(false);
-  const [option4, setOption4] = useState(false);
+  const [option1, setOption1] = useState(true);
+  const [option2, setOption2] = useState(true);
+  const [option3, setOption3] = useState(true);
+  const [option4, setOption4] = useState(true);
 
-  const [newOption1, setNewOption1] = useState(false);
-  const [newOption2, setNewOption2] = useState(false);
-  const [newOption3, setNewOption3] = useState(false);
-  const [newOption4, setNewOption4] = useState(false);
+  const [newOption1, setNewOption1] = useState(true);
+  const [newOption2, setNewOption2] = useState(true);
+  const [newOption3, setNewOption3] = useState(true);
+  const [newOption4, setNewOption4] = useState(true);
 
   const updateSettings = () => {
     cUpdateSettings({
@@ -53,10 +53,10 @@ const SettingsPage = () => {
       promotionUpdates: newOption4,
     })
       .then((result) => {
-        setOption1(option1);
-        setOption2(option2);
-        setOption3(option3);
-        setOption4(option4);
+        setOption1(newOption1);
+        setOption2(newOption2);
+        setOption3(newOption3);
+        setOption4(newOption4);
         toast.success(result.data.message);
       })
       .catch((error) => {

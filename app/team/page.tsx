@@ -84,7 +84,8 @@ const TeamPage = () => {
     setMembers(company.Team);
     setAdmins(Object.keys(company.Admins));
     if (company.SubscriptionPlan != "Trial") {
-      setIsAdmin(true);
+      setIsAdmin(Object.keys(company.Admins).includes(user.uid));
+      console.log(Object.keys(company.Admins).includes(user.uid));
     } else {
       setIsAdmin(false);
     }
