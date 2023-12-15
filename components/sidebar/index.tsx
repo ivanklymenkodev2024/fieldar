@@ -111,8 +111,10 @@ const SideBar: React.FC<SidebarProps> = ({ index }: SidebarProps) => {
                 className="rounded-[50%] border-[4px] border-gray-3 shadow-md drop-shadow-0 drop-shadow-y-3 blur-6 w-[100px] h-[100px]"
               />
             ) : (
-              <img
+              <Image
                 src={picUrl}
+                width={100}
+                height={100}
                 alt="Profile Image"
                 className="rounded-[50%] border-[4px] border-gray-3 shadow-md drop-shadow-0 drop-shadow-y-3 blur-6 w-[100px] h-[100px]"
               />

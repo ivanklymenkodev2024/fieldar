@@ -583,7 +583,7 @@ const EditSubscriptionPage = () => {
                   {invoiceList.data != undefined &&
                     invoiceList.data.map((item, id) => {
                       return (
-                        <div className="grid grid-cols-7 my-[10px] border-b-[1px] border-gray-4">
+                        <div className="grid grid-cols-7 my-[10px] border-b-[1px] border-gray-4" key={id}>
                           <p className="col-span-2 text-center text-gray-10 mb-0">
                             {new Date(
                               item.effective_at * 1000
