@@ -11,7 +11,7 @@ import activityIcon from "../../public/icons/Comment.png";
 import subscriptionIcon from "../../public/icons/SubscriptionIcon.png";
 import settingsIcon from "../../public/icons/SettingsIcon.png";
 import logoutIcon from "../../public/icons/LogoutIcon.png";
-import closeIcon from '../../public/icons/CloseXIcon.png';
+import closeIcon from "../../public/icons/CloseXIcon.png";
 
 import defaultUser from "../../public/icons/User.png";
 
@@ -28,13 +28,28 @@ const database = getDatabase(firebase_app);
 import Link from "next/link";
 import { child, get, getDatabase, ref } from "firebase/database";
 import { useEffect, useState } from "react";
+import { useGlobalContext } from "@/contexts/state";
 
-const ReSideBar: React.FC<ReSidebarProps> = ({ index, hide }: ReSidebarProps) => {
+const ReSideBar: React.FC<ReSidebarProps> = ({
+  index,
+  hide,
+}: ReSidebarProps) => {
   const [picUrl, setPicUrl] = useState("");
 
+  const {
+    user,
+    setUser,
+    profile,
+    setProfile,
+    project,
+    setProject,
+    company,
+    setCompany,
+  } = useGlobalContext();
+
   useEffect(() => {
-    setPicUrl(profile.PhotoURL);    
-  })
+    setPicUrl(profile.PhotoURL);
+  });
 
   // auth.onAuthStateChanged(function (user: any) {
   //   if (user != null) {
@@ -60,10 +75,13 @@ const ReSideBar: React.FC<ReSidebarProps> = ({ index, hide }: ReSidebarProps) =>
   return (
     <div className="w-[100vw] min-h-[100vh] lg:hidden bg-gray-2">
       <div className=" w-full flex flex-col justify-center items-center my-[30px]">
-        <div className="w-full flex justify-end mx-[30px]" >
-          <button className="mr-[40px]" onClick={() => {
-            hide(false);
-          }}>
+        <div className="w-full flex justify-end mx-[30px]">
+          <button
+            className="mr-[40px]"
+            onClick={() => {
+              hide(false);
+            }}
+          >
             <Image src={closeIcon} width={40} height={40} alt="close" />
           </button>
         </div>
@@ -210,10 +228,18 @@ const ReSideBar: React.FC<ReSidebarProps> = ({ index, hide }: ReSidebarProps) =>
           </Link>
         </div>
         <div className="flex flex-col mb-[20px]">
-            <div className="text-gray-11 py-[15px] text-primary text-center">Home</div>
-            <div className="text-gray-11 py-[15px] text-primary text-center">Blog</div>
-            <div className="text-gray-11 py-[15px] text-primary text-center">Plugins</div>
-            <div className="text-gray-11 py-[15px] text-primary text-center">Support</div>
+          <div className="text-gray-11 py-[15px] text-primary text-center">
+            Home
+          </div>
+          <div className="text-gray-11 py-[15px] text-primary text-center">
+            Blog
+          </div>
+          <div className="text-gray-11 py-[15px] text-primary text-center">
+            Plugins
+          </div>
+          <div className="text-gray-11 py-[15px] text-primary text-center">
+            Support
+          </div>
         </div>
       </div>
     </div>
