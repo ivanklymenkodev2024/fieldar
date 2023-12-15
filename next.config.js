@@ -1,5 +1,8 @@
 /** @type {import('next').NextConfig} */
 module.exports = {
+  compiler: {
+    styledComponents: true
+  },
   typescript: {
     // !! WARN !!
     // Dangerously allow production builds to successfully complete even if

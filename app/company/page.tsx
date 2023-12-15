@@ -99,61 +99,6 @@ const CompanyPage = () => {
 
   })
 
-  // const getCompany = async (companyKey: string) => {
-  //   setCompanyId(companyKey);
-  //   const dbRef = ref(getDatabase());
-  //   get(child(dbRef, `companies/${companyKey}`))
-  //     .then((snapshot: any) => {
-  //       if (snapshot.exists()) {
-  //         setLogoURL(snapshot.val().CompanyIconURL);
-  //         setCompanyName(snapshot.val().CompanyName);
-  //         setCompanyRegion(snapshot.val().CompanyRegions);
-  //         setCompanyBio(snapshot.val().CompanyDescription);
-
-  //         if (isAdmin == false) {
-  //           if (snapshot.val().SubscriptionPlan != "Trial") {
-  //             setIsAdmin(Object.keys(snapshot.val().Admins).includes(userID));
-  //           } else {
-  //             setIsAdmin(false);
-  //           }
-  //         }
-  //         console.log(snapshot.val().SubscriptionPlan);
-  //         if (snapshot.val().SubscriptionPlan == "Trial") {
-  //           setIsTrial(true);
-  //         } else {
-  //           setIsTrial(false);
-  //         }
-  //       } else {
-  //         console.log("No data available");
-  //       }
-  //     })
-  //     .catch((error: any) => {
-  //       console.error(error);
-  //     });
-  // };
-
-  // auth.onAuthStateChanged(function (user: any) {
-  //   if (user != null) {
-  //     const uid = user.uid;
-  //     setUserID(uid);
-
-  //     const dbRef = ref(getDatabase());
-  //     get(child(dbRef, `users/${uid}`))
-  //       .then((snapshot: any) => {
-  //         if (snapshot.exists()) {
-  //           getCompany(snapshot.val().CompanyKey);
-  //         } else {
-  //           console.log("No data available");
-  //         }
-  //       })
-  //       .catch((error: any) => {
-  //         console.error(error);
-  //       });
-  //   } else {
-  //     console.log(null);
-  //   }
-  // });
-
   const removeImage = () => {
     setIsRemoveImageModal(true);
   };
