@@ -62,11 +62,11 @@ const CompanyPage = () => {
   const [companyId, setCompanyId] = useState("");
 
   const [isAdmin, setIsAdmin] = useState(false);
-  const [isTrial, setIsTrial] = useState(null);
+  const [isTrial, setIsTrial] = useState(true);
 
   const cropperRef = useRef<ReactCropperElement>(null);
   const onCrop = () => {
-    const cropper = cropperRef.current?.cropper;
+    const cropper:any = cropperRef.current?.cropper;
     setResImage(cropper.getCroppedCanvas().toDataURL());
   };
 
@@ -105,7 +105,7 @@ const CompanyPage = () => {
 
   const handleRemoveLogo = () => {
     cRemoveCompanyLogo()
-      .then((result) => {
+      .then((result:any) => {
         updateContext();
         toast.success(result.data.message);
       })
@@ -143,7 +143,7 @@ const CompanyPage = () => {
       CompanyDescription: reCompanyBio,
       CompanyRegions: reCompanyRegion,
     })
-      .then((result) => {
+      .then((result:any) => {
         updateContext();
         toast.success(result.data.message);
       })
@@ -156,10 +156,10 @@ const CompanyPage = () => {
       });
   };
 
-  const [imageData, setImageData] = useState(null);
+  const [imageData, setImageData] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  const fileInputRef = useRef(null);
+  const fileInputRef:any = useRef(null);
 
   const uploadImageURLToDB = (file: any) => {
     setIsLoading(true);
@@ -171,7 +171,7 @@ const CompanyPage = () => {
         getDownloadURL(storageRef)
           .then((url) => {
             cUpdateCompanyIcon()
-              .then((result) => {
+              .then((result:any) => {
                 updateContext();
                 toast.success(result.data.message);
                 setIsLoading(false);
@@ -220,12 +220,12 @@ const CompanyPage = () => {
     uploadImageURLToDB(base64toFile(resImg, "profile.png"));
   };
 
-  const handleFileChange = (e) => {
+  const handleFileChange = (e:any) => {
     const file = e.target.files[0];
     const reader = new FileReader();
 
     if (file != undefined && file != null) {
-      reader.onload = (event) => {
+      reader.onload = (event:any) => {
         setImageData(event.target.result);
         setIsShowCropImageModal(true);
       };

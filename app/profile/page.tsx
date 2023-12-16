@@ -48,7 +48,7 @@ const ProfilePage = () => {
 
   const cropperRef = useRef<ReactCropperElement>(null);
   const onCrop = () => {
-    const cropper = cropperRef.current?.cropper;
+    const cropper:any = cropperRef.current?.cropper;
     setResImage(cropper.getCroppedCanvas().toDataURL());
   };
 
@@ -129,7 +129,7 @@ const ProfilePage = () => {
         getDownloadURL(storageRef)
           .then((url) => {
             cUpdateProfilePic({ profilePicURL: url })
-              .then((result) => {
+              .then((result:any) => {
                 updateContext();
                 toast.success(result.data.message);
               })
@@ -183,7 +183,7 @@ const ProfilePage = () => {
     const reader = new FileReader();
 
     if (file != undefined && file != null) {
-      reader.onload = (event) => {
+      reader.onload = (event:any) => {
         setImageData(event.target.result);
         setIsShowCropImageModal(true);
       };

@@ -1,15 +1,15 @@
 import { createContext, useContext } from "react";
 
 export type GlobalData = {
-  user: object;
-  profile: object;
-  company: object;
-  project: object;
-  setUser: (c:object) => void;
-  setProfile: (c:object) => void;
-  setCompany: (c:object) => void;
-  setProject: (c:object) => void;
-  updateContext: (c:object) => void;
+  user: any;
+  profile: any;
+  company: any;
+  project: any;
+  setUser: (c:any) => void;
+  setProfile: (c:any) => void;
+  setCompany: (c:any) => void;
+  setProject: (c:any) => void;
+  updateContext: () => void;
 };
 
 export const CurrentDataContext = createContext<GlobalData>({
