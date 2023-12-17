@@ -15,6 +15,8 @@ import teamIcon from "../../../public/icons/TeamIcon.png";
 import plusIcon from "../../../public/icons/PlusIcon.png";
 import closeIcon from "../../../public/icons/CloseXIcon.png";
 import alertIcon from "../../../public/icons/AlertIcon.png";
+import modelIcon from "../../../public/icons/ModelIcon.png";
+
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
@@ -52,7 +54,7 @@ const ProjectDetailPage = ({ params }: any) => {
   const router = useRouter();
   const [projectId, setProjectId] = useState("");
 
-  const [members, setMembers] = useState({});
+  const [members, setMembers] = useState<any>({});
   const [filterString, setFilterString] = useState("");
 
   const [selectedNewMember, setSelectedNewMember] = useState("");
@@ -67,7 +69,7 @@ const ProjectDetailPage = ({ params }: any) => {
   const [isShowAddTeamMemberModal, setIsShowAddTeamMemberModal] =
     useState(false);
 
-  const [project, setProject] = useState({});
+  const [project, setProject] = useState<any>({});
 
   const [selectedModel, setSelectedModel] = useState("");
   const [newModelName, setNewModelName] = useState("");
@@ -87,30 +89,7 @@ const ProjectDetailPage = ({ params }: any) => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  // const getCompany = (companyKey: string) => {
-  //   const dbRef = ref(getDatabase());
-  //   get(child(dbRef, `companies/${companyKey}`))
-  //     .then((snapshot: any) => {
-  //       if (snapshot.exists()) {
-  //         setMembers(snapshot.val().Team);
-  //         setCompany(snapshot.val());
-  //         if (isAdmin == false) {
-  //           if (snapshot.val() != "Trial") {
-  //             setIsAdmin(Object.keys(snapshot.val().Admins).includes(userID));
-  //           } else {
-  //             setIsAdmin(false);
-  //           }
-  //         }
-  //       } else {
-  //         console.log("No data available");
-  //       }
-  //     })
-  //     .catch((error: any) => {
-  //       console.error(error);
-  //     });
-  // };
-
-  const getProject = (pid) => {
+  const getProject = (pid:any) => {
     const dbRef = ref(getDatabase());
     get(child(dbRef, `projects/${pid}`))
       .then((snapshot: any) => {
@@ -403,10 +382,19 @@ const ProjectDetailPage = ({ params }: any) => {
             )}
           </div>
           <div className="px-[32px] py-[10px] flex flex-wrap md:flex-row flex-col">
-            <div className="flex flex-col mr-[20px]">
-              <p className="text-small text-gray-10 mx-[30px] my-[10px]">
-                Models
-              </p>
+            <div className="flex flex-col ml-[10px] mx-[30px]">
+              <div className="flex items-center">
+                <Image
+                  src={modelIcon}
+                  width={32}
+                  height={32}
+                  alt="model icon"
+                  className="opacity-30"
+                />
+                <p className="text-small text-gray-10 mx-[10px] my-[10px]">
+                  Models
+                </p>
+              </div>
               <div className="w-[100%] md:w-[450px] bg-gray-3 h-[500px] rounded-[24px] ">
                 {project.Models != null &&
                   project.Models != undefined &&

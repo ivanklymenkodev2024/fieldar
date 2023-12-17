@@ -36,7 +36,7 @@ const LoginPage = () => {
           if (typeof window !== 'undefined') {
             localStorage.setItem('company', JSON.stringify(snapshot.val()));
           }
-          router.push('/profile');
+          router.push('/subscription');
         } else {
           console.log("No data available");
         }

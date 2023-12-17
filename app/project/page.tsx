@@ -78,58 +78,6 @@ const ProjectPage = () => {
     }
   }, [profile, company]);
 
-  // const getCompany = (companyKey: string) => {
-  //   const dbRef = ref(getDatabase());
-  //   get(child(dbRef, `companies/${companyKey}`))
-  //     .then((snapshot: any) => {
-  //       if (snapshot.exists()) {
-  //         setCompany(snapshot.val());
-
-  //         if (regionFilter == "") {
-  //           setRegionFilter(snapshot.val().CompanyRegions.split(",")[0].trim());
-  //         }
-  //         if (isAdmin == false) {
-  //           if (snapshot.val().SubscriptionPlan != "Trial") {
-  //             setIsAdmin(Object.keys(snapshot.val().Admins).includes(userID));
-  //           } else {
-  //             setIsAdmin(false);
-  //           }
-  //         }
-  //       } else {
-  //         console.log("No data available");
-  //       }
-  //     })
-  //     .catch((error: any) => {
-  //       console.error(error);
-  //     });
-  // };
-
-  // auth.onAuthStateChanged(function (user: any) {
-  //   if (user != null) {
-  //     const uid = user.uid;
-  //     setUserID(uid);
-
-  //     const dbRef = ref(getDatabase());
-  //     get(child(dbRef, `users/${uid}`))
-  //       .then((snapshot: any) => {
-  //         if (snapshot.exists()) {
-  //           getCompany(snapshot.val().CompanyKey);
-  //           if (snapshot.val()["CreatedProjects"] == undefined) {
-  //             setAdminProject([]);
-  //           } else {
-  //             setAdminProject(Object.keys(snapshot.val()["CreatedProjects"]));
-  //           }
-  //         } else {
-  //           console.log("No data available");
-  //         }
-  //       })
-  //       .catch((error: any) => {
-  //         console.error(error);
-  //       });
-  //   } else {
-  //     console.log(null);
-  //   }
-  // });
   const createNewProject = () => {
     setNewProjectName("");
     setNewProjectLocation("");
@@ -189,8 +137,8 @@ const ProjectPage = () => {
                     company.CompanyRegions.split(",").map(
                       (item: any, id: any) => {
                         return (
-                          <option key={id} value={item}>
-                            {item}
+                          <option key={id} value={item.trim()}>
+                            {item.trim()}
                           </option>
                         );
                       }
@@ -243,8 +191,7 @@ const ProjectPage = () => {
                   if (
                     regionFilter != "All" &&
                     company.ProjectDirectory[key].CompanyRegion !=
-                      regionFilter &&
-                    company.ProjectDirectory[key].CompanyRegion != "All"
+                      regionFilter
                   ) {
                     return <></>;
                   } else if (

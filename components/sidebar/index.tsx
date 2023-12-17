@@ -69,27 +69,6 @@ const SideBar: React.FC<SidebarProps> = ({ index }: SidebarProps) => {
     setPicUrl(profile.PhotoURL);
   });
 
-  // auth.onAuthStateChanged(function (user: any) {
-  //   if (user != null) {
-  //     const uid = user.uid;
-
-  //     const dbRef = ref(getDatabase());
-  //     get(child(dbRef, `users/${uid}`))
-  //       .then((snapshot: any) => {
-  //         if (snapshot.exists()) {
-  //           setPicUrl(snapshot.val().PhotoURL);
-  //         } else {
-  //           console.log("No data available");
-  //         }
-  //       })
-  //       .catch((error: any) => {
-  //         console.error(error);
-  //       });
-  //   } else {
-  //     console.log(null);
-  //   }
-  // });
-
   return (
     <div
       className={
@@ -126,6 +105,25 @@ const SideBar: React.FC<SidebarProps> = ({ index }: SidebarProps) => {
 
       <div className="flex flex-col h-menu justify-between">
         <div className="flex flex-col">
+          <Link href="/subscription">
+            <div
+              className={
+                "flex items-center justify-start h-[72px] w-full " +
+                (index == 4 ? "bg-gray-4" : "bg-gray-2")
+              }
+            >
+              <Image
+                src={subscriptionIcon}
+                width={25}
+                height={25}
+                alt="subscription"
+                className="ml-[75px]"
+              />
+              <p className="ml-[10px] text-white text-small font-bold">
+                Subscription
+              </p>
+            </div>
+          </Link>
           <Link href="/company">
             <div
               className={
@@ -159,7 +157,7 @@ const SideBar: React.FC<SidebarProps> = ({ index }: SidebarProps) => {
                 alt="team"
                 className="ml-[75px]"
               />
-              <p className="ml-[10px] text-white text-small font-bold">Team</p>
+              <p className="ml-[10px] text-white text-small font-bold">Team Management</p>
             </div>
           </Link>
           <Link href="/project">
@@ -177,7 +175,7 @@ const SideBar: React.FC<SidebarProps> = ({ index }: SidebarProps) => {
                 className="ml-[75px]"
               />
               <p className="ml-[10px] text-white text-small font-bold">
-                Project
+                Project Management
               </p>
             </div>
           </Link>
@@ -197,25 +195,6 @@ const SideBar: React.FC<SidebarProps> = ({ index }: SidebarProps) => {
               />
               <p className="ml-[10px] text-white text-small font-bold">
                 Activity
-              </p>
-            </div>
-          </Link>
-          <Link href="/subscription">
-            <div
-              className={
-                "flex items-center justify-start h-[72px] w-full " +
-                (index == 4 ? "bg-gray-4" : "bg-gray-2")
-              }
-            >
-              <Image
-                src={subscriptionIcon}
-                width={25}
-                height={25}
-                alt="subscription"
-                className="ml-[75px]"
-              />
-              <p className="ml-[10px] text-white text-small font-bold">
-                Subscription
               </p>
             </div>
           </Link>

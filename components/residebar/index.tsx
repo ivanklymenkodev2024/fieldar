@@ -51,27 +51,6 @@ const ReSideBar: React.FC<ReSidebarProps> = ({
     setPicUrl(profile.PhotoURL);
   });
 
-  // auth.onAuthStateChanged(function (user: any) {
-  //   if (user != null) {
-  //     const uid = user.uid;
-
-  //     const dbRef = ref(getDatabase());
-  //     get(child(dbRef, `users/${uid}`))
-  //       .then((snapshot: any) => {
-  //         if (snapshot.exists()) {
-  //           setPicUrl(snapshot.val().PhotoURL);
-  //         } else {
-  //           console.log("No data available");
-  //         }
-  //       })
-  //       .catch((error: any) => {
-  //         console.error(error);
-  //       });
-  //   } else {
-  //     console.log(null);
-  //   }
-  // });
-
   return (
     <div className="w-[100vw] min-h-[100vh] lg:hidden bg-gray-2">
       <div className=" w-full flex flex-col justify-center items-center my-[30px]">
@@ -100,6 +79,25 @@ const ReSideBar: React.FC<ReSidebarProps> = ({
 
       <div className="flex flex-col h-menu justify-between">
         <div className="flex flex-col">
+        <Link href="/subscription">
+            <div
+              className={
+                "flex items-center justify-start h-[60px] w-full " +
+                (index == 4 ? "bg-gray-4" : "bg-gray-2")
+              }
+            >
+              <Image
+                src={subscriptionIcon}
+                width={25}
+                height={25}
+                alt="subscription"
+                className="ml-[75px]"
+              />
+              <p className="ml-[10px] text-white text-small font-bold">
+                Subscription
+              </p>
+            </div>
+          </Link>
           <Link href="/company">
             <div
               className={
@@ -133,7 +131,7 @@ const ReSideBar: React.FC<ReSidebarProps> = ({
                 alt="team"
                 className="ml-[75px]"
               />
-              <p className="ml-[10px] text-white text-small font-bold">Team</p>
+              <p className="ml-[10px] text-white text-small font-bold">Team Management</p>
             </div>
           </Link>
           <Link href="/project">
@@ -151,7 +149,7 @@ const ReSideBar: React.FC<ReSidebarProps> = ({
                 className="ml-[75px]"
               />
               <p className="ml-[10px] text-white text-small font-bold">
-                Project
+                Project Management
               </p>
             </div>
           </Link>
@@ -171,25 +169,6 @@ const ReSideBar: React.FC<ReSidebarProps> = ({
               />
               <p className="ml-[10px] text-white text-small font-bold">
                 Activity
-              </p>
-            </div>
-          </Link>
-          <Link href="/subscription">
-            <div
-              className={
-                "flex items-center justify-start h-[60px] w-full " +
-                (index == 4 ? "bg-gray-4" : "bg-gray-2")
-              }
-            >
-              <Image
-                src={subscriptionIcon}
-                width={25}
-                height={25}
-                alt="subscription"
-                className="ml-[75px]"
-              />
-              <p className="ml-[10px] text-white text-small font-bold">
-                Subscription
               </p>
             </div>
           </Link>

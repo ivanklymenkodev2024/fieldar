@@ -32,7 +32,11 @@ const database = getDatabase(firebase_app);
 import { getFunctions, httpsCallable } from "firebase/functions";
 import { loadStripe } from "@stripe/stripe-js";
 import {
+  AddressElement,
+  CardCvcElement,
   CardElement,
+  CardExpiryElement,
+  CardNumberElement,
   Elements,
   useElements,
   useStripe,
@@ -49,6 +53,27 @@ const cAddProjectsToEnterprise = httpsCallable(
   functions,
   "addProjectsToEnterprise"
 );
+
+const CARD_ELEMENT_OPTIONS = {
+  style: {
+    base: {
+      color: "#303238",
+      fontSize: "16px",
+      fontFamily: '"Open Sans", sans-serif',
+      bacgroundColor: "#fff",
+      letterSpacing: "0.025em",
+      "::placeholder": {
+        color: "#CFD7DF",
+      },
+      invalid: {
+        color: "#e5424d",
+        ":focus": {
+          color: "#303238",
+        },
+      },
+    },
+  },
+};
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY);
 
@@ -83,39 +108,61 @@ const SubscriptionPage = () => {
   );
 
   const upgradeSubscription = () => {
-    setIsLoading(true);
     if (!stripe || !elements) {
       return;
     }
 
-    const cardElement = elements.getElement(CardElement);
-
-    if (cardElement) {
-      stripe
-        .createPaymentMethod({
-          type: "card",
-          card: cardElement,
-        })
-        .then((result) => {
-          cUpgradeToEnterprise({
-            numProjectsToAdd: projectCount,
-            paymentMethodId: result.paymentMethod.id,
+    const cardNumberElement = elements.getElement(CardNumberElement);
+    const addressElement = elements.getElement(AddressElement);
+    addressElement?.getValue().then((res: any) => {
+      if (cardNumberElement) {
+        setIsLoading(true);
+        stripe
+          .createPaymentMethod({
+            type: "card",
+            card: cardNumberElement,
+            billing_details: {
+              name: res.value.name,
+              address: res.value.address,
+            },
           })
-            .then((result) => {
-              toast.success(result.data.message);
+          .then((result: any) => {
+            console.log(result);
+            if (result.error) {
               setIsLoading(false);
-              setIsShowUpgradeModal(false);
-              setProjectCount(1);
-              updateContext();
+              // toast.warning(result.error.message);
+              return;
+            }
+            cUpgradeToEnterprise({
+              numProjectsToAdd: projectCount,
+              paymentMethodId: result.paymentMethod.id,
+              billingDetails: {
+                name: res.value.name || "",
+                addressLine1: res.value.address.line1 || "",
+                addressLine2: res.value.address.line2 || "",
+                addressCity: res.value.address.city || "",
+                addressState: res.value.address.state || "",
+                addressCountry: res.value.address.country || "",
+                addressZip: res.value.address.postal_code || "",
+              },
             })
-            .catch((error) => {
-              setIsLoading(false);
-            });
-        })
-        .catch((error) => {
-          setIsLoading(false);
-        });
-    }
+              .then((res: any) => {
+                toast.success(res.data.message);
+                setIsLoading(false);
+                setIsShowUpgradeModal(false);
+                setProjectCount(1);
+                updateContext();
+              })
+              .catch((error) => {
+                setIsLoading(false);
+              });
+          })
+          .catch((error) => {
+            toast.warning(error.message);
+            setIsLoading(false);
+          });
+      }
+    });
   };
 
   const addProjectsToSubscription = () => {
@@ -123,13 +170,13 @@ const SubscriptionPage = () => {
       return;
     }
     setIsLoading(true);
-    const cardElement = elements.getElement(CardElement);
+    const cardNumberElement = elements.getElement(CardNumberElement);
 
     if (!isUpdatePayment) {
       cAddProjectsToEnterprise({
         numProjectsToAdd: projectCount,
       })
-        .then((result) => {
+        .then((result: any) => {
           toast.success(result.data.message);
           setIsShowUpgradeModal(false);
           updateContext();
@@ -140,20 +187,20 @@ const SubscriptionPage = () => {
           setIsLoading(false);
         });
     } else {
-      if (cardElement) {
+      if (cardNumberElement) {
         setIsLoading(true);
         stripe
           .createPaymentMethod({
             type: "card",
-            card: cardElement,
+            card: cardNumberElement,
           })
-          .then((result) => {
+          .then((result: any) => {
             cAddProjectsToEnterprise({
               numProjectsToAdd: projectCount,
               paymentMethodId: result.paymentMethod.id,
             })
-              .then((result) => {
-                toast.success(result.data.message);
+              .then((res: any) => {
+                toast.success(res.data.message);
                 setIsLoading(false);
                 setIsShowUpgradeModal(false);
                 updateContext();
@@ -176,13 +223,13 @@ const SubscriptionPage = () => {
     company.Admins != undefined &&
       Object.keys(company.Admins).includes(user.uid)
   );
-  const [trialInfo, setTrialInfo] = useState({});
+  const [trialInfo, setTrialInfo] = useState<any>({});
 
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState<any>(false);
 
-  const [isShowUpgradeModal, setIsShowUpgradeModal] = useState(false);
+  const [isShowUpgradeModal, setIsShowUpgradeModal] = useState<any>(false);
 
-  const [paymentDate, setPaymentDate] = useState("");
+  const [paymentDate, setPaymentDate] = useState<any>("");
 
   const getFormatData = (dateString: any) => {
     let date = new Date(dateString);
@@ -251,7 +298,7 @@ const SubscriptionPage = () => {
       {!isSide && (
         <div className="absolute lg:left-[320px] lg:w-panel w-full min-h-[100vh] h-fit bg-gray-4">
           <Header title={"My Subscription"} />
-          <ReHeader title={"My Subscription"} index={5} show={setIsSide} />
+          <ReHeader title={"My Subscription"} index={4} show={setIsSide} />
           <div className="m-[32px] flex flex-wrap sm:justify-start justify-center">
             <div className="w-[360px] flex flex-col justify-start items-center mr-[32px]">
               <p className="text-gray-10 font-small mb-[13px]">
@@ -603,7 +650,34 @@ const SubscriptionPage = () => {
 
                 {(isTrial || isUpdatePayment) && (
                   <div className="w-full bg-gray-10 p-[20px] rounded-md">
-                    <CardElement />
+                    {/* <CardElement /> */}
+                    <label className="text-[0.93rem] text-[#30313d]">
+                      Card Number
+                    </label>
+                    <div className="bg-white p-[0.75rem] rounded-[5px]">
+                      <CardNumberElement options={CARD_ELEMENT_OPTIONS} />
+                    </div>
+                    <div className="h-[10px]"></div>
+                    <label className="text-[0.93rem] text-[#30313d]">CVC</label>
+                    <div className="bg-white p-[0.75rem] rounded-[5px]">
+                      <CardCvcElement options={CARD_ELEMENT_OPTIONS} />
+                    </div>
+                    <div className="h-[10px]"></div>
+                    <label className="text-[0.93rem] text-[#30313d]">
+                      Expire Date
+                    </label>
+                    <div className="bg-white p-[0.75rem] rounded-[5px]">
+                      <CardExpiryElement options={CARD_ELEMENT_OPTIONS} />
+                    </div>
+                    <div className="h-[10px]"></div>
+                    <AddressElement
+                      options={{
+                        mode: "billing",
+                        autocomplete: {
+                          mode: "automatic",
+                        },
+                      }}
+                    />
                   </div>
                 )}
               </div>

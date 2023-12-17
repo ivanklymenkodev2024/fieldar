@@ -107,18 +107,13 @@ const EditSubscriptionPage = () => {
 
   const getFormatData = (dateString: any) => {
     let date = new Date(dateString);
-    console.log(
-      dateString,
-      date.getFullYear(),
-      date.getMonth(),
-      date.getDate()
-    );
 
     let year = date.getFullYear(); // Subtract 1 year to get 2023
     let month = date.getMonth() + 1; // Add 1 to get 1-based month
     let day = date.getDate(); // Add 1 to get the next day
 
     let formattedDate = `${year}/${month}/${day}`;
+    if (Number.isNaN(year)) return "";
     return formattedDate;
   };
 
@@ -285,7 +280,9 @@ const EditSubscriptionPage = () => {
                         Trial end date
                       </p>
                       <p className="text-white text-primary text-center font-light">
-                        {getFormatData(trialInfo.trialEndDate)}
+                        {getFormatData(trialInfo.trialEndDate) == ""
+                          ? "Hasn't started free trial yet."
+                          : getFormatData(trialInfo.trialEndDate)}
                       </p>
                       <p className="text-gray-5 text-ssmall text-center font-bold mt-[5px] mb-[25px]">
                         $0.00/Month
@@ -316,7 +313,15 @@ const EditSubscriptionPage = () => {
                               setIsShowBillingDetailsModal(true);
                             }}
                           >
-                            Your Billing Details
+                            View Invoices
+                          </button>
+                          <button
+                            className="text-center mb-[20px] bg-gray-7-5 rounded-[27px] px-[50px] py-[10px] text-white"
+                            onClick={() => {
+                              setIsShowBillingDetailsModal(true);
+                            }}
+                          >
+                            Edit Billing Details
                           </button>
                         </div>
                       ) : (
