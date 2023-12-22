@@ -127,36 +127,13 @@ const ProjectDetailPage = ({ params }: any) => {
     }
   }, [profile, project, company]);
 
-  // auth.onAuthStateChanged(function (user: any) {
-  //   if (user != null) {
-  //     const uid = user.uid;
-  //     setUserID(uid);
-  //     getProject();
-
-  //     const dbRef = ref(getDatabase());
-  //     get(child(dbRef, `users/${uid}`))
-  //       .then((snapshot: any) => {
-  //         if (snapshot.exists()) {
-  //           getCompany(snapshot.val().CompanyKey);
-  //         } else {
-  //           console.log("No data available");
-  //         }
-  //       })
-  //       .catch((error: any) => {
-  //         console.error(error);
-  //       });
-  //   } else {
-  //     console.log(null);
-  //   }
-  // });
-
   const handleRemoveUserFromProject = () => {
     setIsLoading(true);
     cUnassignProjectFromMember({
       selectedProjectId: projectId,
       selectedMemberId: selectedTeamMember,
     })
-      .then((result) => {
+      .then((result:any) => {
         updateContext();
         toast.success(result.data.message);
       })

@@ -8,6 +8,7 @@ import Image from "next/image";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
+import backIcon from "../../public/icons/DropdownArrowIcon.png";
 import projectIcon from "../../public/icons/ProjectIcon.png";
 import modelIcon from "../../public/icons/ModelIcon.png";
 import viewIcon from "../../public/icons/ViewIcon.png";
@@ -17,7 +18,10 @@ import adminIcon from "../../public/icons/AdminIcon.png";
 import brandIcon from "../../public/icons/BrandingIcon.png";
 import closeIcon from "../../public/icons/CloseXIcon.png";
 
-import { useEffect, useState } from "react";
+import paymentIcons from "../../public/icons/PaymentIcons.png";
+import securityIcon from "../../public/icons/CVV-Icon.png";
+
+import { useEffect, useMemo, useState } from "react";
 import ReSideBar from "@/components/residebar";
 import ReHeader from "@/components/reheader";
 import { useGlobalContext } from "@/contexts/state";
@@ -47,6 +51,8 @@ const stripe = new Stripe(process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY);
 
 import { useRouter } from "next/navigation";
 
+import countryList from "react-select-country-list";
+
 const functions = getFunctions();
 const cUpgradeToEnterprise = httpsCallable(functions, "upgradeToEnterprise");
 const cAddProjectsToEnterprise = httpsCallable(
@@ -59,18 +65,18 @@ const cUpdateBillingDetails = httpsCallable(functions, "updateBillingDetails");
 const CARD_ELEMENT_OPTIONS = {
   style: {
     base: {
-      color: "#303238",
+      color: "#DFDFDF",
       fontSize: "16px",
       fontFamily: '"Open Sans", sans-serif',
       bacgroundColor: "#fff",
       letterSpacing: "0.025em",
       "::placeholder": {
-        color: "#CFD7DF",
+        color: "#6b7280",
       },
       invalid: {
-        color: "#e5424d",
+        color: "#a0a0a0",
         ":focus": {
-          color: "#303238",
+          color: "#707070",
         },
       },
     },
@@ -109,8 +115,88 @@ const SubscriptionPage = () => {
       : 0
   );
 
+  const [projectCost, setProjectCost] = useState(199);
+
+  const [isTrial, setIsTrial] = useState(company.SubscriptionPlan == "Trial");
+  const [isAdmin, setIsAdmin] = useState(
+    company.Admins != undefined &&
+      Object.keys(company.Admins).includes(user.uid)
+  );
+  const [trialInfo, setTrialInfo] = useState<any>({});
+  const [isLoading, setIsLoading] = useState<any>(false);
+  const [isShowUpgradeModal, setIsShowUpgradeModal] = useState<any>(false);
+
   const [isShowUpdateBillingDetails, setIsShowUpdateBillingDetails] =
     useState(false);
+
+  const [paymentDate, setPaymentDate] = useState<any>("");
+
+  const [billingStep, setBillingStep] = useState(0);
+  const continueBillingStep = () => {
+    if (firstName == "") {
+      toast.warning("Please input first name");
+      return;
+    }
+    if (secondName == "") {
+      toast.warning("Please input second name");
+      return;
+    }
+    if (streetAddress == "") {
+      toast.warning("Please input street address");
+      return;
+    }
+    if (city == "") {
+      toast.warning("Please input city");
+      return;
+    }
+    if (state == "") {
+      toast.warning("Please input state");
+      return;
+    }
+    if (ZIP == "") {
+      toast.warning("Please input zip");
+      return;
+    }
+    if (email == "") {
+      toast.warning("Please input email");
+      return;
+    }
+    if (phoneNumber == "") {
+      toast.warning("Please input phone number");
+      return;
+    }
+    setBillingStep(1);
+  };
+  const resetBillingStep = () => {
+    setFirstName(profile.DisplayName.split(" ")[0]);
+    setSecondName(profile.DisplayName.split(" ")[1]);
+    setStreetAddress("");
+    setStreetAddress2("");
+    setCity("");
+    setState("");
+    setZIP("");
+    setCountry("US");
+    setEmail(profile.Email);
+    setPhoneNumber(profile.PhoneNumber);
+    setBillingStep(0);
+  };
+
+  const [firstName, setFirstName] = useState("");
+  const [secondName, setSecondName] = useState("");
+  const [streetAddress, setStreetAddress] = useState("");
+  const [streetAddress2, setStreetAddress2] = useState("");
+  const [country, setCountry] = useState("");
+  const [city, setCity] = useState("");
+  const [state, setState] = useState("");
+  const [ZIP, setZIP] = useState("");
+  const [email, setEmail] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
+
+  const [aCountryList, setACountryList] = useState<any>([]);
+
+  const options = useMemo(() => {
+    setACountryList(countryList().getData());
+  }, []);
 
   const updateBillingDetails = () => {
     if (!stripe || !elements) {
@@ -118,112 +204,52 @@ const SubscriptionPage = () => {
     }
 
     const cardNumberElement = elements.getElement(CardNumberElement);
-    const addressElement = elements.getElement(AddressElement);
-    addressElement?.getValue().then((res: any) => {
-      if (cardNumberElement) {
-        setIsLoading(true);
-        stripe
-          .createPaymentMethod({
-            type: "card",
-            card: cardNumberElement,
-            billing_details: {
-              name: res.value.name,
-              address: res.value.address,
+    if (cardNumberElement) {
+      setIsLoading(true);
+      stripe
+        .createPaymentMethod({
+          type: "card",
+          card: cardNumberElement,
+        })
+        .then((result: any) => {
+          console.log(result);
+          if (result.error) {
+            setIsLoading(false);
+            toast.warning(result.error.message);
+            return;
+          }
+          cUpdateBillingDetails({
+            paymentMethodId: result.paymentMethod.id,
+            billingDetails: {
+              name: firstName + " " + secondName,
+              phoneNumber: phoneNumber,
+              email: email,
+              addressLine1: streetAddress,
+              addressLine2: streetAddress2,
+              addressCity: city,
+              addressState: state,
+              addressCountry: country,
+              addressZip: ZIP,
             },
           })
-          .then((result: any) => {
-            console.log(result);
-            if (result.error) {
+            .then((res: any) => {
+              toast.success(res.data.message);
               setIsLoading(false);
-              // toast.warning(result.error.message);
-              return;
-            }
-            cUpdateBillingDetails({
-              paymentMethodId: result.paymentMethod.id,
-              billingDetails: {
-                name: res.value.name || "",
-                addressLine1: res.value.address.line1 || "",
-                addressLine2: res.value.address.line2 || "",
-                addressCity: res.value.address.city || "",
-                addressState: res.value.address.state || "",
-                addressCountry: res.value.address.country || "",
-                addressZip: res.value.address.postal_code || "",
-              },
+              setIsShowUpdateBillingDetails(false);
+              updateContext();
+              if (isTrial) {
+                setIsShowUpgradeModal(true);
+              }
             })
-              .then((res: any) => {
-                toast.success(res.data.message);
-                setIsLoading(false);
-                setIsShowUpdateBillingDetails(false);
-                updateContext();
-              })
-              .catch((error) => {
-                setIsLoading(false);
-              });
-          })
-          .catch((error) => {
-            toast.warning(error.message);
-            setIsLoading(false);
-          });
-      }
-    });
-  };
-
-  const upgradeSubscription = () => {
-    if (!stripe || !elements) {
-      return;
+            .catch((error) => {
+              setIsLoading(false);
+            });
+        })
+        .catch((error) => {
+          toast.warning(error.message);
+          setIsLoading(false);
+        });
     }
-
-    const cardNumberElement = elements.getElement(CardNumberElement);
-    const addressElement = elements.getElement(AddressElement);
-    addressElement?.getValue().then((res: any) => {
-      if (cardNumberElement) {
-        setIsLoading(true);
-        stripe
-          .createPaymentMethod({
-            type: "card",
-            card: cardNumberElement,
-            billing_details: {
-              name: res.value.name,
-              address: res.value.address,
-            },
-          })
-          .then((result: any) => {
-            console.log(result);
-            if (result.error) {
-              setIsLoading(false);
-              // toast.warning(result.error.message);
-              return;
-            }
-            cUpgradeToEnterprise({
-              numProjectsToAdd: projectCount,
-              paymentMethodId: result.paymentMethod.id,
-              billingDetails: {
-                name: res.value.name || "",
-                addressLine1: res.value.address.line1 || "",
-                addressLine2: res.value.address.line2 || "",
-                addressCity: res.value.address.city || "",
-                addressState: res.value.address.state || "",
-                addressCountry: res.value.address.country || "",
-                addressZip: res.value.address.postal_code || "",
-              },
-            })
-              .then((res: any) => {
-                toast.success(res.data.message);
-                setIsLoading(false);
-                setIsShowUpgradeModal(false);
-                setProjectCount(1);
-                updateContext();
-              })
-              .catch((error) => {
-                setIsLoading(false);
-              });
-          })
-          .catch((error) => {
-            toast.warning(error.message);
-            setIsLoading(false);
-          });
-      }
-    });
   };
 
   const addProjectsToSubscription = () => {
@@ -277,21 +303,6 @@ const SubscriptionPage = () => {
     }
   };
 
-  const [projectCost, setProjectCost] = useState(199);
-
-  const [isTrial, setIsTrial] = useState(company.SubscriptionPlan == "Trial");
-  const [isAdmin, setIsAdmin] = useState(
-    company.Admins != undefined &&
-      Object.keys(company.Admins).includes(user.uid)
-  );
-  const [trialInfo, setTrialInfo] = useState<any>({});
-
-  const [isLoading, setIsLoading] = useState<any>(false);
-
-  const [isShowUpgradeModal, setIsShowUpgradeModal] = useState<any>(false);
-
-  const [paymentDate, setPaymentDate] = useState<any>("");
-
   const getFormatData = (dateString: any) => {
     let date = new Date(dateString);
 
@@ -304,7 +315,7 @@ const SubscriptionPage = () => {
     return formattedDate;
   };
 
-  const getTrialInfo = (companyKey) => {
+  const getTrialInfo = (companyKey: any) => {
     const dbRef = ref(getDatabase());
     get(child(dbRef, `free-trials/${companyKey}`))
       .then((snapshot: any) => {
@@ -560,7 +571,7 @@ const SubscriptionPage = () => {
                       <select
                         className="text-white bg-red-primary rounded-[31px] p-[15px] w-[200px] border-r-[20px] focus:border-red-primary font-bold mb-4 ring-0 border-red-primary focus:ring-0"
                         value={projectCount}
-                        onChange={(e) => {
+                        onChange={(e: any) => {
                           setProjectCount(e.target.value);
                         }}
                       >
@@ -636,8 +647,12 @@ const SubscriptionPage = () => {
                       <button
                         className="mx-[24px] mt-[24px] h-fit bg-gray-5 rounded-[44px] px-[16px] py-[12px] w-[320px] font-small shadow-md drop-shadow-0 drop-shadow-y-3 blur-6 text-white"
                         onClick={() => {
-                          setIsUpdatePayment(false);
-                          setIsShowUpgradeModal(true);
+                          resetBillingStep();
+                          if (isTrial) {
+                            setIsShowUpdateBillingDetails(true);
+                          } else {
+                            setIsShowUpgradeModal(true);
+                          }
                         }}
                       >
                         <p className="font-semibold">
@@ -691,58 +706,6 @@ const SubscriptionPage = () => {
                 </p>
               </div>
               <div className="mx-[50px] my-[10px] flex flex-col justify-center">
-                {/* {!isTrial && (
-                  <div className="flex items-center mb-[20px]">
-                    <input
-                      type="checkbox"
-                      value=""
-                      className="w-[30px] h-[30px] color-white bg-gray-5 mx-[10px] rounded-[6px]  focus:ring-0 focus:bg-gray-5 focus:border-none focus:outline-none active:bg-gray-5 ring-0"
-                      checked={isUpdatePayment}
-                      onClick={(e) => {
-                        if (isLoading) return;
-                        setIsUpdatePayment(e.target.checked);
-                      }}
-                    />
-                    <label className="ms-2 text-sm font-medium text-gray-400 dark:text-gray-500">
-                      Update payment method
-                    </label>
-                  </div>
-                )} */}
-
-                {(isTrial || isUpdatePayment) && (
-                  <div className="w-full bg-gray-10 p-[20px] rounded-md">
-                    {/* <CardElement /> */}
-                    <label className="text-[0.93rem] text-[#30313d]">
-                      Card Number
-                    </label>
-                    <div className="bg-white p-[0.75rem] rounded-[5px]">
-                      <CardNumberElement options={CARD_ELEMENT_OPTIONS} />
-                    </div>
-                    <div className="h-[10px]"></div>
-                    <label className="text-[0.93rem] text-[#30313d]">CVC</label>
-                    <div className="bg-white p-[0.75rem] rounded-[5px]">
-                      <CardCvcElement options={CARD_ELEMENT_OPTIONS} />
-                    </div>
-                    <div className="h-[10px]"></div>
-                    <label className="text-[0.93rem] text-[#30313d]">
-                      Expire Date
-                    </label>
-                    <div className="bg-white p-[0.75rem] rounded-[5px]">
-                      <CardExpiryElement options={CARD_ELEMENT_OPTIONS} />
-                    </div>
-                    <div className="h-[10px]"></div>
-                    <AddressElement
-                      options={{
-                        mode: "billing",
-                        autocomplete: {
-                          mode: "automatic",
-                        },
-                      }}
-                    />
-                  </div>
-                )}
-              </div>
-              <div className="mx-[50px] my-[10px] flex flex-col justify-center">
                 {!isTrial && (
                   <p className="text-small text-gray-10 m-2 text-center">
                     Current billing: $
@@ -754,14 +717,16 @@ const SubscriptionPage = () => {
                   New Subscription: $
                   {(projectCount * projectCost * 12).toLocaleString()} per year
                 </p>
-                <button
-                  className="text-2small text-gray-8-5 m-4 text-center"
-                  onClick={() => {
-                    setIsShowUpdateBillingDetails(true);
-                  }}
-                >
-                  Update my payment method
-                </button>
+                {!isTrial && (
+                  <button
+                    className="text-2small text-gray-8-5 m-4 text-center"
+                    onClick={() => {
+                      setIsShowUpdateBillingDetails(true);
+                    }}
+                  >
+                    Update my payment method
+                  </button>
+                )}
               </div>
               <div className="flex justify-center items-center p-4 md:p-5">
                 <button
@@ -777,9 +742,7 @@ const SubscriptionPage = () => {
                 <button
                   type="button"
                   className="flex justify-center items-center rounded-[24px] text-white bg-gray-5 px-[30px] py-[12px] shadow-md drop-shadow-0 drop-shadow-y-3 w-[150px] blur-6 mx-[20px]"
-                  onClick={
-                    isTrial ? upgradeSubscription : addProjectsToSubscription
-                  }
+                  onClick={addProjectsToSubscription}
                 >
                   {isLoading && (
                     <svg
@@ -811,15 +774,20 @@ const SubscriptionPage = () => {
           id="modal_single"
           className="flex overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full"
         >
-          <div className="relative p-4 w-full max-w-[520px] max-h-full">
+          <div className="relative p-4 w-full max-w-[500px] max-h-full">
             <div
               className="fixed bg-black opacity-30 w-[100vw] h-[100vh] left-0 top-0"
               onClick={() => setIsShowUpdateBillingDetails(false)}
             ></div>
-            <div className="relative bg-gray-4 border-[1px] border-gray-6 rounded-[26px] shadow-md drop-shadow-0 drop-shadow-y-3 blur-6">
+            <div
+              className={
+                "relative bg-gray-4 border-[1px] border-gray-6 rounded-[26px] shadow-md drop-shadow-0 drop-shadow-y-3 blur-6" +
+                (billingStep == 0 ? " hidden" : "")
+              }
+            >
               <div className="flex items-center justify-center p-4 md:p-5 ">
                 <h3 className="text-center text-xl font-semibold dark:text-white text-small text-white">
-                  Update Billing Details
+                  Billing Details
                 </h3>
                 <button
                   type="button"
@@ -830,35 +798,278 @@ const SubscriptionPage = () => {
                   <span className="sr-only">Close modal</span>
                 </button>
               </div>
-              <div className="mx-[50px] my-[10px] flex flex-col justify-center">
-                <div className="w-full bg-gray-10 p-[20px] rounded-md">
-                  <label className="text-[0.93rem] text-[#30313d]">
-                    Card Number
-                  </label>
-                  <div className="bg-white p-[0.75rem] rounded-[5px]">
-                    <CardNumberElement options={CARD_ELEMENT_OPTIONS} />
+              <div className="px-[25px] py-[20px] flex flex-col">
+                <button
+                  className="text-small px-[10px] py-[5px] flex items-center bg-gray-2 w-fit rounded-[29px]"
+                  onClick={() => {
+                    setBillingStep(0);
+                  }}
+                >
+                  <Image
+                    src={backIcon}
+                    width={10}
+                    height={15}
+                    alt="back"
+                    className="mr-[10px] transform rotate-90"
+                  />{" "}
+                  <p className="text-xsmall font-semibold text-white">Back</p>
+                </button>
+              </div>
+              <div className="flex flex-col justify-center items-center p-4 md:p-5">
+                <p className="text-white mb-[20px] px-[10px] text-left w-full font-bold">
+                  Payment Method
+                </p>
+                <div className="grid grid-cols-12 w-full gap-4">
+                  <div className="col-span-8 flex flex-col">
+                    <div className=" ml-3 text-white text-xsmall">
+                      Card Number *
+                    </div>
+                    <div className="pl-4 bg-gray-3 text-gray-11 text-2xsmall placeholder:italic rounded-[20px] focus:border-none outline-none shadown-none border-none focus:shadow-none focus:ring-0 w-full py-[10px]">
+                      <CardNumberElement options={CARD_ELEMENT_OPTIONS} />
+                    </div>
                   </div>
-                  <div className="h-[10px]"></div>
-                  <label className="text-[0.93rem] text-[#30313d]">CVC</label>
-                  <div className="bg-white p-[0.75rem] rounded-[5px]">
-                    <CardCvcElement options={CARD_ELEMENT_OPTIONS} />
+                  <div className="col-span-4 flex flex-col justify-end mb-[3px]">
+                    <Image
+                      src={paymentIcons}
+                      alt="paymentIcons"
+                      width={180}
+                      height={60}
+                    />
                   </div>
-                  <div className="h-[10px]"></div>
-                  <label className="text-[0.93rem] text-[#30313d]">
-                    Expire Date
-                  </label>
-                  <div className="bg-white p-[0.75rem] rounded-[5px]">
-                    <CardExpiryElement options={CARD_ELEMENT_OPTIONS} />
+                  <div className="col-span-12 flex flex-col">
+                    <div className=" ml-3 text-white text-xsmall">
+                      Expiration *
+                    </div>
+                    <div className="pl-4 bg-gray-3 text-gray-11 text-2xsmall placeholder:italic rounded-[20px] focus:border-none outline-none shadown-none border-none focus:shadow-none focus:ring-0 w-full py-[10px]">
+                      <CardExpiryElement options={CARD_ELEMENT_OPTIONS} />
+                    </div>
+                    {/* <input
+                      type="text"
+                      className=" pl-4 bg-gray-3 text-gray-11 text-2xsmall placeholder:italic rounded-[20px] focus:border-none outline-none shadown-none border-none focus:shadow-none focus:ring-0 w-full"
+                      placeholder="123 Main St..."
+                    /> */}
                   </div>
-                  <div className="h-[10px]"></div>
-                  <AddressElement
-                    options={{
-                      mode: "billing",
-                      autocomplete: {
-                        mode: "automatic",
-                      },
+                  <div className="col-span-10 flex flex-col">
+                    <div className=" ml-3 text-white text-xsmall">
+                      Security Code
+                    </div>
+                    <div className="pl-4 bg-gray-3 text-gray-11 text-2xsmall placeholder:italic rounded-[20px] focus:border-none outline-none shadown-none border-none focus:shadow-none focus:ring-0 w-full py-[10px]">
+                      <CardCvcElement options={CARD_ELEMENT_OPTIONS} />
+                    </div>
+                  </div>
+                  <div className="col-span-2 flex flex-col justify-end">
+                    <Image
+                      src={securityIcon}
+                      alt="security icon"
+                      width={100}
+                      height={80}
+                    />
+                  </div>
+                </div>
+                <div className="flex justify-center items-center p-4 md:p-5">
+                  <button
+                    disabled={isLoading}
+                    type="button"
+                    className="flex justify-center items-center rounded-[24px] text-white bg-gray-5 px-[30px] py-[12px] shadow-md drop-shadow-0 drop-shadow-y-3 w-[150px] blur-6 mx-[20px]"
+                    onClick={() => {
+                      setIsShowUpdateBillingDetails(false);
                     }}
-                  />
+                  >
+                    <p>Cancel</p>
+                  </button>
+                  <button
+                    type="button"
+                    className="flex justify-center items-center rounded-[24px] text-white bg-red-primary px-[30px] py-[12px] shadow-md drop-shadow-0 drop-shadow-y-3 w-[250px] blur-6 mx-[20px]"
+                    onClick={() => {
+                      updateBillingDetails();
+                    }}
+                  >
+                    {isLoading && (
+                      <svg
+                        aria-hidden="true"
+                        className="w-4 h-4 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600 mr-[10px]"
+                        viewBox="0 0 100 101"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
+                          fill="currentColor"
+                        />
+                        <path
+                          d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
+                          fill="currentFill"
+                        />
+                      </svg>
+                    )}
+                    <p>Save</p>
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div
+              className={
+                "relative bg-gray-4 border-[1px] border-gray-6 rounded-[26px] shadow-md drop-shadow-0 drop-shadow-y-3 blur-6" +
+                (billingStep == 1 ? " hidden" : "")
+              }
+            >
+              <div className="flex items-center justify-center p-4 md:p-5 ">
+                <h3 className="text-center text-xl font-semibold dark:text-white text-small text-white">
+                  Billing Details
+                </h3>
+                <button
+                  type="button"
+                  className="absolute right-0 mr-[20px] text-white bg-gray-8 hover:bg-gray-200 hover:text-gray-900 rounded-[55px] shadow-md drop-shadow-0 drop-shadow-y-3 blur-6 text-sm w-8 h-8 ms-auto inline-flex justify-center items-center"
+                  onClick={() => setIsShowUpdateBillingDetails(false)}
+                >
+                  <Image src={closeIcon} width={20} height={20} alt="close" />
+                  <span className="sr-only">Close modal</span>
+                </button>
+              </div>
+              <div className="flex flex-col justify-center items-center p-4 md:p-5">
+                <p className="text-white mb-[20px] px-[10px] text-left w-full font-bold">
+                  Billing Address
+                </p>
+                <div className="grid grid-cols-12 w-full gap-4">
+                  <div className="col-span-6 flex flex-col">
+                    <div className=" ml-3 text-white text-xsmall">
+                      First Name *
+                    </div>
+                    <input
+                      type="text"
+                      className=" pl-4 bg-gray-3 text-gray-11 text-2xsmall placeholder:italic rounded-[20px] focus:border-none outline-none shadown-none border-none focus:shadow-none focus:ring-0 w-full"
+                      placeholder="John"
+                      value={firstName}
+                      onChange={(e: any) => {
+                        setFirstName(e.target.value);
+                      }}
+                    />
+                  </div>
+                  <div className="col-span-6 flex flex-col">
+                    <div className=" ml-3 text-white text-xsmall">
+                      Last Name *
+                    </div>
+                    <input
+                      type="text"
+                      className=" pl-4 bg-gray-3 text-gray-11 text-2xsmall placeholder:italic rounded-[20px] focus:border-none outline-none shadown-none border-none focus:shadow-none focus:ring-0 w-full"
+                      placeholder="Doe"
+                      value={secondName}
+                      onChange={(e: any) => {
+                        setSecondName(e.target.value);
+                      }}
+                    />
+                  </div>
+
+                  <div className="col-span-12 flex flex-col">
+                    <div className=" ml-3 text-white text-xsmall">
+                      Street Address *
+                    </div>
+                    <input
+                      type="text"
+                      className=" pl-4 bg-gray-3 text-gray-11 text-2xsmall placeholder:italic rounded-[20px] focus:border-none outline-none shadown-none border-none focus:shadow-none focus:ring-0 w-full"
+                      placeholder="123 Main St..."
+                      value={streetAddress}
+                      onChange={(e: any) => {
+                        setStreetAddress(e.target.value);
+                      }}
+                    />
+                  </div>
+
+                  <div className="col-span-6 flex flex-col">
+                    <div className=" ml-3 text-white text-xsmall">
+                      Street Address 2 (Optional)
+                    </div>
+                    <input
+                      type="text"
+                      className=" pl-4 bg-gray-3 text-gray-11 text-2xsmall placeholder:italic rounded-[20px] focus:border-none outline-none shadown-none border-none focus:shadow-none focus:ring-0 w-full"
+                      placeholder="Apt #, Unit, etc."
+                      value={streetAddress2}
+                      onChange={(e: any) => {
+                        setStreetAddress2(e.target.value);
+                      }}
+                    />
+                  </div>
+                  <div className="col-span-6 flex flex-col">
+                    <div className=" ml-3 text-white text-xsmall">
+                      Country *
+                    </div>
+                    <select className="pl-4 bg-gray-3 text-gray-11 text-2xsmall placeholder:italic rounded-[20px] focus:border-none outline-none shadown-none border-none focus:shadow-none focus:ring-0 w-full" value={country} onChange={(e:any) => {
+                      setCountry(e.target.value);
+                    }}>
+                      {aCountryList.map((item: any, id: any) => {
+                        return <option key={id} value={item.value}>{item.label}</option>;
+                      })}
+                    </select>
+                  </div>
+
+                  <div className="col-span-4 flex flex-col">
+                    <div className=" ml-3 text-white text-xsmall">City</div>
+                    <input
+                      type="text"
+                      className=" pl-4 bg-gray-3 text-gray-11 text-2xsmall placeholder:italic rounded-[20px] focus:border-none outline-none shadown-none border-none focus:shadow-none focus:ring-0 w-full"
+                      placeholder="Brooklym"
+                      value={city}
+                      onChange={(e: any) => {
+                        setCity(e.target.value);
+                      }}
+                    />
+                  </div>
+                  <div className="col-span-4 flex flex-col">
+                    <div className=" ml-3 text-white text-xsmall">State</div>
+                    <input
+                      type="text"
+                      className=" pl-4 bg-gray-3 text-gray-11 text-2xsmall placeholder:italic rounded-[20px] focus:border-none outline-none shadown-none border-none focus:shadow-none focus:ring-0 w-full"
+                      placeholder="NY"
+                      value={state}
+                      onChange={(e: any) => {
+                        setState(e.target.value);
+                      }}
+                    />
+                  </div>
+                  <div className="col-span-4 flex flex-col">
+                    <div className=" ml-3 text-white text-xsmall">ZIP</div>
+                    <input
+                      type="text"
+                      className=" pl-4 bg-gray-3 text-gray-11 text-2xsmall placeholder:italic rounded-[20px] focus:border-none outline-none shadown-none border-none focus:shadow-none focus:ring-0 w-full"
+                      placeholder="12345"
+                      value={ZIP}
+                      onChange={(e: any) => {
+                        setZIP(e.target.value);
+                      }}
+                    />
+                  </div>
+                </div>
+
+                <p className="text-white mb-[20px] px-[10px] text-left w-full mt-[30px] font-bold">
+                  Contact
+                </p>
+                <div className="grid grid-cols-12 w-full gap-4">
+                  <div className="col-span-6 flex flex-col">
+                    <div className=" ml-3 text-white text-xsmall">Email *</div>
+                    <input
+                      type="text"
+                      className=" pl-4 bg-gray-3 text-gray-11 text-2xsmall placeholder:italic rounded-[20px] focus:border-none outline-none shadown-none border-none focus:shadow-none focus:ring-0 w-full"
+                      placeholder="email@example.com"
+                      value={email}
+                      onChange={(e: any) => {
+                        setEmail(e.target.value);
+                      }}
+                    />
+                  </div>
+                  <div className="col-span-6 flex flex-col">
+                    <div className=" ml-3 text-white text-xsmall">
+                      Telephone number *
+                    </div>
+                    <input
+                      type="text"
+                      className=" pl-4 bg-gray-3 text-gray-11 text-2xsmall placeholder:italic rounded-[20px] focus:border-none outline-none shadown-none border-none focus:shadow-none focus:ring-0 w-full"
+                      placeholder="+1-___-___-___"
+                      value={phoneNumber}
+                      onChange={(e: any) => {
+                        setPhoneNumber(e.target.value);
+                      }}
+                    />
+                  </div>
                 </div>
               </div>
               <div className="flex justify-center items-center p-4 md:p-5">
@@ -874,8 +1085,8 @@ const SubscriptionPage = () => {
                 </button>
                 <button
                   type="button"
-                  className="flex justify-center items-center rounded-[24px] text-white bg-gray-5 px-[30px] py-[12px] shadow-md drop-shadow-0 drop-shadow-y-3 w-[150px] blur-6 mx-[20px]"
-                  onClick={updateBillingDetails}
+                  className="flex justify-center items-center rounded-[24px] text-white bg-gray-5 px-[30px] py-[12px] shadow-md drop-shadow-0 drop-shadow-y-3 w-[250px] blur-6 mx-[20px]"
+                  onClick={continueBillingStep}
                 >
                   {isLoading && (
                     <svg
@@ -895,7 +1106,7 @@ const SubscriptionPage = () => {
                       />
                     </svg>
                   )}
-                  <p>Update</p>
+                  <p>Continue</p>
                 </button>
               </div>
             </div>
