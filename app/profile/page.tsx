@@ -5,9 +5,7 @@ import { useEffect, useState } from "react";
 
 import Image from "next/image";
 
-import profileImg from "../../public/images/profile.png";
 import editIcon from "../../public/icons/EditIcon.png";
-import closeIcon from "../../public/icons/CloseXIcon.png";
 import updateIcon from "../../public/icons/UpdateIcon.png";
 import defaultUser from "../../public/icons/User.png";
 

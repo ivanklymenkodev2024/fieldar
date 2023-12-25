@@ -1,95 +1,34 @@
 "use client";
-
 import "../globals.css";
 
-import Header from "@/components/headers/header";
-import SideBar from "@/components/sidebars/sidebar";
+import { useEffect, useState } from "react";
 
 import Image from "next/image";
 
 import commentIcon from "../../public/icons/Comment.png";
 import editIcon from "../../public/icons/EditIcon.png";
 import dropUpIcon from "../../public/icons/DropupArrowIcon.png";
-import dropDownIcon from "../../public/icons/DropdownArrowIcon.png";
-
-import { child, get, getDatabase, ref } from "firebase/database";
 
 import firebase_app from "../../firebase";
+import { child, get, getDatabase, ref } from "firebase/database";
 import { getAuth } from "firebase/auth";
 
 const auth = getAuth();
 const database = getDatabase(firebase_app);
 
-import { getFunctions, httpsCallable } from "firebase/functions";
-import { useEffect, useState } from "react";
-import ReHeader from "@/components/headers/reheader";
-import ReSideBar from "@/components/sidebars/residebar";
 import { useGlobalContext } from "@/contexts/state";
 
-const functions = getFunctions();
+import Header from "@/components/headers/header";
+import ReHeader from "@/components/headers/reheader";
+import SideBar from "@/components/sidebars/sidebar";
+import ReSideBar from "@/components/sidebars/residebar";
 
 const ActivityPage = () => {
-  const [activityFilter, setActivityFilter] = useState("");
-  const [hiddenArray, setHiddenArray] = useState([]);
-
-  // const getCompany = (companyKey: string) => {
-  //   const dbRef = ref(getDatabase());
-  //   get(child(dbRef, `companies/${companyKey}`))
-  //     .then((snapshot: any) => {
-  //       if (snapshot.exists()) {
-  //         setCompany(snapshot.val());
-
-  //         if (activityFilter == "") {
-  //           setActivityFilter(
-  //             snapshot.val().ProjectDirectory[
-  //               Object.keys(snapshot.val().ProjectDirectory)[0]
-  //             ].ProjectTitle
-  //           );
-  //         }
-  //       } else {
-  //         console.log("No data available");
-  //       }
-  //     })
-  //     .catch((error: any) => {
-  //       console.error(error);
-  //     });
-  // };
-
-  // auth.onAuthStateChanged(function (user: any) {
-  //   if (user != null) {
-  //     const uid = user.uid;
-
-  //     const dbRef = ref(getDatabase());
-  //     get(child(dbRef, `users/${uid}`))
-  //       .then((snapshot: any) => {
-  //         if (snapshot.exists()) {
-  //           getCompany(snapshot.val().CompanyKey);
-  //           if (hiddenArray.length == 0)
-  //             setHiddenArray(Object.keys(company["Activity"]).map(() => false));
-  //           else {
-  //             console.log(hiddenArray);
-  //           }
-  //         } else {
-  //           console.log("No data available");
-  //         }
-  //       })
-  //       .catch((error: any) => {
-  //         console.error(error);
-  //       });
-  //   } else {
-  //     console.log(null);
-  //   }
-  // });
+  const [activityFilter, setActivityFilter] = useState<any>("");
+  const [hiddenArray, setHiddenArray] = useState<any>([]);
 
   const {
-    user,
-    setUser,
-    profile,
-    setProfile,
-    project,
-    setProject,
-    company,
-    setCompany,
+    company
   } = useGlobalContext();
   useEffect(() => {
     if (company["Activity"] == undefined) {

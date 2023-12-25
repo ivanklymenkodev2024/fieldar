@@ -24,10 +24,10 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const [user, setUser] = useState((typeof window !== "undefined" &&  localStorage.getItem('user') != undefined) ? JSON.parse(localStorage.getItem('user')): {});
-  const [profile, setProfile] = useState((typeof window !== "undefined" &&  localStorage.getItem('profile') != undefined) ? JSON.parse(localStorage.getItem('profile')): {});
-  const [company, setCompany] = useState((typeof window !== "undefined" &&  localStorage.getItem('company') != undefined) ? JSON.parse(localStorage.getItem('company')): {});
-  const [project, setProject] = useState((typeof window !== "undefined" &&  localStorage.getItem('project') != undefined) ? JSON.parse(localStorage.getItem('project')): {});
+  const [user, setUser] = useState<any>((typeof window !== "undefined" &&  localStorage.getItem('user') != undefined) ? JSON.parse(localStorage.getItem('user')): {});
+  const [profile, setProfile] = useState<any>((typeof window !== "undefined" &&  localStorage.getItem('profile') != undefined) ? JSON.parse(localStorage.getItem('profile')): {});
+  const [company, setCompany] = useState<any>((typeof window !== "undefined" &&  localStorage.getItem('company') != undefined) ? JSON.parse(localStorage.getItem('company')): {});
+  const [project, setProject] = useState<any>((typeof window !== "undefined" &&  localStorage.getItem('project') != undefined) ? JSON.parse(localStorage.getItem('project')): {});
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
