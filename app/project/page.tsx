@@ -93,7 +93,7 @@ const ProjectPage = () => {
       CompanyRegion: newProjectRegion,
       AllowMarkups: true,
     })
-      .then((result) => {
+      .then((result:any) => {
         updateContext();
         toast.success(result.data.message);
       })
@@ -187,7 +187,7 @@ const ProjectPage = () => {
             >
               {company.ProjectDirectory != null &&
                 company.ProjectDirectory != undefined &&
-                Object.keys(company.ProjectDirectory).map((key, id) => {
+                Object.keys(company.ProjectDirectory).map((key:any, id:any) => {
                   if (
                     regionFilter != "All" &&
                     company.ProjectDirectory[key].CompanyRegion !=
