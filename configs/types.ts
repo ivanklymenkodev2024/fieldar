@@ -118,3 +118,16 @@ export interface UserRoleModalProps {
   handleUpdateRole: any;
   unassignProjectFromMember: any;
 }
+
+export interface EditCompanyModalProps {
+  isShow: boolean;
+  isLoading: boolean;
+  hide: any;
+  reCompanyBio: any;
+  handleReCompanyBioChange: any;
+  reCompanyRegion: any;
+  handleReCompanyRegionChange: any;
+  reCompanyName: any;
+  handleReCompanyNameChange: any;
+  handleOnUpdateCompanyDetail: any;
+}

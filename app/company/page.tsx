@@ -1,43 +1,43 @@
 "use client";
 
-import Header from "@/components/headers/header";
+import React, { useRef } from "react";
 import { useEffect, useState } from "react";
+
 import Image from "next/image";
 
-import { child, get, getDatabase, ref, set } from "firebase/database";
-import { getDownloadURL } from "firebase/storage";
-
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-
-import firebase_app from "../../firebase";
 import profileImg from "../../public/images/profile.png";
-
 import editIcon from "../../public/icons/EditIcon.png";
 import closeIcon from "../../public/icons/CloseXIcon.png";
 import updateIcon from "../../public/icons/UpdateIcon.png";
-import defaultUser from "../../public/icons/User.png";
+import trashIcon from "../../public/icons/TrashIcon.png";
+import companyIcon from "../../public/icons/CompanyIcon.png";
+
+import firebase_app from "../../firebase";
+import { child, get, getDatabase, ref, set } from "firebase/database";
+import { getDownloadURL } from "firebase/storage";
 import { getAuth } from "firebase/auth";
 import { getFirestore, onSnapshot } from "firebase/firestore";
 import { getFunctions, httpsCallable } from "firebase/functions";
 
-import React, { useRef } from "react";
-import Cropper, { ReactCropperElement } from "react-cropper";
-import "cropperjs/dist/cropper.css";
 import { getStorage, uploadBytes, ref as ref_storage } from "firebase/storage";
 
 const auth = getAuth();
 const functions = getFunctions();
-
 const database = getDatabase(firebase_app);
 const storage = getStorage(firebase_app);
 
-import trashIcon from "../../public/icons/TrashIcon.png";
-import companyIcon from "../../public/icons/CompanyIcon.png";
-import ReSideBar from "@/components/sidebars/residebar";
-import ReHeader from "@/components/headers/reheader";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 import { useGlobalContext } from "@/contexts/state";
+
+import Header from "@/components/headers/header";
+import ReHeader from "@/components/headers/reheader";
 import SideBar from "@/components/sidebars/sidebar";
+import ReSideBar from "@/components/sidebars/residebar";
+import ConfirmModal from "@/components/modals/confirmModal";
+import ImageCropModal from "@/components/modals/imageCrop";
+import EditCompanyModal from "@/components/modals/editCompany";
 
 const cUpdateCompanyInfo = httpsCallable(functions, "updateCompanyInfo");
 const cRemoveCompanyLogo = httpsCallable(functions, "removeCompanyIcon");
@@ -57,24 +57,17 @@ const CompanyPage = () => {
   const [reCompanyBio, setReCompanyBio] = useState("");
   const [reCompanyRegion, setReCompanyRegion] = useState("");
 
-  const [resImg, setResImage] = useState("");
+  // const [resImg, setResImage] = useState("");
   const [userID, setUserID] = useState("");
   const [companyId, setCompanyId] = useState("");
 
   const [isAdmin, setIsAdmin] = useState(false);
   const [isTrial, setIsTrial] = useState(true);
 
-  const cropperRef = useRef<ReactCropperElement>(null);
-  const onCrop = () => {
-    const cropper:any = cropperRef.current?.cropper;
-    setResImage(cropper.getCroppedCanvas().toDataURL());
-  };
-
-  const { user, setUser, profile, setProfile, project, setProject, company, setCompany, updateContext } = useGlobalContext();
+  const { user, profile, company, updateContext } = useGlobalContext();
 
   useEffect(() => {
-
-    setCompanyId(user.CompanyKey);
+    setCompanyId(profile.CompanyKey);
 
     setUserID(user.uid);
     setLogoURL(company.CompanyIconURL);
@@ -96,8 +89,7 @@ const CompanyPage = () => {
     } else {
       setIsTrial(false);
     }
-
-  })
+  });
 
   const removeImage = () => {
     setIsRemoveImageModal(true);
@@ -105,7 +97,7 @@ const CompanyPage = () => {
 
   const handleRemoveLogo = () => {
     cRemoveCompanyLogo()
-      .then((result:any) => {
+      .then((result: any) => {
         updateContext();
         toast.success(result.data.message);
       })
@@ -143,7 +135,7 @@ const CompanyPage = () => {
       CompanyDescription: reCompanyBio,
       CompanyRegions: reCompanyRegion,
     })
-      .then((result:any) => {
+      .then((result: any) => {
         updateContext();
         toast.success(result.data.message);
       })
@@ -159,7 +151,7 @@ const CompanyPage = () => {
   const [imageData, setImageData] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  const fileInputRef:any = useRef(null);
+  const fileInputRef: any = useRef(null);
 
   const uploadImageURLToDB = (file: any) => {
     setIsLoading(true);
@@ -171,7 +163,7 @@ const CompanyPage = () => {
         getDownloadURL(storageRef)
           .then((url) => {
             cUpdateCompanyIcon()
-              .then((result:any) => {
+              .then((result: any) => {
                 updateContext();
                 toast.success(result.data.message);
                 setIsLoading(false);
@@ -193,39 +185,12 @@ const CompanyPage = () => {
       });
   };
 
-  const base64toFile = (base64Data: any, filename: any) => {
-    const byteCharacters = atob(base64Data.substring(22));
-    const byteArrays = [];
-
-    for (let offset = 0; offset < byteCharacters.length; offset += 1024) {
-      const chunk = byteCharacters.slice(offset, offset + 1024);
-
-      const byteNumbers = new Array(chunk.length);
-      for (let i = 0; i < chunk.length; i++) {
-        byteNumbers[i] = chunk.charCodeAt(i);
-      }
-
-      const byteArray = new Uint8Array(byteNumbers);
-      byteArrays.push(byteArray);
-    }
-
-    const blob = new Blob(byteArrays, { type: "image/jpeg" });
-    const file = new File([blob], filename, {
-      type: "image/jpeg",
-    });
-    return file;
-  };
-
-  const handleUpdateImage = () => {
-    uploadImageURLToDB(base64toFile(resImg, "profile.png"));
-  };
-
-  const handleFileChange = (e:any) => {
+  const handleFileChange = (e: any) => {
     const file = e.target.files[0];
     const reader = new FileReader();
 
     if (file != undefined && file != null) {
-      reader.onload = (event:any) => {
+      reader.onload = (event: any) => {
         setImageData(event.target.result);
         setIsShowCropImageModal(true);
       };
@@ -371,155 +336,57 @@ const CompanyPage = () => {
               </div>
             </>
           ) : isTrial == true ? (
-            <div className="mt-[20px] mx-[30px] rounded-[24px] max-w-[350px] sm:w-[350px] w-[80%] bg-gray-3 text-white font-bold p-[30px]">This area is reserved for Enterprise customers. Visit Subscriptions for more information about the Enterprise options.</div>
-          ): <></>}
-        </div>
-      )}
-
-      {isRemoveImageModal && (
-        <div
-          id="modal_remove_image"
-          className="flex overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full"
-        >
-          <div className="relative p-4 w-full max-w-[490px] max-h-full">
-            <div
-              className="fixed bg-black opacity-30 w-[100vw] h-[100vh] left-0 top-0"
-              onClick={() => setIsRemoveImageModal(false)}
-            ></div>
-            <div className="relative bg-gray-4 border-[1px] border-gray-6 rounded-[26px] shadow-md drop-shadow-0 drop-shadow-y-3 blur-6">
-              <div className="flex items-center justify-center p-4 md:p-5 ">
-                <h3 className="text-center text-xl font-semibold dark:text-white text-small text-white">
-                  Remove Company Logo
-                </h3>
-                <button
-                  type="button"
-                  className="absolute right-0 mr-[20px] text-white bg-gray-8 hover:bg-gray-200 hover:text-gray-900 rounded-[55px] shadow-md drop-shadow-0 drop-shadow-y-3 blur-6 text-sm w-8 h-8 ms-auto inline-flex justify-center items-center"
-                  onClick={() => setIsRemoveImageModal(false)}
-                >
-                  <Image src={closeIcon} width={20} height={20} alt="close" />
-                  <span className="sr-only">Close modal</span>
-                </button>
-              </div>
-              <div className="my-[30px] flex justify-center items-end">
-                <p className="text-small text-white font-semibold">
-                  Are you sure you wish to remove company logo?
-                </p>
-              </div>
-              <div className="flex justify-center items-center p-4 md:p-5 mx-[60px]">
-                <button
-                  type="button"
-                  className="rounded-[24px] text-white bg-gray-7-5 mx-[6px] py-[12px] shadow-md drop-shadow-0 drop-shadow-y-3 blur-6 w-full"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="button"
-                  className="rounded-[24px] text-white bg-red-primary mx-[6px] py-[12px] shadow-md drop-shadow-0 drop-shadow-y-3 blur-6 w-full"
-                  onClick={handleRemoveLogo}
-                >
-                  Remove
-                </button>
-              </div>
+            <div className="mt-[20px] mx-[30px] rounded-[24px] max-w-[350px] sm:w-[350px] w-[80%] bg-gray-3 text-white font-bold p-[30px]">
+              This area is reserved for Enterprise customers. Visit
+              Subscriptions for more information about the Enterprise options.
             </div>
-          </div>
+          ) : (
+            <></>
+          )}
         </div>
       )}
 
-      {isShowCropImageModal && (
-        <div
-          id="modal_image"
-          className="flex overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full"
-        >
-          <div className="relative p-4 w-full max-w-[490px] max-h-full">
-            <div
-              className="fixed bg-black opacity-30 w-[100vw] h-[100vh] left-0 top-0"
-              onClick={() => setIsShowCropImageModal(false)}
-            ></div>
-            <div className="relative bg-gray-4 border-[1px] border-gray-6 rounded-[26px] shadow-md drop-shadow-0 drop-shadow-y-3 blur-6">
-              <div className="flex items-center justify-center p-4 md:p-5 ">
-                <h3 className="text-center text-xl font-semibold dark:text-white text-small text-white">
-                  Crop Picture
-                </h3>
-                <button
-                  type="button"
-                  className="absolute right-0 mr-[20px] text-white bg-gray-8 hover:bg-gray-200 hover:text-gray-900 rounded-[55px] shadow-md drop-shadow-0 drop-shadow-y-3 blur-6 text-sm w-8 h-8 ms-auto inline-flex justify-center items-center"
-                  onClick={() => setIsShowCropImageModal(false)}
-                >
-                  <Image src={closeIcon} width={20} height={20} alt="close" />
-                  <span className="sr-only">Close modal</span>
-                </button>
-              </div>
-              <div className="mx-[50px] my-[30px] flex justify-center items-end">
-                <Cropper
-                  src={imageData}
-                  style={{ height: 224, width: 224 }}
-                  // Cropper.js options
-                  initialAspectRatio={16 / 9}
-                  guides={false}
-                  crop={onCrop}
-                  minCropBoxHeight={100}
-                  minCropBoxWidth={100}
-                  ref={cropperRef}
-                />
-                {/* <Image
-                  src={profileImg}
-                  width={224}
-                  height={224}
-                  alt="profile image"
-                  className="mx-[13px]"
-                /> */}
-                <Image
-                  src={resImg == "" ? profileImg : resImg}
-                  width={142}
-                  height={142}
-                  alt="profile image"
-                  className="mx-[13px] w-[142px] max-h-[142px]"
-                />
-              </div>
-              <div className="flex justify-center items-center p-4 md:p-5 mx-[60px]">
-                <button
-                  disabled={isLoading}
-                  type="button"
-                  className="rounded-[24px] text-white bg-gray-5 mx-[6px] py-[12px] shadow-md drop-shadow-0 drop-shadow-y-3 blur-6 w-full"
-                  onClick={() => {
-                    setIsShowCropImageModal(false);
-                  }}
-                >
-                  Cancel
-                </button>
-                <button
-                  disabled={isLoading}
-                  type="button"
-                  className="flex justify-center items-center rounded-[24px] text-white bg-gray-7 mx-[6px] py-[12px] shadow-md drop-shadow-0 drop-shadow-y-3 blur-6 w-full"
-                  onClick={handleUpdateImage}
-                >
-                  {isLoading && (
-                    <svg
-                      aria-hidden="true"
-                      className="w-4 h-4 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600 mr-[10px]"
-                      viewBox="0 0 100 101"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
-                        fill="currentColor"
-                      />
-                      <path
-                        d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
-                        fill="currentFill"
-                      />
-                    </svg>
-                  )}
-                  <p>Save</p>
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      <ConfirmModal
+        isShow={isRemoveImageModal}
+        isLoading={isLoading}
+        title={"Remove Company Logo"}
+        content={"Are you sure you wish to remove company logo?"}
+        handleCancel={handleRemoveLogo}
+        handleSubmit={handleRemoveLogo}
+        hide={() => {
+          if (isLoading) return;
+          setIsRemoveImageModal(false);
+        }}
+      />
 
-      {isEditCompanyModal && (
+      <ImageCropModal
+        isShow={isShowCropImageModal}
+        isLoading={isLoading}
+        title={"Crop Picture"}
+        uploadImageURLToDB={uploadImageURLToDB}
+        imageData={imageData}
+        hide={() => {
+          if (isLoading) return;
+          setIsShowCropImageModal(false);
+        }}
+      />
+
+      <EditCompanyModal
+        isShow={isEditCompanyModal}
+        isLoading={isLoading}
+        reCompanyBio={reCompanyBio}
+        handleReCompanyBioChange={handleReCompanyBioChange}
+        handleReCompanyRegionChange={handleReCompanyRegionChange}
+        handleReCompanyNameChange={handleReCompanyNameChange}
+        reCompanyName={reCompanyName}
+        reCompanyRegion={reCompanyRegion}
+        handleOnUpdateCompanyDetail={handleOnUpdateCompanyDetail}
+        hide={() => {
+          if(isLoading) return;
+          setIsEditCompanyModal(false);
+        }}
+      />
+      {/* {isEditCompanyModal && (
         <div
           id="modal_edit_company"
           className="flex overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full"
@@ -617,7 +484,7 @@ const CompanyPage = () => {
             </div>
           </div>
         </div>
-      )}
+      )} */}
       <ToastContainer />
     </div>
   );
