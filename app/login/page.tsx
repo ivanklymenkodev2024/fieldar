@@ -21,8 +21,8 @@ import "react-toastify/dist/ReactToastify.css";
 
 import { useGlobalContext } from "@/contexts/state";
 
-import Button from "@/components/button";
-import Input from "@/components/input";
+import Button from "@/components/elements/button";
+import Input from "@/components/elements/input";
 
 const LoginPage = () => {
   const router = useRouter();
@@ -150,7 +150,7 @@ const LoginPage = () => {
         )}
         <p>Login</p>
       </button> */}
-      <Button title={"Log In"} handleSubmit={login} isLoading={isLoading} extraClass="rounded-[33px] px-[30px] py-[15px] w-[80%] sm:w-[400px] mx-2 mt-5 mb-20"/>
+      <Button title={"Log In"} handleSubmit={login} isLoading={isLoading} extraClass="bg-gray-5 rounded-[33px] px-[30px] py-[15px] w-[80%] sm:w-[400px] mx-2 mt-5 mb-20"/>
       <p className="text-white text-primary font-semibold">
         Don&apos;t have an account yet?
       </p>

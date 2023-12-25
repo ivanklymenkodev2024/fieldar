@@ -1,7 +1,7 @@
 "use client";
 
-import Header from "@/components/header";
-import SideBar from "@/components/sidebar";
+import Header from "@/components/headers/header";
+import SideBar from "@/components/sidebars/sidebar";
 import Link from "next/link";
 
 import Image from "next/image";
@@ -28,8 +28,8 @@ const database = getDatabase(firebase_app);
 
 import { getFunctions, httpsCallable } from "firebase/functions";
 import { child, get, getDatabase, ref } from "firebase/database";
-import ReSideBar from "@/components/residebar";
-import ReHeader from "@/components/reheader";
+import ReSideBar from "@/components/sidebars/residebar";
+import ReHeader from "@/components/headers/reheader";
 import { useGlobalContext } from "@/contexts/state";
 
 const functions = getFunctions();

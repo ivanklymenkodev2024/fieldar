@@ -25,7 +25,8 @@ export interface ButtonProps {
     title: string,
     handleSubmit: any,
     isLoading: boolean,
-    extraClass: string
+    extraClass: string,
+    loadBtn?: boolean
 }
 
 export interface InputProps {
@@ -34,4 +35,37 @@ export interface InputProps {
     setValue: any,
     placeholder: string,
     extraClass: string
+}
+
+export interface SingleInputModalProps {
+    isShow: boolean,
+    isLoading: boolean,
+    title: string,
+    hide: any,
+    inputPlaceholder: string,
+    value: string,
+    setValue: any,
+    updateValue: any
+}
+
+export interface PasswordInputModalProps {
+    isShow: boolean,
+    isLoading: boolean,
+    hide: any,
+    oldPassword: string,
+    setOldPassword: any,
+    newPassword: string,
+    setNewPassword: any,
+    confirmPassword: string,
+    setConfirmPassword: any,
+    updatePassword: any
+}
+
+export interface ImageCropModalProps {
+    isShow: boolean,
+    isLoading: boolean,
+    hide: any,
+    title: any,
+    uploadImageURLToDB: any,
+    imageData: any
 }

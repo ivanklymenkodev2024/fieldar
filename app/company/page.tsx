@@ -1,6 +1,6 @@
 "use client";
 
-import Header from "@/components/header";
+import Header from "@/components/headers/header";
 import { useEffect, useState } from "react";
 import Image from "next/image";
 
@@ -34,10 +34,10 @@ const storage = getStorage(firebase_app);
 
 import trashIcon from "../../public/icons/TrashIcon.png";
 import companyIcon from "../../public/icons/CompanyIcon.png";
-import ReSideBar from "@/components/residebar";
-import ReHeader from "@/components/reheader";
+import ReSideBar from "@/components/sidebars/residebar";
+import ReHeader from "@/components/headers/reheader";
 import { useGlobalContext } from "@/contexts/state";
-import SideBar from "@/components/sidebar";
+import SideBar from "@/components/sidebars/sidebar";
 
 const cUpdateCompanyInfo = httpsCallable(functions, "updateCompanyInfo");
 const cRemoveCompanyLogo = httpsCallable(functions, "removeCompanyIcon");

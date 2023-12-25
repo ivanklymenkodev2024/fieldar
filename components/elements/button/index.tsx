@@ -1,13 +1,22 @@
 import { ButtonProps } from "@/configs";
 
-const Button: React.FC<ButtonProps> = ({ title, isLoading, handleSubmit, extraClass }: ButtonProps) => {
+const Button: React.FC<ButtonProps> = ({
+  title,
+  isLoading,
+  handleSubmit,
+  extraClass,
+  loadBtn = true,
+}: ButtonProps) => {
   return (
     <button
       disabled={isLoading}
-      className={"flex items-center justify-center bg-gray-5 text-white text-medium shadow-md drop-shadow-0 drop-shadow-y-3 blur-6 " + extraClass }
+      className={
+        "flex items-center justify-center text-white text-medium shadow-md drop-shadow-0 drop-shadow-y-3 blur-6 " +
+        extraClass
+      }
       onClick={handleSubmit}
     >
-      {isLoading && (
+      {isLoading && loadBtn && (
         <svg
           aria-hidden="true"
           className="w-4 h-4 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600 mr-[10px]"

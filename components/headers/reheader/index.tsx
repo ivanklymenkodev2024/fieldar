@@ -1,16 +1,15 @@
 import { ReHeaderProps } from "@/configs";
 
-import logoImage from "../../public/images/logo.png";
-import companyIcon from "../../public/icons/CompanyIcon.png";
-import teamIcon from "../../public/icons/TeamIcon.png";
-import projectIcon from "../../public/icons/ProjectIcon.png";
-import activityIcon from "../../public/icons/Comment.png";
-import subscriptionIcon from "../../public/icons/SubscriptionIcon.png";
-import settingsIcon from "../../public/icons/SettingsIcon.png";
-import logoutIcon from "../../public/icons/LogoutIcon.png";
-import hamburgerMenuIcon from "../../public/icons/HamburgerMenuIcon.png";
+import logoImage from "../../../public/images/logo.png";
+import companyIcon from "../../../public/icons/CompanyIcon.png";
+import teamIcon from "../../../public/icons/TeamIcon.png";
+import projectIcon from "../../../public/icons/ProjectIcon.png";
+import activityIcon from "../../../public/icons/Comment.png";
+import subscriptionIcon from "../../../public/icons/SubscriptionIcon.png";
+import settingsIcon from "../../../public/icons/SettingsIcon.png";
+import hamburgerMenuIcon from "../../../public/icons/HamburgerMenuIcon.png";
 
-import userIcon from "../../public/icons/User.png";
+import userIcon from "../../../public/icons/User.png";
 
 import Image from "next/image";
 import { settings } from "firebase/analytics";

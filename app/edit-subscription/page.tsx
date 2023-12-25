@@ -1,7 +1,7 @@
 "use client";
 
-import Header from "@/components/header";
-import SideBar from "@/components/sidebar";
+import Header from "@/components/headers/header";
+import SideBar from "@/components/sidebars/sidebar";
 
 import Image from "next/image";
 
@@ -20,8 +20,8 @@ import paymentIcons from "../../public/icons/PaymentIcons.png";
 import securityIcon from "../../public/icons/CVV-Icon.png";
 
 import { useEffect, useMemo, useState } from "react";
-import ReSideBar from "@/components/residebar";
-import ReHeader from "@/components/reheader";
+import ReSideBar from "@/components/sidebars/residebar";
+import ReHeader from "@/components/headers/reheader";
 import { useGlobalContext } from "@/contexts/state";
 import { child, get, getDatabase, ref } from "firebase/database";
 

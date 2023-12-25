@@ -1,21 +1,21 @@
 import Image from "next/image";
 
-import logoImage from "../../public/images/logo.png";
-import profilePic from "../../public/images/profile.png";
+import logoImage from "../../../public/images/logo.png";
+import profilePic from "../../../public/images/profile.png";
 import { ReSidebarProps, SidebarProps } from "@/configs";
 
-import companyIcon from "../../public/icons/CompanyIcon.png";
-import teamIcon from "../../public/icons/TeamIcon.png";
-import projectIcon from "../../public/icons/ProjectIcon.png";
-import activityIcon from "../../public/icons/Comment.png";
-import subscriptionIcon from "../../public/icons/SubscriptionIcon.png";
-import settingsIcon from "../../public/icons/SettingsIcon.png";
-import logoutIcon from "../../public/icons/LogoutIcon.png";
-import closeIcon from "../../public/icons/CloseXIcon.png";
+import companyIcon from "../../../public/icons/CompanyIcon.png";
+import teamIcon from "../../../public/icons/TeamIcon.png";
+import projectIcon from "../../../public/icons/ProjectIcon.png";
+import activityIcon from "../../../public/icons/Comment.png";
+import subscriptionIcon from "../../../public/icons/SubscriptionIcon.png";
+import settingsIcon from "../../../public/icons/SettingsIcon.png";
+import logoutIcon from "../../../public/icons/LogoutIcon.png";
+import closeIcon from "../../../public/icons/CloseXIcon.png";
 
-import defaultUser from "../../public/icons/User.png";
+import defaultUser from "../../../public/icons/User.png";
 
-import firebase_app from "../../firebase";
+import firebase_app from "../../../firebase";
 import { getAuth } from "firebase/auth";
 import { getFirestore, onSnapshot } from "firebase/firestore";
 import { getFunctions, httpsCallable } from "firebase/functions";
