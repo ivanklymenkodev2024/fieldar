@@ -25,7 +25,7 @@ import ReHeader from "@/components/reheader";
 import { useGlobalContext } from "@/contexts/state";
 import { child, get, getDatabase, ref } from "firebase/database";
 
-import firebase_app from "../../config";
+import firebase_app from "../../firebase";
 import { getAuth } from "firebase/auth";
 
 const auth = getAuth();

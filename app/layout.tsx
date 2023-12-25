@@ -7,7 +7,7 @@ import { createContext } from "vm";
 import { useContext, useEffect, useState } from "react";
 import { CurrentDataContext } from "@/contexts/state";
 
-import firebase_app from "../config";
+import firebase_app from "../firebase";
 import { signInWithEmailAndPassword, getAuth } from "firebase/auth";
 
 const auth = getAuth(firebase_app);

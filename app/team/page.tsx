@@ -18,7 +18,7 @@ import { child, get, getDatabase, ref } from "firebase/database";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-import firebase_app from "../../config";
+import firebase_app from "../../firebase";
 import { getAuth } from "firebase/auth";
 
 const auth = getAuth();

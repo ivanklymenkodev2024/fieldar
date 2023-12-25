@@ -20,7 +20,7 @@ import modelIcon from "../../../public/icons/ModelIcon.png";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
-import firebase_app from "../../../config";
+import firebase_app from "../../../firebase";
 import { getAuth } from "firebase/auth";
 
 const auth = getAuth();

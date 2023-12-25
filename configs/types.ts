@@ -20,3 +20,18 @@ export interface ReSidebarProps {
     index: number,
     hide: any
 }
+
+export interface ButtonProps {
+    title: string,
+    handleSubmit: any,
+    isLoading: boolean,
+    extraClass: string
+}
+
+export interface InputProps {
+    type: string,
+    value: any,
+    setValue: any,
+    placeholder: string,
+    extraClass: string
+}

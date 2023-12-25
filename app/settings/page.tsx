@@ -13,7 +13,7 @@ import teamIcon from "../../public/icons/TeamIcon.png";
 import adminIcon from "../../public/icons/AdminIcon.png";
 import brandIcon from "../../public/icons/BrandingIcon.png";
 
-import firebase_app from "../../config";
+import firebase_app from "../../firebase";
 import { getAuth } from "firebase/auth";
 
 const auth = getAuth();

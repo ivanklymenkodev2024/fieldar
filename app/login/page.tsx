@@ -1,22 +1,28 @@
 "use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+
 import Image from "next/image";
+
 import logoImage from "../../public/images/logo.png";
 import appleMark from "../../public/images/apple_mark.png";
 import appleMarkLetter from "../../public/images/apple_mark_letter.png";
 import googleAppMark from "../../public/images/google_app.png";
 import googleAppLetter from "../../public/images/google_app_letter.png";
-import { useRouter } from "next/navigation";
 
-import firebase_app from "../../config";
+import firebase_app from "../../firebase";
 import { signInWithEmailAndPassword, getAuth } from "firebase/auth";
-import { useState } from "react";
-
+import { child, get, getDatabase, ref } from "firebase/database";
 const auth = getAuth(firebase_app);
 
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+
 import { useGlobalContext } from "@/contexts/state";
-import { child, get, getDatabase, ref } from "firebase/database";
+
+import Button from "@/components/button";
+import Input from "@/components/input";
 
 const LoginPage = () => {
   const router = useRouter();
@@ -25,9 +31,9 @@ const LoginPage = () => {
 
   const [isLoading, setIsLoading] = useState(false);
 
-  const {profile, setUser, setProfile, setProject, setCompany } = useGlobalContext();
+  const { setUser, setProfile, setCompany } = useGlobalContext();
 
-  const getCompany = (companyKey: string) => {
+  const getCompany = (companyKey: any) => {
     const dbRef = ref(getDatabase());
     get(child(dbRef, `companies/${companyKey}`))
       .then((snapshot: any) => {
@@ -55,7 +61,6 @@ const LoginPage = () => {
       .then((userCredential) => {
         const user = userCredential.user;
         if (typeof window !== "undefined") localStorage.removeItem("picUrl");
-        console.log(user);
         setUser(user);
         if (typeof window !== 'undefined') {
           localStorage.setItem('user', JSON.stringify(user));
@@ -66,8 +71,6 @@ const LoginPage = () => {
           .then((snapshot: any) => {
             if (snapshot.exists()) {
               setProfile(snapshot.val());
-              console.log(profile);
-              console.log('Profile', snapshot.val());
               if (typeof window !== 'undefined') {
                 localStorage.setItem('profile', JSON.stringify(snapshot.val()));
               }
@@ -90,20 +93,9 @@ const LoginPage = () => {
         }
         console.log(JSON.stringify(error));
         setIsLoading(false);
-        // const errorCode = error.code;
-        // const errorMessage = error.message;
-        // toast.warning(errorMessage);
       })
       .finally(() => {
       });
-  };
-
-  const handleEmailChange = (e: any) => {
-    setEmail(e.target.value);
-  };
-
-  const handlePasswordChange = (e: any) => {
-    setPassword(e.target.value);
   };
 
   return (
@@ -112,22 +104,28 @@ const LoginPage = () => {
       <p className="text-primary text-gray-11 m-8 ">
         Log in to view your dashboard
       </p>
-      <input
-        className="bg-gray-3 text-gray-11 placeholder:italic rounded-[33px] px-[30px] py-[20px] w-[80%] sm:w-[400px] m-2 focus:border-none outline-none shadown-none border-none focus:shadow-none focus:ring-0"
+      <Input type="email" placeholder="Email..." value={email} setValue={setEmail} extraClass={" rounded-[33px] px-[30px] py-[20px] w-[80%] sm:w-[400px] m-2"}/>
+      <Input type="password" placeholder="Password..." value={password} setValue={setPassword} extraClass={" rounded-[33px] px-[30px] py-[20px] w-[80%] sm:w-[400px] m-2"}/>
+      {/* <input
+        className="bg-gray-3 text-gray-11 placeholder:italic focus:border-none outline-none shadown-none border-none focus:shadow-none focus:ring-0"
         type="email"
         placeholder="Email..."
         value={email}
-        onChange={handleEmailChange}
-      />
-      <input
+        onChange={(e:any) => {
+          setEmail(e.target.value);
+        }}
+      /> */}
+      {/* <input
         className="bg-gray-3 text-gray-11 placeholder:italic rounded-[33px] px-[30px] py-[20px] w-[80%] sm:w-[400px] m-2 focus:border-none outline-none shadown-none border-none focus:shadow-none focus:ring-0"
         type="password"
         placeholder="Password..."
         value={password}
-        onChange={handlePasswordChange}
-      />
+        onChange={(e:any) => {
+          setPassword(e.target.value);
+        }}
+      /> */}
       <div className="gap-2"></div>
-      <button
+      {/* <button
         disabled={isLoading}
         className="flex items-center justify-center bg-gray-5 rounded-[33px] px-[30px] py-[15px] w-[80%] sm:w-[400px] mx-2 mt-5 mb-20 text-white text-medium shadow-md drop-shadow-0 drop-shadow-y-3 blur-6 "
         onClick={login}
@@ -151,7 +149,8 @@ const LoginPage = () => {
           </svg>
         )}
         <p>Login</p>
-      </button>
+      </button> */}
+      <Button title={"Log In"} handleSubmit={login} isLoading={isLoading} extraClass="rounded-[33px] px-[30px] py-[15px] w-[80%] sm:w-[400px] mx-2 mt-5 mb-20"/>
       <p className="text-white text-primary font-semibold">
         Don&apos;t have an account yet?
       </p>

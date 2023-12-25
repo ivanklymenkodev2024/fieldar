@@ -5,10 +5,10 @@ import SideBar from "@/components/sidebar";
 import { useEffect, useState } from "react";
 import Image from "next/image";
 
-import { child, get, getDatabase, ref, set } from "firebase/database";
+import { getDatabase } from "firebase/database";
 import { getDownloadURL } from "firebase/storage";
 
-import firebase_app from "../../config";
+import firebase_app from "../../firebase";
 import profileImg from "../../public/images/profile.png";
 
 import editIcon from "../../public/icons/EditIcon.png";
@@ -16,7 +16,6 @@ import closeIcon from "../../public/icons/CloseXIcon.png";
 import updateIcon from "../../public/icons/UpdateIcon.png";
 import defaultUser from "../../public/icons/User.png";
 import { getAuth } from "firebase/auth";
-import { getFirestore, onSnapshot } from "firebase/firestore";
 import { getFunctions, httpsCallable } from "firebase/functions";
 
 import React, { useRef } from "react";
@@ -26,8 +25,10 @@ import { getStorage, uploadBytes, ref as ref_storage } from "firebase/storage";
 
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+
 import ReSideBar from "@/components/residebar";
 import ReHeader from "@/components/reheader";
+
 import { useGlobalContext } from "@/contexts/state";
 
 const auth = getAuth();
@@ -74,7 +75,6 @@ const ProfilePage = () => {
   const { user, setUser, profile, setProfile, project, setProject, company, setCompany, updateContext } = useGlobalContext();
 
   useEffect(() => {
-    console.log('Profile', profile);
     setUserID(user.uid);
     setName(profile.DisplayName);
     setEmail(profile.Email);
@@ -86,38 +86,9 @@ const ProfilePage = () => {
     }
   }, [profile])
 
-  // auth.onAuthStateChanged(function (user: any) {
-  //   if (user != null) {
-  //     const uid = user.uid;
-  //     setUserID(uid);
-
-  //     const dbRef = ref(getDatabase());
-  //     get(child(dbRef, `users/${uid}`))
-  //       .then((snapshot: any) => {
-  //         if (snapshot.exists()) {
-  //           setName(snapshot.val().DisplayName);
-  //           setEmail(snapshot.val().Email);
-  //           setJobTitle(snapshot.val().JobTitle);
-  //           setPhone(snapshot.val().PhoneNumber);
-  //           setPicUrl(snapshot.val().PhotoURL);
-  //           if(typeof window !== "undefined")
-  //             localStorage.setItem('picUrl', snapshot.val().PhotoURL);
-
-  //         } else {
-  //           console.log("No data available");
-  //         }
-  //       })
-  //       .catch((error: any) => {
-  //         console.error(error);
-  //       });
-  //   } else {
-  //     console.log(null);
-  //   }
-  // });
-
   const [imageData, setImageData] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
-  const fileInputRef = useRef(null);
+  const fileInputRef = useRef<any>(null);
 
   const uploadImageURLToDB = (file: any) => {
     setIsLoading(true);
@@ -584,7 +555,6 @@ const ProfilePage = () => {
 
       {isShowPasswordModal && (
         <div
-          id="modal_password"
           className="flex overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full"
         >
           <div className="relative p-4 w-full max-w-[690px] max-h-full">
@@ -612,25 +582,32 @@ const ProfilePage = () => {
                   type="password"
                   placeholder="Current Password..."
                   value={oldPassword}
-                  onChange={handleOldPasswordChange}
+                  onChange={(e:any) => {
+                    setOldPassword(e.target.value);
+                  }}
                 />
                 <input
                   className="bg-gray-3 text-gray-11 placeholder:italic rounded-[33px] px-[30px] py-[16px] focus:border-none focus:outline-none w-full focus:ring-0 border-none my-[12px]"
                   type="password"
                   placeholder="New Password..."
                   value={newPassword}
-                  onChange={handleNewPasswordChange}
+                  onChange={(e:any) => {
+                    setNewPassword(e.target.value);
+                  }}
                 />
                 <input
                   className="bg-gray-3 text-gray-11 placeholder:italic rounded-[33px] px-[30px] py-[16px] focus:border-none focus:outline-none w-full focus:ring-0 border-none my-[12px]"
                   type="password"
                   placeholder="Confirm New Password..."
                   value={confirmPassword}
-                  onChange={handleConfirmPasswordChange}
+                  onChange={(e:any) => {
+                    setConfrimPassword(e.target.value);
+                  }}
                 />
               </div>
               <div className="flex justify-center items-center p-4 md:p-5">
                 <button
+                  disabled={isLoading}
                   type="button"
                   className="flex justify-center items-center rounded-[24px] text-white bg-gray-5 px-[90px] py-[12px] shadow-md drop-shadow-0 drop-shadow-y-3 blur-6"
                   onClick={handleUpdatePassword}

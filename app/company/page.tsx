@@ -10,7 +10,7 @@ import { getDownloadURL } from "firebase/storage";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-import firebase_app from "../../config";
+import firebase_app from "../../firebase";
 import profileImg from "../../public/images/profile.png";
 
 import editIcon from "../../public/icons/EditIcon.png";

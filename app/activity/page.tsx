@@ -14,7 +14,7 @@ import dropDownIcon from "../../public/icons/DropdownArrowIcon.png";
 
 import { child, get, getDatabase, ref } from "firebase/database";
 
-import firebase_app from "../../config";
+import firebase_app from "../../firebase";
 import { getAuth } from "firebase/auth";
 
 const auth = getAuth();

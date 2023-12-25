@@ -27,7 +27,7 @@ import ReHeader from "@/components/reheader";
 import { useGlobalContext } from "@/contexts/state";
 import { child, get, getDatabase, ref } from "firebase/database";
 
-import firebase_app from "../../config";
+import firebase_app from "../../firebase";
 import { getAuth } from "firebase/auth";
 
 const auth = getAuth();
@@ -202,6 +202,7 @@ const SubscriptionPage = () => {
     if (!stripe || !elements) {
       return;
     }
+    if(isLoading) return;
 
     const cardNumberElement = elements.getElement(CardNumberElement);
     if (cardNumberElement) {
@@ -740,6 +741,7 @@ const SubscriptionPage = () => {
                   <p>Cancel</p>
                 </button>
                 <button
+                disabled={isLoading}
                   type="button"
                   className="flex justify-center items-center rounded-[24px] text-white bg-gray-5 px-[30px] py-[12px] shadow-md drop-shadow-0 drop-shadow-y-3 w-[150px] blur-6 mx-[20px]"
                   onClick={addProjectsToSubscription}

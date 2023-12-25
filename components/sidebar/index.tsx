@@ -15,7 +15,7 @@ import closeIcon from "../../public/icons/CloseXIcon.png";
 
 import defaultUser from "../../public/icons/User.png";
 
-import firebase_app from "../../config";
+import firebase_app from "../../firebase";
 import { getAuth, signOut } from "firebase/auth";
 import { getFirestore, onSnapshot } from "firebase/firestore";
 import { getFunctions, httpsCallable } from "firebase/functions";
