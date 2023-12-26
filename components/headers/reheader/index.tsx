@@ -47,19 +47,19 @@ const ReHeader: React.FC<ReHeaderProps> = ({
       {index == 1 && (
         <div className="flex items-center justify-start py-[30px] mx-[30px] border-b-[2px] border-gray-10">
           <Image src={teamIcon} width={25} height={25} alt="team" />
-          <p className="ml-[10px] text-white text-small font-bold">Team Management</p>
+          <p className="ml-[10px] text-white text-small font-bold">{title}</p>
         </div>
       )}
       {index == 2 && (
         <div className="flex items-center justify-start py-[30px] mx-[30px] border-b-[2px] border-gray-10">
           <Image src={projectIcon} width={25} height={25} alt="[project]" />
-          <p className="ml-[10px] text-white text-small font-bold">Project Management</p>
+          <p className="ml-[10px] text-white text-small font-bold">{title}</p>
         </div>
       )}
       {index == 3 && (
         <div className="flex items-center justify-start py-[30px] mx-[30px] border-b-[2px] border-gray-10">
           <Image src={activityIcon} width={25} height={25} alt="activity" />
-          <p className="ml-[10px] text-white text-small font-bold">Activity</p>
+          <p className="ml-[10px] text-white text-small font-bold">{title}</p>
         </div>
       )}
       {index == 4 && (
@@ -70,15 +70,13 @@ const ReHeader: React.FC<ReHeaderProps> = ({
             height={25}
             alt="subscription"
           />
-          <p className="ml-[10px] text-white text-small font-bold">
-            Subscription
-          </p>
+          <p className="ml-[10px] text-white text-small font-bold">{title}</p>
         </div>
       )}
       {index == 5 && (
         <div className="flex items-center justify-start py-[30px] mx-[30px] border-b-[2px] border-gray-10">
           <Image src={settingsIcon} width={25} height={25} alt="subscription" />
-          <p className="ml-[10px] text-white text-small font-bold">Settings</p>
+          <p className="ml-[10px] text-white text-small font-bold">{title}</p>
         </div>
       )}
     </div>

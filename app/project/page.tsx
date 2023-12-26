@@ -1,33 +1,33 @@
 "use client";
 
-import Header from "@/components/headers/header";
-import SideBar from "@/components/sidebars/sidebar";
-import Link from "next/link";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+
+import Image from "next/image";
 
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-import Image from "next/image";
-
 import plusIcon from "../../public/icons/PlusIcon.png";
 import closeIcon from "../../public/icons/CloseXIcon.png";
 
-import { child, get, getDatabase, ref } from "firebase/database";
-
 import firebase_app from "../../firebase";
 import { getAuth } from "firebase/auth";
+import { child, get, getDatabase, ref } from "firebase/database";
 
 const auth = getAuth();
 const database = getDatabase(firebase_app);
-
 import { getFunctions, httpsCallable } from "firebase/functions";
-import ReSideBar from "@/components/sidebars/residebar";
-import ReHeader from "@/components/headers/reheader";
-import { useGlobalContext } from "@/contexts/state";
-import { useRouter } from "next/navigation";
-
 const functions = getFunctions();
+
+
+import Header from "@/components/headers/header";
+import ReHeader from "@/components/headers/reheader";
+import SideBar from "@/components/sidebars/sidebar";
+import ReSideBar from "@/components/sidebars/residebar";
+
+import { useGlobalContext } from "@/contexts/state";
+
 const cCreateProject = httpsCallable(functions, "createProject");
 
 const ProjectPage = () => {
@@ -48,13 +48,8 @@ const ProjectPage = () => {
 
   const {
     user,
-    setUser,
     profile,
-    setProfile,
-    project,
-    setProject,
     company,
-    setCompany,
     updateContext
   } = useGlobalContext();
 
@@ -278,7 +273,6 @@ const ProjectPage = () => {
 
       {isShowNewProjectModal && (
         <div
-          id="modal_user_role"
           className="flex overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full"
         >
           <div className="relative p-4 w-full max-w-[610px] max-h-full">

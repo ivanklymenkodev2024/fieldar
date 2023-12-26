@@ -131,3 +131,17 @@ export interface EditCompanyModalProps {
   handleReCompanyNameChange: any;
   handleOnUpdateCompanyDetail: any;
 }
+
+export interface CreateProjectModalProps {
+  isShow: boolean,
+  isLoading: boolean,
+  hide: any,
+  newProjectName: string,
+  setNewProjectName: any,
+  newProjectLocation: string,
+  setNewProjectLocation: any,
+  newProjectRegion: string,
+  setNewProjectRegion: any,
+  company: any,
+  handleCreateNewProject: any
+}

@@ -384,7 +384,7 @@ const SubscriptionPage = () => {
           <Header title={"My Subscription"} />
           <ReHeader title={"My Subscription"} index={4} show={setIsSide} />
           <div className="m-[32px] flex flex-wrap sm:justify-start justify-center">
-            <div className="w-[360px] flex flex-col justify-start items-center mr-[32px]">
+            <div className="w-full sm:w-[360px] flex flex-col justify-start items-center sm:mr-[32px]">
               <p className="text-gray-10 font-small mb-[13px]">
                 My Current Plan
               </p>

@@ -392,9 +392,9 @@ const EditSubscriptionPage = () => {
         <div className="absolute lg:left-[320px] lg:w-panel w-full min-h-[100vh] h-fit bg-gray-4">
           <Header title={"Edit Subscription"} />
           <ReHeader title={"Edit Subscription"} index={5} show={setIsSide} />
-          <div className="m-[32px] flex flex-wrap sm:justify-start justify-center">
+          <div className="m-[32px] flex flex-wrap justify-start">
             <div className="flex flex-col">
-              <div className="px-[32px] py-[10px] flex">
+              <div className="px-[0px] py-[10px] flex">
                 <Link
                   href={"/subscription"}
                   className="text-small px-[20px] py-[10px] flex items-center bg-gray-2 w-fit rounded-[29px]"
@@ -409,7 +409,11 @@ const EditSubscriptionPage = () => {
                   <p className="text-small font-semibold text-white">Back</p>
                 </Link>
               </div>
-              <div className="w-[360px] flex flex-col justify-start items-center mr-[32px]">
+            </div>
+          </div>
+          <div className="flex flex-wrap sm:justify-start justify-center">
+            <div className="flex flex-col w-full sm:w-auto mb-[80px] mx-[32px]">
+              <div className="sm:w-[360px] flex flex-col justify-start items-center sm:mr-[32px]">
                 <p className="text-gray-10 font-small mb-[13px]">
                   My Current Plan
                 </p>
@@ -527,7 +531,7 @@ const EditSubscriptionPage = () => {
             </div>
             {isAdmin && (
               <>
-                <div className="w-full md:w-[640px] flex flex-col items-center">
+                <div className="w-full md:w-[640px] flex flex-col items-center mt-[-70px] mx-[32px]">
                   <div className="mt-[10px] mb-[10px] text-small text-white font-bold flex">
                     My Company Projects
                   </div>
@@ -568,7 +572,7 @@ const EditSubscriptionPage = () => {
 
                   <div
                     className={
-                      "w-full md:w-[620px] flex flex-col bg-gray-3 h-ttable rounded-[24px] overflow-y-auto " +
+                      "w-full md:w-[640px] flex flex-col bg-gray-3 h-ttable rounded-[24px] overflow-y-auto " +
                       (company.ProjectDirectory == undefined ||
                       Object.keys(company.ProjectDirectory).length == 0
                         ? "items-center"
@@ -631,13 +635,6 @@ const EditSubscriptionPage = () => {
                     })}
                   </div>
                   <div className="relative flex flex-col md:flex-row items-center w-full justify-center mt-[10px]">
-                    <div className="max-w-[300px] text-center text-gray-10">
-                      In order to remove active projects, please visit the{" "}
-                      <Link href={"/project"} className="text-gray-11">
-                        Project Management
-                      </Link>{" "}
-                      panel.
-                    </div>
                     {isEdit && (
                       <button
                         className="md:absolute right-0 bg-red-primary px-[20px] py-[10px] text-white rounded-[20px] flex items-center"
@@ -655,6 +652,13 @@ const EditSubscriptionPage = () => {
                         Remove
                       </button>
                     )}
+                    <div className="max-w-[300px] text-center text-gray-10">
+                      In order to remove active projects, please visit the{" "}
+                      <Link href={"/project"} className="text-gray-11">
+                        Project Management
+                      </Link>{" "}
+                      panel.
+                    </div>
                   </div>
                 </div>
               </>

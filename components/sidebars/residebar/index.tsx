@@ -208,16 +208,16 @@ const ReSideBar: React.FC<ReSidebarProps> = ({
         </div>
         <div className="flex flex-col mb-[20px]">
           <div className="text-gray-11 py-[15px] text-primary text-center">
-            <Link href={"https://www.fieldar.app/"}> Home </Link>
+            <Link target="_blank" href={"https://www.fieldar.app/"}> Home </Link>
           </div>
           <div className="text-gray-11 py-[15px] text-primary text-center">
-          <Link href={"https://www.fieldar.app/blog"}> Blog </Link>
+          <Link target="_blank" href={"https://www.fieldar.app/blog"}> Blog </Link>
           </div>
           <div className="text-gray-11 py-[15px] text-primary text-center">
-          <Link href={"https://www.fieldar.app/plugins"}> Plugins </Link>
+          <Link target="_blank" href={"https://www.fieldar.app/plugins"}> Plugins </Link>
           </div>
           <div className="text-gray-11 py-[15px] text-primary text-center">
-          <Link href={"https://www.fieldar.app/"}> Contact </Link>
+          <Link target="_blank" href={"https://www.fieldar.app/"}> Contact </Link>
           </div>
         </div>
       </div>
