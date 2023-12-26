@@ -167,18 +167,28 @@ const SubscriptionPage = () => {
     }
     setBillingStep(1);
   };
-  const resetBillingStep = () => {
-    setFirstName(profile.DisplayName.split(" ")[0]);
-    setSecondName(profile.DisplayName.split(" ")[1]);
-    setStreetAddress("");
-    setStreetAddress2("");
-    setCity("");
-    setState("");
-    setZIP("");
-    setCountry("US");
-    setEmail(profile.Email);
-    setPhoneNumber(profile.PhoneNumber);
-    setBillingStep(0);
+  const resetBillingStep = (callback:any) => {
+    fetch("/api/stripe/getCustomer", {
+      method: "POST",
+      body: JSON.stringify({
+        customerId: company.SubscriptionDetails.customerId,
+      }),
+    }).then((result) => {
+      result.json().then((res:any) => {
+        setFirstName(res.customer.name.split(" ")[0] || profile.DisplayName.split(" ")[0]);
+        setSecondName(res.customer.name.split(" ")[1] || profile.DisplayName.split(" ")[1]);
+        setStreetAddress(res.customer?.address?.line1 || "");
+        setStreetAddress2(res.customer?.address?.line2 || "");
+        setCity(res.customer?.address?.city || "");
+        setState(res.customer?.address?.state || "");
+        setZIP(res.customer?.address?.postal_code  || "");
+        setCountry(res.customer?.address?.country  || "US");
+        setEmail(res.customer.email || "");
+        setPhoneNumber(res.customer.phone || "");
+        setBillingStep(0);
+        callback();
+      });
+    });
   };
 
   const [firstName, setFirstName] = useState("");
@@ -202,7 +212,7 @@ const SubscriptionPage = () => {
     if (!stripe || !elements) {
       return;
     }
-    if(isLoading) return;
+    if (isLoading) return;
 
     const cardNumberElement = elements.getElement(CardNumberElement);
     if (cardNumberElement) {
@@ -648,7 +658,6 @@ const SubscriptionPage = () => {
                       <button
                         className="mx-[24px] mt-[24px] h-fit bg-gray-5 rounded-[44px] px-[16px] py-[12px] w-[320px] font-small shadow-md drop-shadow-0 drop-shadow-y-3 blur-6 text-white"
                         onClick={() => {
-                          resetBillingStep();
                           if (isTrial) {
                             setIsShowUpdateBillingDetails(true);
                           } else {
@@ -722,7 +731,9 @@ const SubscriptionPage = () => {
                   <button
                     className="text-2small text-gray-8-5 m-4 text-center"
                     onClick={() => {
-                      setIsShowUpdateBillingDetails(true);
+                      resetBillingStep(() => {
+                        setIsShowUpdateBillingDetails(true);
+                      });
                     }}
                   >
                     Update my payment method
@@ -741,7 +752,7 @@ const SubscriptionPage = () => {
                   <p>Cancel</p>
                 </button>
                 <button
-                disabled={isLoading}
+                  disabled={isLoading}
                   type="button"
                   className="flex justify-center items-center rounded-[24px] text-white bg-gray-5 px-[30px] py-[12px] shadow-md drop-shadow-0 drop-shadow-y-3 w-[150px] blur-6 mx-[20px]"
                   onClick={addProjectsToSubscription}
@@ -995,11 +1006,19 @@ const SubscriptionPage = () => {
                     <div className=" ml-3 text-white text-xsmall">
                       Country *
                     </div>
-                    <select className="pl-4 bg-gray-3 text-gray-11 text-2xsmall placeholder:italic rounded-[20px] focus:border-none outline-none shadown-none border-none focus:shadow-none focus:ring-0 w-full" value={country} onChange={(e:any) => {
-                      setCountry(e.target.value);
-                    }}>
+                    <select
+                      className="pl-4 bg-gray-3 text-gray-11 text-2xsmall placeholder:italic rounded-[20px] focus:border-none outline-none shadown-none border-none focus:shadow-none focus:ring-0 w-full"
+                      value={country}
+                      onChange={(e: any) => {
+                        setCountry(e.target.value);
+                      }}
+                    >
                       {aCountryList.map((item: any, id: any) => {
-                        return <option key={id} value={item.value}>{item.label}</option>;
+                        return (
+                          <option key={id} value={item.value}>
+                            {item.label}
+                          </option>
+                        );
                       })}
                     </select>
                   </div>

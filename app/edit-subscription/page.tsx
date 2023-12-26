@@ -140,18 +140,31 @@ const EditSubscriptionPage = () => {
     }
     setBillingStep(1);
   };
-  const resetBillingStep = () => {
-    setFirstName(profile.DisplayName.split(" ")[0]);
-    setSecondName(profile.DisplayName.split(" ")[1]);
-    setStreetAddress("");
-    setStreetAddress2("");
-    setCity("");
-    setState("");
-    setZIP("");
-    setCountry("US");
-    setEmail(profile.Email);
-    setPhoneNumber(profile.PhoneNumber);
-    setBillingStep(0);
+  const resetBillingStep = (callback: any) => {
+    fetch("/api/stripe/getCustomer", {
+      method: "POST",
+      body: JSON.stringify({
+        customerId: company.SubscriptionDetails.customerId,
+      }),
+    }).then((result) => {
+      result.json().then((res: any) => {
+        setFirstName(
+          res.customer.name.split(" ")[0] || profile.DisplayName.split(" ")[0]
+        );
+        setSecondName(
+          res.customer.name.split(" ")[1] || profile.DisplayName.split(" ")[1]
+        );
+        setStreetAddress(res.customer?.address?.line1 || "");
+        setStreetAddress2(res.customer?.address?.line2 || "");
+        setCity(res.customer?.address?.city || "");
+        setState(res.customer?.address?.state || "");
+        setZIP(res.customer?.address?.postal_code || "");
+        setCountry(res.customer?.address?.country || "US");
+        setEmail(res.customer.email || "");
+        setPhoneNumber(res.customer.phone || "");
+        setBillingStep(0);
+      });
+    });
   };
 
   const [firstName, setFirstName] = useState("");
@@ -345,7 +358,7 @@ const EditSubscriptionPage = () => {
       fetch("/api/stripe/getInvoiceList", {
         method: "POST",
         body: JSON.stringify({
-          subscriptionId: company.SubscriptionDetails.stripeSubscriptionId,
+          customerId: company.SubscriptionDetails.customerId,
         }),
       }).then((result) => {
         result.json().then((res) => {
@@ -487,8 +500,9 @@ const EditSubscriptionPage = () => {
                           <button
                             className="text-center mb-[20px] bg-gray-7-5 rounded-[27px] px-[50px] py-[10px] text-white"
                             onClick={() => {
-                              resetBillingStep();
-                              setIsShowUpdateBillingDetails(true);
+                              resetBillingStep(() => {
+                                setIsShowUpdateBillingDetails(true);
+                              });
                             }}
                           >
                             Edit Billing Details
@@ -767,7 +781,7 @@ const EditSubscriptionPage = () => {
               <div className="mx-[20px] my-[20px] flex flex-col rounded-[26px] h-[430px] ">
                 <div className="grid grid-cols-7">
                   <p className="col-span-2 text-center text-gray-10">Date</p>
-                  <p className="col-span-2 text-center text-gray-10"> Name </p>
+                  <p className="col-span-2 text-center text-gray-10"> Email </p>
                   <p className="col-span-2 text-center text-gray-10">Amount</p>
                   <p className="col-span-1 text-center text-gray-10">Status</p>
                 </div>
@@ -785,7 +799,7 @@ const EditSubscriptionPage = () => {
                             ).toLocaleDateString()}
                           </p>
                           <p className="col-span-2 text-center text-gray-10 mb-0">
-                            {item.account_name}
+                            {item.customer_email}
                           </p>
                           <p className="col-span-2 text-center text-gray-10 mb-0">
                             {item.amount_paid}
@@ -1026,11 +1040,19 @@ const EditSubscriptionPage = () => {
                     <div className=" ml-3 text-white text-xsmall">
                       Country *
                     </div>
-                    <select className="pl-4 bg-gray-3 text-gray-11 text-2xsmall placeholder:italic rounded-[20px] focus:border-none outline-none shadown-none border-none focus:shadow-none focus:ring-0 w-full" value={country} onChange={(e:any) => {
-                      setCountry(e.target.value);
-                    }}>
+                    <select
+                      className="pl-4 bg-gray-3 text-gray-11 text-2xsmall placeholder:italic rounded-[20px] focus:border-none outline-none shadown-none border-none focus:shadow-none focus:ring-0 w-full"
+                      value={country}
+                      onChange={(e: any) => {
+                        setCountry(e.target.value);
+                      }}
+                    >
                       {aCountryList.map((item: any, id: any) => {
-                        return <option key={id} value={item.value}>{item.label}</option>;
+                        return (
+                          <option key={id} value={item.value}>
+                            {item.label}
+                          </option>
+                        );
                       })}
                     </select>
                   </div>

@@ -8,10 +8,8 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-    
-  const {customerId } = JSON.parse(req.body);
-  console.log(customerId);
-  const invoices = await stripe.invoices.list({customer: customerId, limit: 10});
-
-  res.status(200).json({ invoices });
+  const { customerId } = JSON.parse(req.body);
+  const customer = await stripe.customers.retrieve(customerId);
+  console.log(JSON.stringify(customer.address));
+  res.status(200).json({ customer });
 }
