@@ -163,6 +163,8 @@ const EditSubscriptionPage = () => {
         setEmail(res.customer.email || "");
         setPhoneNumber(res.customer.phone || "");
         setBillingStep(0);
+        console.log(callback);
+        callback();
       });
     });
   };
