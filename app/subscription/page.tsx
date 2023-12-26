@@ -494,7 +494,7 @@ const SubscriptionPage = () => {
                 <div className="mb-[36px]"></div>
                 <div className="w-full rounded-[26px] bg-gray-3">
                   <div className="text-white  text-sbig flex justify-center p-[30px] border-b-[2px] border-gray-6 rounded-t-[26px] font-bold">
-                    Upgrade to Enterprise
+                  {isTrial ? "Upgrade To Enterprise" : "Add More Projects"}
                   </div>
                   <div className="w-full flex flex-wrap justify-between pt-[10px]">
                     <div className="md:w-[40%] w-full m-[10px] flex items-center">
