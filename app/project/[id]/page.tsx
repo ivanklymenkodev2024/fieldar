@@ -162,9 +162,9 @@ const ProjectDetailPage = ({ params }: any) => {
       CompanyRegion: newCompanyRegion,
       ProjectKey: projectId,
       AllowAnyoneToScan: allowAnyoneToScan,
-      WhiteListedEmailDomains: allowedDomains
+      WhitelistedEmailDomains: allowedDomains
     })
-      .then((result) => {
+      .then((result:any) => {
         updateContext();
         toast.success(result.data.message);
       })
