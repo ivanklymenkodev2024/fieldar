@@ -82,6 +82,7 @@ const EditCompanyModal: React.FC<EditCompanyModalProps> = ({
               disabled={isLoading}
               type="button"
               className="rounded-[24px] text-white bg-gray-7-5 mx-[6px] py-[12px] shadow-md drop-shadow-0 drop-shadow-y-3 blur-6 w-full"
+              onClick={hide}
             >
               Cancel
             </button>

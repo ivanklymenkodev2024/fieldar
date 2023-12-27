@@ -49,3 +49,14 @@ body {
 input[type=checkbox]:checked{
   background-color: #54B7B9;
 }
+
+.tooltip {
+  position: absolute;
+  display: none;
+  transform: translate(-48%, -90%);
+}
+
+.has-tooltip:hover .tooltip {
+  display: block;
+  z-index: 10000;
+}

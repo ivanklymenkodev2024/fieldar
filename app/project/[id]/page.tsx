@@ -69,6 +69,9 @@ const ProjectDetailPage = ({ params }: any) => {
   const [isShowAddTeamMemberModal, setIsShowAddTeamMemberModal] =
     useState(false);
 
+  const [allowAnyoneToScan, setAllowAnyoneToScan] = useState(false);
+  const [allowedDomains, setAllowedDomains] = useState("");
+
   const [project, setProject] = useState<any>({});
 
   const [selectedModel, setSelectedModel] = useState("");
@@ -89,7 +92,7 @@ const ProjectDetailPage = ({ params }: any) => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  const getProject = (pid:any) => {
+  const getProject = (pid: any) => {
     const dbRef = ref(getDatabase());
     get(child(dbRef, `projects/${pid}`))
       .then((snapshot: any) => {
@@ -125,7 +128,7 @@ const ProjectDetailPage = ({ params }: any) => {
     } else {
       setIsAdmin(false);
     }
-  }, [profile, project, company]);
+  }, [profile, company]);
 
   const handleRemoveUserFromProject = () => {
     setIsLoading(true);
@@ -133,7 +136,7 @@ const ProjectDetailPage = ({ params }: any) => {
       selectedProjectId: projectId,
       selectedMemberId: selectedTeamMember,
     })
-      .then((result:any) => {
+      .then((result: any) => {
         updateContext();
         toast.success(result.data.message);
       })
@@ -148,12 +151,18 @@ const ProjectDetailPage = ({ params }: any) => {
   };
 
   const handleUpdateProject = () => {
+    if(allowAnyoneToScan == false && allowedDomains == "") {
+      toast.warning('Please input allowed domains');
+      return;
+    }
     setIsLoading(true);
     cUpdateProjectInfo({
       ProjectTitle: newProjectName,
       ProjectLocation: newProjectLocation,
       CompanyRegion: newCompanyRegion,
       ProjectKey: projectId,
+      AllowAnyoneToScan: allowAnyoneToScan,
+      WhiteListedEmailDomains: allowedDomains
     })
       .then((result) => {
         updateContext();
@@ -274,6 +283,8 @@ const ProjectDetailPage = ({ params }: any) => {
     setNewProjectName(project.ProjectTitle);
     setNewProjectLocation(project.ProjectLocation);
     setNewCompanyRegion(project.CompanyRegion);
+    setAllowAnyoneToScan(project.AllowAnyoneToScan);
+    setAllowedDomains(project.WhitelistedEmailDomains);
     setIsShowEditProjectModal(true);
   };
 
@@ -561,7 +572,6 @@ const ProjectDetailPage = ({ params }: any) => {
                   <span className="sr-only">Close modal</span>
                 </button>
               </div>
-
               <div className="mx-[82px] my-[20px]">
                 <div className="mx-[30px] flex justify-start w-full mt-[20px]">
                   <p className="text-primary text-white text-left ml-[20px] font-semibold">
@@ -577,7 +587,6 @@ const ProjectDetailPage = ({ params }: any) => {
                   }}
                 />
               </div>
-
               <div className="mx-[82px] my-[20px]">
                 <div className="mx-[30px] flex justify-start w-full mt-[20px]">
                   <p className="text-primary text-white text-left ml-[20px] font-semibold">
@@ -593,7 +602,6 @@ const ProjectDetailPage = ({ params }: any) => {
                   }}
                 />
               </div>
-
               <div className="mx-[82px] my-[20px]">
                 <div className="mx-[30px] flex justify-start w-full mt-[20px]">
                   <p className="text-primary text-white text-left ml-[20px] font-semibold">
@@ -623,6 +631,70 @@ const ProjectDetailPage = ({ params }: any) => {
                   )}
                 </select>
               </div>
+              <div className="mx-[82px] my-[20px] flex justify-between items-center">
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    value=""
+                    className="w-[30px] h-[30px] text-white bg-gray-5 mx-[10px] rounded-[6px]  focus:ring-0 focus:bg-gray-5 focus:border-none focus:outline-none active:bg-gray-5 ring-0"
+                    checked={allowAnyoneToScan}
+                    onChange={(e: any) => {
+                      setAllowAnyoneToScan(e.target.checked);
+                    }}
+                  />
+                  <p className="text-primary text-white text-left ml-[20px] font-semibold">
+                    Allow Anyone to scan QR Targets
+                  </p>
+                </div>
+                <div className="has-tooltip">
+                  <span className="tooltip rounded-[20px] shadow-lg bg-gray-4 text-white -mt-8 w-[380px] text-center p-[30px] border-white">
+                    By default, the FieldAR mobile app allows anyone on your
+                    project site to scan any QR target to view models in AR.
+                    <br />
+                    <br />
+                    With this option, you can choose to allow only certain users
+                    with the email domains below to scan the QR targets.
+                    <br />
+                    <br />
+                    Example: if acme.com is allowed, then john@acme.com can
+                    scan.
+                    <br />
+                    <br />
+                    *Comma-separated values
+                  </span>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth="1.5"
+                    stroke="white"
+                    className="w-6 h-6"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z"
+                    />
+                  </svg>
+                </div>
+              </div>
+              <div className="mx-[82px] my-[20px]">
+                <div className="mx-[30px] flex justify-start w-full mt-[20px]">
+                  <p className="text-primary text-white text-left ml-[20px] font-semibold">
+                    Allowed email domains
+                  </p>
+                </div>
+                <textarea
+                  className="bg-gray-3 px-[23px] py-[14px] m-2 mr-5 w-full rounded-[17px] text-gray-10-5 ring-0 focus:outline-none focus:border-none focus:ring-0 border-0"
+                  rows={3}
+                  placeholder="gmail.com, company.com"
+                  value={allowedDomains}
+                  onChange={(e:any) => {
+                    setAllowedDomains(e.target.value);
+                  }}
+                />
+              </div>
+
               <div className="w-full flex justify-center my-[30px]">
                 <button
                   disabled={isLoading}
