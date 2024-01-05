@@ -23,45 +23,50 @@ import ConfirmModal from "@/components/modals/confirmModal";
 import { useRouter } from "next/navigation";
 
 const MasterPage = () => {
-
   const [emailFilter, setEmailFilter] = useState("");
   const [uidFilter, setUidFilter] = useState("");
 
   const [allUsers, setAllUsers] = useState<any>([
-    { email: "kyle.szostek@gmail.com", uid: "-NdfknVErkdjfvE34DffvEr" },
-    { email: "morgan@email.com", uid: "-Ndoin34vdE$idofjsjnkjne" },
-    { email: "buzz@email.com", uid: "-Ndfkjn3R#Dfnkjnw44jknf" },
-    { email: "bob@email.com", uid: "-Nd543iuhdjD$#%ndkfj3kn" },
+    // { email: "kyle.szostek@gmail.com", uid: "-NdfknVErkdjfvE34DffvEr" },
+    // { email: "morgan@email.com", uid: "-Ndoin34vdE$idofjsjnkjne" },
+    // { email: "buzz@email.com", uid: "-Ndfkjn3R#Dfnkjnw44jknf" },
+    // { email: "bob@email.com", uid: "-Nd543iuhdjD$#%ndkfj3kn" },
   ]);
 
   const [filteredUsers, setFilteredUsers] = useState<any>(allUsers);
 
   useEffect(() => {
-    // const dbRef = ref(getDatabase(), "/users");
-    // onValue(
-    //   dbRef,
-    //   (snapshot) => {
-    //     console.log("SNAPSHOT", snapshot);
-    //     snapshot.forEach((childSnapshot) => {
-    //       const childKey = childSnapshot.key;
-    //       const childData = childSnapshot.val();
-    //       console.log(childKey);
-    //     });
-    //   },
-    //   {
-    //     onlyOnce: true,
-    //   }
-    // );
-    // const database = getDatabase(firebase_app);
-    // const tableRef = ref(database, 'users');
-    // const unsubscribe = onValue(tableRef, (snapshot) => {
-    //   const data = snapshot.val();
-    //   setTableData(data);
-    //   console.log(data);
-    // }, {
-    //   onlyOnce: true
-    // });
-    // return () => unsubscribe();
+    const fetchUsers = async () => {
+      try {
+        const dbRef = ref(getDatabase());
+        const snapshot = await get(child(dbRef, "users"));
+        if (snapshot.exists()) {
+          const users = snapshot.val();
+          const tUsers = Object.keys(users).map((key) => ({
+            ...users[key],
+            uid: key,
+            email: users[key].Email
+          }));
+          console.log(tUsers);
+          setAllUsers(tUsers);
+          setFilteredUsers(
+            tUsers
+              .filter((user) =>
+                user.email.toLowerCase().includes(emailFilter.toLowerCase())
+              )
+              .filter((user) =>
+                user.uid.toLowerCase().includes(uidFilter.toLowerCase())
+              )
+          );
+        } else {
+          console.log("No data available");
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchUsers();
   }, []);
 
   const handleSearch = () => {
@@ -79,7 +84,7 @@ const MasterPage = () => {
 
   return (
     <div className="w-[100wh] h-[100vh] flex justify-center items-center bg-gray-4 ">
-      <MaHeader/>
+      <MaHeader />
       <div className="flex flex-col items-stretch md:w-[750px] max-w-[750px] mt-[50px]">
         <div className="text-white color-gray-11 text-medium font-bold w-full flex justify-center">
           Search Users
