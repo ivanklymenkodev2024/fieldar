@@ -25,7 +25,7 @@ const MasterPage = () => {
   const [selectedUID, setSelectedUID] = useState<string>("");
 
   const [filteredUsers, setFilteredUsers] = useState<any>(allUsers);
-  const { setProfile, setCompany } = useGlobalContext();
+  const { setProfile, setCompany, setUser, setInputUserId } = useGlobalContext();
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -104,9 +104,13 @@ const MasterPage = () => {
   const controlUser = (uid: string) => {
     const user = filteredUsers.filter((user: any) => user.uid == uid)[0];
     if (typeof window !== "undefined") localStorage.removeItem("picUrl");
+    setInputUserId(uid);
     setProfile(user);
     if (typeof window !== "undefined") {
       localStorage.setItem("profile", JSON.stringify(user));
+    }
+    if (typeof window !== "undefined") {
+      localStorage.setItem("inputUserId", uid);
     }
     getCompany(user.CompanyKey);
   };

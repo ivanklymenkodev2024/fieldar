@@ -59,7 +59,7 @@ const ProfilePage = () => {
 
   const [singleModalInput, setSingModalInput] = useState("");
 
-  const { isMaster, user, profile, updateContext } = useGlobalContext();
+  const { isMaster, user, profile, inputUserId, updateContext } = useGlobalContext();
 
   useEffect(() => {
     setUserID(user.uid);
@@ -184,7 +184,7 @@ const ProfilePage = () => {
         break;
     }
     if(isMaster) {
-      data['inputUserId'] = profile.uid;
+      data['inputUserId'] = inputUserId;
     }
     func(data)
       .then((result: any) => {

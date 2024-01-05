@@ -30,6 +30,7 @@ export default function RootLayout({
   const [profile, setProfile] = useState<any>((typeof window !== "undefined" &&  localStorage.getItem('profile') != undefined) ? JSON.parse(localStorage.getItem('profile')): {});
   const [company, setCompany] = useState<any>((typeof window !== "undefined" &&  localStorage.getItem('company') != undefined) ? JSON.parse(localStorage.getItem('company')): {});
   const [project, setProject] = useState<any>((typeof window !== "undefined" &&  localStorage.getItem('project') != undefined) ? JSON.parse(localStorage.getItem('project')): {});
+  const [inputUserId, setInputUserId] = useState<any>((typeof window !== "undefined" &&  localStorage.getItem('inputUserId') != undefined) ? localStorage.getItem('inputUserId'): "");
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -37,6 +38,7 @@ export default function RootLayout({
       setUser(localStorage.getItem('user') != undefined ? JSON.parse(localStorage.getItem('user')): {});
       setProfile(localStorage.getItem('profile') != undefined ? JSON.parse(localStorage.getItem('profile')): {});
       setCompany(localStorage.getItem('company') != undefined ? JSON.parse(localStorage.getItem('company')): {});
+      setInputUserId(localStorage.getItem('inputUserId') != undefined ? JSON.parse(localStorage.getItem('inputUserId')): "");
     }
   }, [])
 
@@ -60,7 +62,11 @@ export default function RootLayout({
 
   const updateContext = () => {
     const dbRef = ref(getDatabase());
-    get(child(dbRef, `users/${user.uid}`))
+    let uid = user.uid;
+    if(isMaster) {
+      uid = inputUserId;
+    }
+    get(child(dbRef, `users/${uid}`))
       .then((snapshot: any) => {
         if (snapshot.exists()) {
           setProfile(snapshot.val());
@@ -81,6 +87,7 @@ export default function RootLayout({
     <html lang="en">
       <CurrentDataContext.Provider
         value={{
+          inputUserId,
           isMaster,
           user,
           profile,
@@ -91,6 +98,7 @@ export default function RootLayout({
           setProfile,
           setCompany,
           setProject,
+          setInputUserId,
           updateContext
         }}
       >

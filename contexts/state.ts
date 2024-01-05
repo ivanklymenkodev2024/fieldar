@@ -1,6 +1,7 @@
 import { createContext, useContext } from "react";
 
 export type GlobalData = {
+  inputUserId: string,
   isMaster: boolean;
   user: any;
   profile: any;
@@ -11,10 +12,12 @@ export type GlobalData = {
   setProfile: (c:any) => void;
   setCompany: (c:any) => void;
   setProject: (c:any) => void;
+  setInputUserId: (c:any) => void;
   updateContext: () => void;
 };
 
 export const CurrentDataContext = createContext<GlobalData>({
+  inputUserId: "",
   isMaster: false,
   user: {},
   profile: {},
@@ -25,6 +28,7 @@ export const CurrentDataContext = createContext<GlobalData>({
   setProfile: () => {},
   setCompany: () => {},
   setProject: () => {},
+  setInputUserId: () => {},
   updateContext: () => {}
 });
 
