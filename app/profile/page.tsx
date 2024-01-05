@@ -59,7 +59,7 @@ const ProfilePage = () => {
 
   const [singleModalInput, setSingModalInput] = useState("");
 
-  const { user, profile, updateContext } = useGlobalContext();
+  const { isMaster, user, profile, updateContext } = useGlobalContext();
 
   useEffect(() => {
     setUserID(user.uid);
@@ -182,6 +182,9 @@ const ProfilePage = () => {
           jobTitle: singleModalInput,
         };
         break;
+    }
+    if(isMaster) {
+      data['inputUserId'] = profile.uid;
     }
     func(data)
       .then((result: any) => {
