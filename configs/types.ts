@@ -145,3 +145,6 @@ export interface CreateProjectModalProps {
   company: any,
   handleCreateNewProject: any
 }
+
+export interface MaHeaderProps {
+}

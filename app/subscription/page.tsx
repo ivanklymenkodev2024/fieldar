@@ -186,7 +186,6 @@ const SubscriptionPage = () => {
         setEmail(res.customer.email || "");
         setPhoneNumber(res.customer.phone || "");
         setBillingStep(0);
-        console.log(callback);
         callback();
       });
     });
@@ -224,7 +223,7 @@ const SubscriptionPage = () => {
           card: cardNumberElement,
         })
         .then((result: any) => {
-          console.log(result);
+          // console.log(result);
           if (result.error) {
             setIsLoading(false);
             toast.warning(result.error.message);
@@ -343,7 +342,7 @@ const SubscriptionPage = () => {
   };
 
   useEffect(() => {
-    console.log(company);
+    // console.log(company);
     setIsTrial(company.SubscriptionPlan == "Trial");
     setIsAdmin(
       company.Admins != undefined &&
@@ -357,7 +356,7 @@ const SubscriptionPage = () => {
           ? company.SubscriptionDetails.projectQuantity
           : 0
       );
-      console.log(company);
+      // console.log(company);
       fetch("/api/stripe/getSubscription", {
         method: "POST",
         body: JSON.stringify({
