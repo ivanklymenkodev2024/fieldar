@@ -33,6 +33,7 @@ import { useGlobalContext } from "@/contexts/state";
 
 const SideBar: React.FC<SidebarProps> = ({ index }: SidebarProps) => {
   const {
+    isMaster,
     user,
     setUser,
     profile,
@@ -61,7 +62,24 @@ const SideBar: React.FC<SidebarProps> = ({ index }: SidebarProps) => {
     });
   };
 
+  const handleBackToSearch = () => {
+    setIsLoading(true);
+    router.push("/master");
+    setIsLoading(false);
+  };
+
+  const [confirmTitle, setConfirmTitle] = useState("");
+  const [confirmContent, setConfirmContent] = useState("");
+
   const logOut = () => {
+    setConfirmTitle("Log Out");
+    setConfirmContent("Are you sure you want to log out of your account?");
+    setIsShowConfirmModal(true);
+  };
+
+  const backToSearch = () => {
+    setConfirmTitle("Back to Search");
+    setConfirmContent("Would you like to navigate back to the Search page?");
     setIsShowConfirmModal(true);
   };
 
@@ -157,7 +175,9 @@ const SideBar: React.FC<SidebarProps> = ({ index }: SidebarProps) => {
                 alt="team"
                 className="ml-[75px]"
               />
-              <p className="ml-[10px] text-white text-small font-bold">Team Management</p>
+              <p className="ml-[10px] text-white text-small font-bold">
+                Team Management
+              </p>
             </div>
           </Link>
           <Link href="/project">
@@ -220,27 +240,38 @@ const SideBar: React.FC<SidebarProps> = ({ index }: SidebarProps) => {
               </p>
             </div>
           </Link>
-          <button onClick={logOut}>
-            <div className="flex items-center justify-start bg-gray-2 h-[72px] w-full">
-              <Image
-                src={logoutIcon}
-                width={25}
-                height={25}
-                alt="logout"
-                className="ml-[75px]"
-              />
-              <p className="ml-[10px] text-white text-small font-bold">
-                Log Out
-              </p>
-            </div>
-          </button>
+          {!isMaster && (
+            <button onClick={logOut}>
+              <div className="flex items-center justify-start bg-gray-2 h-[72px] w-full">
+                <Image
+                  src={logoutIcon}
+                  width={25}
+                  height={25}
+                  alt="logout"
+                  className="ml-[75px]"
+                />
+                <p className="ml-[10px] text-white text-small font-bold">
+                  Log Out
+                </p>
+              </div>
+            </button>
+          )}
+          {isMaster && (
+            <button onClick={backToSearch}>
+              <div className="flex items-center justify-start text-white h-[72px] w-full">
+                <div className="flex items-center mx-[50px] bg-red-primary px-[25px] py-[15px] rounded-[29px]">
+                  <Image src={logoutIcon} width={25} height={25} alt="logout" />
+                  <p className="ml-[10px] text-white text-small font-bold">
+                    Back to Search
+                  </p>
+                </div>
+              </div>
+            </button>
+          )}
         </div>
       </div>
       {isShowConfirmModal && (
-        <div
-          id="modal_confirm"
-          className="flex overflow-y-auto overflow-x-hidden z-[300] fixed top-0 right-0 left-0 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full"
-        >
+        <div className="flex overflow-y-auto overflow-x-hidden z-[300] fixed top-0 right-0 left-0 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
           <div className="relative p-4 w-full max-w-[490px] max-h-full">
             <div
               className="fixed bg-black opacity-30 w-[100vw] h-[100vh] left-0 top-0"
@@ -249,7 +280,7 @@ const SideBar: React.FC<SidebarProps> = ({ index }: SidebarProps) => {
             <div className="relative bg-gray-4 border-[1px] border-gray-6 rounded-[26px] shadow-md drop-shadow-0 drop-shadow-y-3 blur-6">
               <div className="flex items-center justify-center p-4 md:p-5 ">
                 <h3 className="text-center text-xl font-semibold dark:text-white text-small text-white">
-                  Log Out
+                  {confirmTitle}
                 </h3>
                 <button
                   disabled={isLoading}
@@ -263,7 +294,7 @@ const SideBar: React.FC<SidebarProps> = ({ index }: SidebarProps) => {
               </div>
               <div className="my-[30px] flex justify-center items-end">
                 <p className="text-small text-white font-semibold text-center mx-[30px]">
-                  Are you sure you want to log out of your account?
+                  {confirmContent}
                 </p>
               </div>
               <div className="flex justify-center items-center p-4 md:p-5 mx-[60px]">
@@ -281,7 +312,7 @@ const SideBar: React.FC<SidebarProps> = ({ index }: SidebarProps) => {
                   disabled={isLoading}
                   type="button"
                   className="flex justify-center items-center rounded-[24px] text-white bg-red-primary mx-[6px] py-[12px] shadow-md drop-shadow-0 drop-shadow-y-3 blur-6 w-full"
-                  onClick={handleLogOut}
+                  onClick={isMaster ? handleBackToSearch : handleLogOut}
                 >
                   {isLoading && (
                     <svg
@@ -301,7 +332,7 @@ const SideBar: React.FC<SidebarProps> = ({ index }: SidebarProps) => {
                       />
                     </svg>
                   )}
-                  <p>Log Out</p>
+                  <p>{isMaster ? "Back to Search" : "Log Out"}</p>
                 </button>
               </div>
             </div>

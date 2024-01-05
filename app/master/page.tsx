@@ -10,6 +10,7 @@ import { child, get, getDatabase, ref } from "firebase/database";
 
 import { useGlobalContext } from "@/contexts/state";
 import { useRouter } from "next/navigation";
+import ConfirmModal from "@/components/modals/confirmModal";
 
 const MasterPage = () => {
   const router = useRouter();
@@ -19,8 +20,12 @@ const MasterPage = () => {
 
   const [allUsers, setAllUsers] = useState<any>([]);
 
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isControlUser, setIsControlUser] = useState<boolean>(false);
+  const [selectedUID, setSelectedUID] = useState<string>("");
+
   const [filteredUsers, setFilteredUsers] = useState<any>(allUsers);
-  const { setUser, setProfile, setCompany, setIsMaser } = useGlobalContext();
+  const { setProfile, setCompany } = useGlobalContext();
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -169,7 +174,8 @@ const MasterPage = () => {
                   }
                   key={id}
                   onClick={() => {
-                    controlUser(user.uid);
+                    setSelectedUID(user.uid);
+                    setIsControlUser(true);
                   }}
                 >
                   <div className="cols-span-1 text-primary text-gray-11 font-medium px-[40px]">
@@ -183,6 +189,21 @@ const MasterPage = () => {
             })}
         </div>
       </div>
+      <ConfirmModal
+        isShow={isControlUser}
+        isLoading={isLoading}
+        hide={() => {
+          setIsControlUser(false);
+        }}
+        title={"Control User"}
+        content={"Are you sure you wish to control this user?"}
+        handleCancel={() => {
+          setIsControlUser(false);
+        }}
+        handleSubmit={() => {
+          controlUser(selectedUID);
+        }}
+      />
     </div>
   );
 };
