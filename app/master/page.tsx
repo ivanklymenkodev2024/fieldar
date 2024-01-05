@@ -6,34 +6,21 @@ import MaHeader from "@/components/headers/maheader";
 import { useEffect, useState } from "react";
 
 import firebase_app from "../../firebase";
-import { child, get, getDatabase, ref, onValue } from "firebase/database";
-import { getAuth, signOut } from "firebase/auth";
-import { getFunctions, httpsCallable } from "firebase/functions";
-
-const auth = getAuth();
-const database = getDatabase(firebase_app);
-const functions = getFunctions();
-
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { child, get, getDatabase, ref } from "firebase/database";
 
 import { useGlobalContext } from "@/contexts/state";
-import { Firestore, collection } from "firebase/firestore";
-import ConfirmModal from "@/components/modals/confirmModal";
 import { useRouter } from "next/navigation";
 
 const MasterPage = () => {
+  const router = useRouter();
+
   const [emailFilter, setEmailFilter] = useState("");
   const [uidFilter, setUidFilter] = useState("");
 
-  const [allUsers, setAllUsers] = useState<any>([
-    // { email: "kyle.szostek@gmail.com", uid: "-NdfknVErkdjfvE34DffvEr" },
-    // { email: "morgan@email.com", uid: "-Ndoin34vdE$idofjsjnkjne" },
-    // { email: "buzz@email.com", uid: "-Ndfkjn3R#Dfnkjnw44jknf" },
-    // { email: "bob@email.com", uid: "-Nd543iuhdjD$#%ndkfj3kn" },
-  ]);
+  const [allUsers, setAllUsers] = useState<any>([]);
 
   const [filteredUsers, setFilteredUsers] = useState<any>(allUsers);
+  const { setUser, setProfile, setCompany, setIsMaser } = useGlobalContext();
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -45,9 +32,8 @@ const MasterPage = () => {
           const tUsers = Object.keys(users).map((key) => ({
             ...users[key],
             uid: key,
-            email: users[key].Email
+            email: users[key].Email,
           }));
-          console.log(tUsers);
           setAllUsers(tUsers);
           setFilteredUsers(
             tUsers
@@ -69,17 +55,55 @@ const MasterPage = () => {
     fetchUsers();
   }, []);
 
-  const handleSearch = () => {
-    if (allUsers == undefined || allUsers.length == 0) setFilteredUsers([]);
-    setFilteredUsers(
-      allUsers
-        .filter((user: any) =>
-          user.email.toLowerCase().includes(emailFilter.toLowerCase())
-        )
-        .filter((user: any) =>
-          user.uid.toLowerCase().includes(uidFilter.toLowerCase())
-        )
-    );
+  const handleSearch = (
+    allUsers: any,
+    emailFilter: string,
+    uidFilter: string
+  ): void => {
+    if (!allUsers || allUsers.length === 0) {
+      setFilteredUsers([]);
+    } else {
+      const emailFilterLower = emailFilter.toLowerCase();
+      const uidFilterLower = uidFilter.toLowerCase();
+
+      const filteredUsers = allUsers.filter(
+        (user: any) =>
+          user.email.toLowerCase().includes(emailFilterLower) &&
+          user.uid.toLowerCase().includes(uidFilterLower)
+      );
+
+      setFilteredUsers(filteredUsers);
+    }
+  };
+
+  const getCompany = (companyKey: any) => {
+    const dbRef = ref(getDatabase());
+    get(child(dbRef, `companies/${companyKey}`))
+      .then((snapshot: any) => {
+        if (snapshot.exists()) {
+          setCompany(snapshot.val());
+          if (typeof window !== "undefined") {
+            localStorage.setItem("company", JSON.stringify(snapshot.val()));
+          }
+          router.push("/profile");
+        } else {
+          console.log("No data available");
+        }
+      })
+      .catch((error: any) => {
+        console.error(error);
+      })
+      .finally(() => {});
+  };
+
+  const controlUser = (uid: string) => {
+    const user = filteredUsers.filter((user: any) => user.uid == uid)[0];
+    if (typeof window !== "undefined") localStorage.removeItem("picUrl");
+    setProfile(user);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("profile", JSON.stringify(user));
+    }
+    getCompany(user.CompanyKey);
   };
 
   return (
@@ -144,6 +168,9 @@ const MasterPage = () => {
                     (id == 0 ? "rounded-t-[33px]" : "")
                   }
                   key={id}
+                  onClick={() => {
+                    controlUser(user.uid);
+                  }}
                 >
                   <div className="cols-span-1 text-primary text-gray-11 font-medium px-[40px]">
                     {user.email}

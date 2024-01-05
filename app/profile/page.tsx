@@ -10,17 +10,12 @@ import updateIcon from "../../public/icons/UpdateIcon.png";
 import defaultUser from "../../public/icons/User.png";
 
 import firebase_app from "../../firebase";
+import { auth, functions, database, storage } from "../../firebase";
+
 import { getDatabase } from "firebase/database";
 import { getDownloadURL } from "firebase/storage";
-import { getAuth } from "firebase/auth";
-import { getFunctions, httpsCallable } from "firebase/functions";
-import { getStorage, uploadBytes, ref as ref_storage } from "firebase/storage";
-
-const auth = getAuth();
-const functions = getFunctions();
-
-const database = getDatabase(firebase_app);
-const storage = getStorage(firebase_app);
+import { httpsCallable } from "firebase/functions";
+import { uploadBytes, ref as ref_storage } from "firebase/storage";
 
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -352,7 +347,7 @@ const ProfilePage = () => {
         imageData={imageData}
         uploadImageURLToDB={uploadImageURLToDB}
         hide={() => {
-          if(isLoading) return;
+          if (isLoading) return;
           setIsShowCropImageModal(false);
         }}
       />

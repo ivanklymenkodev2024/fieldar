@@ -185,7 +185,7 @@ const ProjectDetailPage = ({ params }: any) => {
       ModelTitle: newModelName,
       ModelLocation: newModelLocation,
     })
-      .then((result) => {
+      .then((result:any) => {
         updateContext();
         toast.success(result.data.message);
       })
@@ -205,7 +205,7 @@ const ProjectDetailPage = ({ params }: any) => {
       currentModelId: selectedModel,
       fileType: project.Models[selectedModel].FileType,
     })
-      .then((result) => {
+      .then((result:any) => {
         updateContext();
         toast.success(result.data.message);
       })
@@ -223,7 +223,7 @@ const ProjectDetailPage = ({ params }: any) => {
     cdeleteProject({
       projectId: projectId,
     })
-      .then((result) => {
+      .then((result:any) => {
         updateContext();
         toast.success(result.data.message);
         router.push("/project");
@@ -244,7 +244,7 @@ const ProjectDetailPage = ({ params }: any) => {
       accessRole: newMemberRole,
       projectKey: projectId,
     })
-      .then((result) => {
+      .then((result:any) => {
         updateContext();
         toast.success(result.data.message);
       })
@@ -266,7 +266,7 @@ const ProjectDetailPage = ({ params }: any) => {
       selectedMemberId: selectedTeamMember,
       selectedAccessRole: newMemberRole,
     })
-      .then((result) => {
+      .then((result:any) => {
         updateContext();
         toast.success(result.data.message);
       })
@@ -461,21 +461,21 @@ const ProjectDetailPage = ({ params }: any) => {
                 {project.TeamMembers != undefined &&
                   project.TeamMembers != null &&
                   Object.keys(project.TeamMembers)
-                    .sort((m1, m2) => {
+                    .sort((m1:string, m2:string) => {
                       let role1 = project.TeamMembers[m1].AccessRole;
                       let role2 = project.TeamMembers[m2].AccessRole;
                       if (role1 == "Manager") {
-                        return false;
+                        return 0;
                       } else if (role1 == "Editor") {
                         if (role2 != "Manager") {
-                          return false;
+                          return 0;
                         }
                       } else if (role1 == "Viewer") {
                         if (role2 == "Viewer") {
-                          return false;
+                          return 1;
                         }
                       }
-                      return true;
+                      return 1;
                     })
                     .reverse()
                     .map((key) => {
