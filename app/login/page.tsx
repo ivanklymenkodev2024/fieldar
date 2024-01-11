@@ -61,6 +61,7 @@ const LoginPage = () => {
               }
             }
             console.log('Check Master Account' + result);
+            setIsLoading(false);
           }).finally(() => {
             
           })
@@ -70,8 +71,8 @@ const LoginPage = () => {
       })
       .catch((error: any) => {
         console.error(error);
-      }).finally(() => {
         setIsLoading(false);
+      }).finally(() => {
       });
   };
 
@@ -102,6 +103,7 @@ const LoginPage = () => {
           })
           .catch((error: any) => {
             console.error(error);
+            setIsLoading(false);
           });
       })
       .catch((error) => {
