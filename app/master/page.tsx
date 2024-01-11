@@ -25,10 +25,14 @@ const MasterPage = () => {
   const [selectedUID, setSelectedUID] = useState<string>("");
 
   const [filteredUsers, setFilteredUsers] = useState<any>(allUsers);
-  const { setProfile, setCompany, user, setInputUserId } =
+  const { isMaster, setProfile, setCompany, user, setInputUserId } =
     useGlobalContext();
 
   useEffect(() => {
+    if(!isMaster) {
+      router.push('/profile');
+      return;
+    }
     const fetchUsers = async () => {
       try {
         const dbRef = ref(getDatabase());

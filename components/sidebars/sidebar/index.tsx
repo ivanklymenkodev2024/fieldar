@@ -98,7 +98,6 @@ const SideBar: React.FC<SidebarProps> = ({ index }: SidebarProps) => {
         <Image src={logoImage} width={176} height={46} alt="FieldAR Logo" />
 
         <div className="border-gray-4 border-[8px] rounded-[50%] bg-red-primary">
-          {picUrl == "" || picUrl == undefined}
           <Link href="/profile">
             {picUrl == "" || picUrl == undefined ? (
               <Image
