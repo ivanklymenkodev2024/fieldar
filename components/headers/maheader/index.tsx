@@ -37,7 +37,7 @@ const MaHeader: React.FC<MaHeaderProps> = () => {
 
   return (
     <div className="absolute top-0 h-[90px] flex items-center justify-between bg-gray-3 w-[100vw]">
-      <Image src={logoImage} width={176} height={46} alt="FieldAR Logo"/>
+      <Image src={logoImage} width={176} height={46} alt="FieldAR Logo" className="mx-[30px]"/>
       <div
         className="h-[30px] px-[15px]"
       >

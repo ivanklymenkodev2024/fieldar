@@ -25,7 +25,7 @@ const MasterPage = () => {
   const [selectedUID, setSelectedUID] = useState<string>("");
 
   const [filteredUsers, setFilteredUsers] = useState<any>(allUsers);
-  const { setProfile, setCompany, setUser, setInputUserId } =
+  const { setProfile, setCompany, user, setInputUserId } =
     useGlobalContext();
 
   useEffect(() => {
@@ -39,7 +39,7 @@ const MasterPage = () => {
             ...users[key],
             uid: key,
             email: users[key].Email,
-          }));
+          })).filter(item => item.email != user.email);
           setAllUsers(tUsers);
           setFilteredUsers(
             tUsers
