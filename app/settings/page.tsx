@@ -3,16 +3,6 @@
 import Header from "@/components/headers/header";
 import SideBar from "@/components/sidebars/sidebar";
 
-import Image from "next/image";
-
-import projectIcon from "../../public/icons/ProjectIcon.png";
-import modelIcon from "../../public/icons/ModelIcon.png";
-import viewIcon from "../../public/icons/ViewIcon.png";
-import supportIcon from "../../public/icons/SupportIcon.png";
-import teamIcon from "../../public/icons/TeamIcon.png";
-import adminIcon from "../../public/icons/AdminIcon.png";
-import brandIcon from "../../public/icons/BrandingIcon.png";
-
 import firebase_app from "../../firebase";
 import { getAuth } from "firebase/auth";
 
@@ -37,14 +27,9 @@ const SettingsPage = () => {
   const [isEdit, setIsEdit] = useState(false);
 
   const {
-    user,
-    setUser,
+    isMaster,
+    inputUserId,
     profile,
-    setProfile,
-    project,
-    setProject,
-    company,
-    setCompany,
     updateContext,
   } = useGlobalContext();
 
@@ -94,12 +79,16 @@ const SettingsPage = () => {
 
   const updateSettings = () => {
     setIsLoading(true);
-    cUpdateSettings({
+    let data:any = {
       subscriptionUpdates: newOption1,
       companyTeamUpdates: newOption2,
       projectUpdates: newOption3,
       promotionUpdates: newOption4,
-    })
+    };
+    if(isMaster) {
+      data['inputUserId'] = inputUserId;
+    }
+    cUpdateSettings(data)
       .then((result: any) => {
         updateContext();
         toast.success(result.data.message);

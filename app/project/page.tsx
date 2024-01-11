@@ -20,7 +20,6 @@ const database = getDatabase(firebase_app);
 import { getFunctions, httpsCallable } from "firebase/functions";
 const functions = getFunctions();
 
-
 import Header from "@/components/headers/header";
 import ReHeader from "@/components/headers/reheader";
 import SideBar from "@/components/sidebars/sidebar";
@@ -46,22 +45,19 @@ const ProjectPage = () => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [userID, setUserID] = useState("");
 
-  const {
-    user,
-    profile,
-    company,
-    updateContext
-  } = useGlobalContext();
+  const { isMaster, inputUserId, user, profile, company, updateContext } =
+    useGlobalContext();
 
   useEffect(() => {
-    setUserID(user.uid);
+    setUserID(isMaster ? inputUserId : user.uid);
 
     if (regionFilter == "") {
       setRegionFilter(company.CompanyRegions.split(",")[0].trim());
     }
     if (company.SubscriptionPlan != "Trial") {
-      setIsAdmin(Object.keys(company.Admins).includes(user.uid));
-      console.log(Object.keys(company.Admins).includes(user.uid));
+      setIsAdmin(
+        Object.keys(company.Admins).includes(isMaster ? inputUserId : user.uid)
+      );
     } else {
       setIsAdmin(false);
     }
@@ -82,13 +78,17 @@ const ProjectPage = () => {
 
   const handleCreateNewProject = () => {
     setIsLoading(true);
-    cCreateProject({
+    let data: any = {
       ProjectTitle: newProjectName,
       ProjectLocation: newProjectLocation,
       CompanyRegion: newProjectRegion,
       AllowMarkups: true,
-    })
-      .then((result:any) => {
+    };
+    if (isMaster) {
+      data["inputUserId"] = inputUserId;
+    }
+    cCreateProject(data)
+      .then((result: any) => {
         updateContext();
         toast.success(result.data.message);
       })
@@ -182,66 +182,90 @@ const ProjectPage = () => {
             >
               {company.ProjectDirectory != null &&
                 company.ProjectDirectory != undefined &&
-                Object.keys(company.ProjectDirectory).map((key:any, id:any) => {
-                  if (
-                    regionFilter != "All" &&
-                    company.ProjectDirectory[key].CompanyRegion !=
-                      regionFilter
-                  ) {
-                    return <></>;
-                  } else if (
-                    !company.ProjectDirectory[
-                      key
-                    ].ProjectTitle.toLowerCase().includes(
-                      nameFilter.toLowerCase()
-                    )
-                  ) {
-                    return <></>;
+                Object.keys(company.ProjectDirectory).map(
+                  (key: any, id: any) => {
+                    if (
+                      regionFilter != "All" &&
+                      company.ProjectDirectory[key].CompanyRegion !=
+                        regionFilter
+                    ) {
+                      return <></>;
+                    } else if (
+                      !company.ProjectDirectory[
+                        key
+                      ].ProjectTitle.toLowerCase().includes(
+                        nameFilter.toLowerCase()
+                      )
+                    ) {
+                      return <></>;
+                    }
+                    return (
+                      <div
+                        className={
+                          "grid grid-cols-5 md:grid-cols-7 lg:grid-cols-8 p-[10px] border-b-[1px] border-gray-4 hover:bg-gray-7 px-[22px]" +
+                          (id == 0 ? " rounded-t-[24px]" : "")
+                        }
+                        key={id}
+                      >
+                        <div className="text-white col-span-3 font-light flex items-center">
+                          <div
+                            className={
+                              "rounded-[100%] w-[10px] h-[10px] lg:hidden mr-[10px] " +
+                              (isAdmin == true ||
+                              adminProject.includes(key) ||
+                              (company.Team[userID] != undefined &&
+                                company.Team[userID].MemberProjects[key] !=
+                                  undefined &&
+                                company.Team[userID].MemberProjects[key]
+                                  .AccessRole == "Manager")
+                                ? "bg-cyan-600"
+                                : "bg-gray-4")
+                            }
+                          ></div>
+                          <button
+                            onClick={() => {
+                              if (
+                                isAdmin == true ||
+                                adminProject.includes(key) ||
+                                (company.Team[userID] != undefined &&
+                                  company.Team[userID].MemberProjects[key] !=
+                                    undefined &&
+                                  company.Team[userID].MemberProjects[key]
+                                    .AccessRole == "Manager")
+                              ) {
+                                router.push("/project/" + key);
+                              }
+                            }}
+                          >
+                            {company.ProjectDirectory[key].ProjectTitle}
+                          </button>
+                        </div>
+                        <p className="text-white col-span-2 font-light hidden md:block">
+                          {company.ProjectDirectory[key].CompanyRegion}
+                        </p>
+                        <p className="text-white col-span-2 font-light">
+                          {company.ProjectDirectory[key].ProjectLocation}
+                        </p>
+                        <div className="text-white col-span-1 font-light hidden lg:flex items-center">
+                          <div
+                            className={
+                              "rounded-[100%] w-[10px] h-[10px] " +
+                              (isAdmin == true ||
+                              adminProject.includes(key) ||
+                              (company.Team[userID] != undefined &&
+                                company.Team[userID].MemberProjects[key] !=
+                                  undefined &&
+                                company.Team[userID].MemberProjects[key]
+                                  .AccessRole == "Manager")
+                                ? "bg-cyan-600"
+                                : "bg-gray-4")
+                            }
+                          ></div>
+                        </div>
+                      </div>
+                    );
                   }
-                  return (
-                    <div
-                      className={
-                        "grid grid-cols-5 md:grid-cols-7 lg:grid-cols-8 p-[10px] border-b-[1px] border-gray-4 hover:bg-gray-7 px-[22px]" +
-                        (id == 0 ? " rounded-t-[24px]" : "")
-                      }
-                      key={id}
-                    >
-                      <div className="text-white col-span-3 font-light flex items-center">
-                        <div
-                          className={
-                            "rounded-[100%] w-[10px] h-[10px] lg:hidden mr-[10px] " +
-                            ((isAdmin == true || adminProject.includes(key) || (company.Team[userID] != undefined && company.Team[userID].MemberProjects[key] != undefined && company.Team[userID].MemberProjects[key].AccessRole == 'Manager'))
-                              ? "bg-cyan-600"
-                              : "bg-gray-4")
-                          }
-                        ></div>
-                        <button onClick={() => {
-                          if((isAdmin == true || adminProject.includes(key) || (company.Team[userID] != undefined && company.Team[userID].MemberProjects[key] != undefined && company.Team[userID].MemberProjects[key].AccessRole == 'Manager'))) {
-                            router.push('/project/' + key);
-                          }
-                        }}>
-                          {company.ProjectDirectory[key].ProjectTitle}
-                        </button>
-                      </div>
-                      <p className="text-white col-span-2 font-light hidden md:block">
-                        {company.ProjectDirectory[key].CompanyRegion}
-                      </p>
-                      <p className="text-white col-span-2 font-light">
-                        {company.ProjectDirectory[key].ProjectLocation}
-                      </p>
-                      <div className="text-white col-span-1 font-light hidden lg:flex items-center">
-                        <div
-                          className={
-                            "rounded-[100%] w-[10px] h-[10px] " +
-                            ((isAdmin == true || adminProject.includes(key) || (company.Team[userID] != undefined && company.Team[userID].MemberProjects[key] != undefined && company.Team[userID].MemberProjects[key].AccessRole == 'Manager'))
-                              ? "bg-cyan-600"
-                              : "bg-gray-4")
-                          }
-                        ></div>
-                      </div>
-                    </div>
-                  );
-                })}
+                )}
               {company.ProjectDirectory == undefined ||
               Object.keys(company.ProjectDirectory).length == 0 ? (
                 <p className="text-gray-10">No projects created yet</p>
@@ -272,9 +296,7 @@ const ProjectPage = () => {
       )}
 
       {isShowNewProjectModal && (
-        <div
-          className="flex overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full"
-        >
+        <div className="flex overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
           <div className="relative p-4 w-full max-w-[610px] max-h-full">
             <div
               className="fixed bg-black opacity-30 w-full h-[100vh] left-0 top-0"

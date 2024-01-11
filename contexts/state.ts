@@ -7,7 +7,7 @@ export type GlobalData = {
   profile: any;
   company: any;
   project: any;
-  setIsMaser: (c:any) => void;
+  setIsMaster: (c:any) => void;
   setUser: (c:any) => void;
   setProfile: (c:any) => void;
   setCompany: (c:any) => void;
@@ -23,7 +23,7 @@ export const CurrentDataContext = createContext<GlobalData>({
   profile: {},
   company: {},
   project: {},
-  setIsMaser: () => {},
+  setIsMaster: () => {},
   setUser: () => {},
   setProfile: () => {},
   setCompany: () => {},

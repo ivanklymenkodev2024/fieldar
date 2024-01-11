@@ -28,6 +28,8 @@ const MaHeader: React.FC<MaHeaderProps> = () => {
         localStorage.removeItem("user");
         localStorage.removeItem("profile");
         localStorage.removeItem("company");
+        localStorage.removeItem("isMaster");
+        localStorage.removeItem("inputUserId");
       }
       router.push("/login");
     });

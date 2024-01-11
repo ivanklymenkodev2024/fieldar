@@ -39,7 +39,7 @@ const LoginPage = () => {
 
   const [isLoading, setIsLoading] = useState(false);
 
-  const { setUser, setProfile, setCompany, setIsMaser } = useGlobalContext();
+  const { setUser, setProfile, setCompany, setIsMaster } = useGlobalContext();
 
   const getCompany = (companyKey: any) => {
     const dbRef = ref(getDatabase());
@@ -51,7 +51,7 @@ const LoginPage = () => {
             localStorage.setItem('company', JSON.stringify(snapshot.val()));
           }
           cCheckMasterAccount({}).then((result:any) => {
-            setIsMaser(result.data.messsage);
+            setIsMaster(result.data.message);
             if (typeof window !== 'undefined') {
               localStorage.setItem('isMaster', JSON.stringify(result.data.message));
               if(result.data.message == false) {

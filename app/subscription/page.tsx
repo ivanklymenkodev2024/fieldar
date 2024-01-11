@@ -54,7 +54,6 @@ import { useRouter } from "next/navigation";
 import countryList from "react-select-country-list";
 
 const functions = getFunctions();
-const cUpgradeToEnterprise = httpsCallable(functions, "upgradeToEnterprise");
 const cAddProjectsToEnterprise = httpsCallable(
   functions,
   "addProjectsToEnterprise"
@@ -97,6 +96,8 @@ const SubscriptionPage = () => {
   const [isUpdatePayment, setIsUpdatePayment] = useState(false);
 
   const {
+    isMaster,
+    inputUserId,
     user,
     setUser,
     profile,
@@ -167,22 +168,26 @@ const SubscriptionPage = () => {
     }
     setBillingStep(1);
   };
-  const resetBillingStep = (callback:any) => {
+  const resetBillingStep = (callback: any) => {
     fetch("/api/stripe/getCustomer", {
       method: "POST",
       body: JSON.stringify({
         customerId: company.SubscriptionDetails.customerId,
       }),
     }).then((result) => {
-      result.json().then((res:any) => {
-        setFirstName(res.customer.name.split(" ")[0] || profile.DisplayName.split(" ")[0]);
-        setSecondName(res.customer.name.split(" ")[1] || profile.DisplayName.split(" ")[1]);
+      result.json().then((res: any) => {
+        setFirstName(
+          res.customer.name.split(" ")[0] || profile.DisplayName.split(" ")[0]
+        );
+        setSecondName(
+          res.customer.name.split(" ")[1] || profile.DisplayName.split(" ")[1]
+        );
         setStreetAddress(res.customer?.address?.line1 || "");
         setStreetAddress2(res.customer?.address?.line2 || "");
         setCity(res.customer?.address?.city || "");
         setState(res.customer?.address?.state || "");
-        setZIP(res.customer?.address?.postal_code  || "");
-        setCountry(res.customer?.address?.country  || "US");
+        setZIP(res.customer?.address?.postal_code || "");
+        setCountry(res.customer?.address?.country || "US");
         setEmail(res.customer.email || "");
         setPhoneNumber(res.customer.phone || "");
         setBillingStep(0);
@@ -229,7 +234,7 @@ const SubscriptionPage = () => {
             toast.warning(result.error.message);
             return;
           }
-          cUpdateBillingDetails({
+          let data: any = {
             paymentMethodId: result.paymentMethod.id,
             billingDetails: {
               name: firstName + " " + secondName,
@@ -242,7 +247,11 @@ const SubscriptionPage = () => {
               addressCountry: country,
               addressZip: ZIP,
             },
-          })
+          };
+          if (isMaster) {
+            data["inputUserId"] = inputUserId;
+          }
+          cUpdateBillingDetails(data)
             .then((res: any) => {
               toast.success(res.data.message);
               setIsLoading(false);
@@ -271,9 +280,13 @@ const SubscriptionPage = () => {
     const cardNumberElement = elements.getElement(CardNumberElement);
 
     if (!isUpdatePayment) {
-      cAddProjectsToEnterprise({
+      let data: any = {
         numProjectsToAdd: projectCount,
-      })
+      };
+      if (isMaster) {
+        data["inputUserId"] = inputUserId;
+      }
+      cAddProjectsToEnterprise(data)
         .then((result: any) => {
           toast.success(result.data.message);
           setIsShowUpgradeModal(false);
@@ -293,10 +306,14 @@ const SubscriptionPage = () => {
             card: cardNumberElement,
           })
           .then((result: any) => {
-            cAddProjectsToEnterprise({
+            let data: any = {
               numProjectsToAdd: projectCount,
               paymentMethodId: result.paymentMethod.id,
-            })
+            };
+            if (isMaster) {
+              data["inputUserId"] = inputUserId;
+            }
+            cAddProjectsToEnterprise(data)
               .then((res: any) => {
                 toast.success(res.data.message);
                 setIsLoading(false);
@@ -346,7 +363,7 @@ const SubscriptionPage = () => {
     setIsTrial(company.SubscriptionPlan == "Trial");
     setIsAdmin(
       company.Admins != undefined &&
-        Object.keys(company.Admins).includes(user.uid)
+        Object.keys(company.Admins).includes(isMaster ? inputUserId : user.uid)
     );
     if (isTrial) {
       getTrialInfo(profile.CompanyKey);
@@ -493,7 +510,7 @@ const SubscriptionPage = () => {
                 <div className="mb-[36px]"></div>
                 <div className="w-full rounded-[26px] bg-gray-3">
                   <div className="text-white  text-sbig flex justify-center p-[30px] border-b-[2px] border-gray-6 rounded-t-[26px] font-bold">
-                  {isTrial ? "Upgrade To Enterprise" : "Add More Projects"}
+                    {isTrial ? "Upgrade To Enterprise" : "Add More Projects"}
                   </div>
                   <div className="w-full flex flex-wrap justify-between pt-[10px]">
                     <div className="md:w-[40%] w-full m-[10px] flex items-center">

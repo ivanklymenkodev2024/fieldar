@@ -90,6 +90,8 @@ const EditSubscriptionPage = () => {
   const elements = useElements();
 
   const {
+    isMaster,
+    inputUserId,
     user,
     setUser,
     profile,
@@ -206,7 +208,7 @@ const EditSubscriptionPage = () => {
             toast.warning(result.error.message);
             return;
           }
-          cUpdateBillingDetails({
+          let data: any = {
             paymentMethodId: result.paymentMethod.id,
             billingDetails: {
               name: firstName + " " + secondName,
@@ -219,7 +221,11 @@ const EditSubscriptionPage = () => {
               addressCountry: country,
               addressZip: ZIP,
             },
-          })
+          };
+          if (isMaster) {
+            data["inputUserId"] = inputUserId;
+          }
+          cUpdateBillingDetails(data)
             .then((res: any) => {
               toast.success(res.data.message);
               setIsLoading(false);
@@ -249,11 +255,15 @@ const EditSubscriptionPage = () => {
 
   const handleRemoveProjects = () => {
     setIsLoading(true);
-    cRemoveProjectsFromEnterprise({
+    let data: any = {
       numProjectsToRemove: selectedProjects.filter((item) => item == true)
         .length,
-    })
-      .then((result) => {
+    };
+    if (isMaster) {
+      data["inputUserId"] = inputUserId;
+    }
+    cRemoveProjectsFromEnterprise(data)
+      .then((result: any) => {
         toast.success(result.data.message);
         setIsLoading(false);
         setIsShowRemoveProjectsModal(false);
@@ -273,7 +283,7 @@ const EditSubscriptionPage = () => {
   const [isTrial, setIsTrial] = useState(company.SubscriptionPlan == "Trial");
   const [isAdmin, setIsAdmin] = useState(
     company.Admins != undefined &&
-      Object.keys(company.Admins).includes(user.uid)
+      Object.keys(company.Admins).includes(isMaster ? inputUserId : user.uid)
   );
 
   const [trialInfo, setTrialInfo] = useState({});

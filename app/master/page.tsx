@@ -25,7 +25,8 @@ const MasterPage = () => {
   const [selectedUID, setSelectedUID] = useState<string>("");
 
   const [filteredUsers, setFilteredUsers] = useState<any>(allUsers);
-  const { setProfile, setCompany, setUser, setInputUserId } = useGlobalContext();
+  const { setProfile, setCompany, setUser, setInputUserId } =
+    useGlobalContext();
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -60,11 +61,7 @@ const MasterPage = () => {
     fetchUsers();
   }, []);
 
-  const handleSearch = (
-    allUsers: any,
-    emailFilter: string,
-    uidFilter: string
-  ): void => {
+  const handleSearch = (): void => {
     if (!allUsers || allUsers.length === 0) {
       setFilteredUsers([]);
     } else {

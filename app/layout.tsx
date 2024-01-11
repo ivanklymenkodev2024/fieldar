@@ -25,7 +25,7 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const [isMaster, setIsMaser] = useState<any> ((typeof window !== "undefined" &&  localStorage.getItem('isMaster') != undefined) ? JSON.parse(localStorage.getItem('isMaster')): {});
+  const [isMaster, setIsMaster] = useState<any> ((typeof window !== "undefined" &&  localStorage.getItem('isMaster') != undefined) ? JSON.parse(localStorage.getItem('isMaster')): {});
   const [user, setUser] = useState<any>((typeof window !== "undefined" &&  localStorage.getItem('user') != undefined) ? JSON.parse(localStorage.getItem('user')): {});
   const [profile, setProfile] = useState<any>((typeof window !== "undefined" &&  localStorage.getItem('profile') != undefined) ? JSON.parse(localStorage.getItem('profile')): {});
   const [company, setCompany] = useState<any>((typeof window !== "undefined" &&  localStorage.getItem('company') != undefined) ? JSON.parse(localStorage.getItem('company')): {});
@@ -34,11 +34,11 @@ export default function RootLayout({
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      setIsMaser(localStorage.getItem('user') != undefined ? JSON.parse(localStorage.getItem('isMaster')): false);
+      setIsMaster(localStorage.getItem('isMaster') != undefined ? JSON.parse(localStorage.getItem('isMaster')): false);
       setUser(localStorage.getItem('user') != undefined ? JSON.parse(localStorage.getItem('user')): {});
       setProfile(localStorage.getItem('profile') != undefined ? JSON.parse(localStorage.getItem('profile')): {});
       setCompany(localStorage.getItem('company') != undefined ? JSON.parse(localStorage.getItem('company')): {});
-      setInputUserId(localStorage.getItem('inputUserId') != undefined ? JSON.parse(localStorage.getItem('inputUserId')): "");
+      setInputUserId(localStorage.getItem('inputUserId') != undefined ? localStorage.getItem('inputUserId'): "");
     }
   }, [])
 
@@ -93,7 +93,7 @@ export default function RootLayout({
           profile,
           company,
           project,
-          setIsMaser,
+          setIsMaster,
           setUser,
           setProfile,
           setCompany,

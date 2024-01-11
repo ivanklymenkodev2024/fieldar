@@ -62,6 +62,9 @@ const ProfilePage = () => {
   const { isMaster, user, profile, inputUserId, updateContext } = useGlobalContext();
 
   useEffect(() => {
+
+    console.log('IsMaster', isMaster);
+
     setUserID(user.uid);
     setName(profile.DisplayName);
     setEmail(profile.Email);
@@ -193,7 +196,7 @@ const ProfilePage = () => {
         console.log(result.data.message);
       })
       .catch((error: any) => {
-        console.log(error);
+        toast.warning(error.message);
       })
       .finally(() => {
         setIsShowSingleModal(false);
@@ -214,13 +217,18 @@ const ProfilePage = () => {
       return;
     }
     setIsLoading(true);
-    cChangePassword({ currentPassword: oldPassword, newPassword })
+    console.log(isMaster, inputUserId);
+    let data:any = { currentPassword: oldPassword, newPassword };
+    if(isMaster) {
+      data['inputUserId'] = inputUserId;
+    }
+    cChangePassword(data)
       .then((result: any) => {
         updateContext();
         toast.success(result.data.message);
       })
       .catch((error) => {
-        console.log(error);
+        toast.warning(error.message);
       })
       .finally(() => {
         setIsShowPasswordModal(false);

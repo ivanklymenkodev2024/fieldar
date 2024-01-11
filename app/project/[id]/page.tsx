@@ -70,6 +70,7 @@ const ProjectDetailPage = ({ params }: any) => {
     useState(false);
 
   const [allowAnyoneToScan, setAllowAnyoneToScan] = useState(false);
+  const [allowMarkups, setAllowMarkups] = useState(false);
   const [allowedDomains, setAllowedDomains] = useState("");
 
   const [project, setProject] = useState<any>({});
@@ -108,6 +109,8 @@ const ProjectDetailPage = ({ params }: any) => {
   };
 
   const {
+    isMaster,
+    inputUserId,
     user,
     setUser,
     profile,
@@ -119,12 +122,13 @@ const ProjectDetailPage = ({ params }: any) => {
 
   useEffect(() => {
     setProjectId(params.id);
-    setUserID(user.uid);
+    setUserID(isMaster ? inputUserId : user.uid);
     getProject(params.id);
     setMembers(company.Team);
     if (company.SubscriptionPlan != "Trial") {
-      setIsAdmin(Object.keys(company.Admins).includes(user.uid));
-      console.log(Object.keys(company.Admins).includes(user.uid));
+      setIsAdmin(
+        Object.keys(company.Admins).includes(isMaster ? inputUserId : user.uid)
+      );
     } else {
       setIsAdmin(false);
     }
@@ -132,10 +136,14 @@ const ProjectDetailPage = ({ params }: any) => {
 
   const handleRemoveUserFromProject = () => {
     setIsLoading(true);
-    cUnassignProjectFromMember({
+    let data: any = {
       selectedProjectId: projectId,
       selectedMemberId: selectedTeamMember,
-    })
+    };
+    if (isMaster) {
+      data["inputUserId"] = inputUserId;
+    }
+    cUnassignProjectFromMember(data)
       .then((result: any) => {
         updateContext();
         toast.success(result.data.message);
@@ -151,20 +159,24 @@ const ProjectDetailPage = ({ params }: any) => {
   };
 
   const handleUpdateProject = () => {
-    if(allowAnyoneToScan == false && allowedDomains == "") {
-      toast.warning('Please input allowed domains');
+    if (allowAnyoneToScan == false && allowedDomains == "") {
+      toast.warning("Please input allowed domains");
       return;
     }
     setIsLoading(true);
-    cUpdateProjectInfo({
+    let data: any = {
       ProjectTitle: newProjectName,
       ProjectLocation: newProjectLocation,
       CompanyRegion: newCompanyRegion,
       ProjectKey: projectId,
       AllowAnyoneToScan: allowAnyoneToScan,
-      WhitelistedEmailDomains: allowedDomains
-    })
-      .then((result:any) => {
+      WhitelistedEmailDomains: allowedDomains,
+    };
+    if (isMaster) {
+      data["inputUserId"] = inputUserId;
+    }
+    cUpdateProjectInfo(data)
+      .then((result: any) => {
         updateContext();
         toast.success(result.data.message);
       })
@@ -179,13 +191,18 @@ const ProjectDetailPage = ({ params }: any) => {
 
   const handleUpdateModel = () => {
     setIsLoading(true);
-    cEditModelDetails({
+    let data: any = {
       ProjectKey: projectId,
       ModelKey: selectedModel,
       ModelTitle: newModelName,
       ModelLocation: newModelLocation,
-    })
-      .then((result:any) => {
+      AllowMarkups: allowMarkups
+    };
+    if (isMaster) {
+      data["inputUserId"] = inputUserId;
+    }
+    cEditModelDetails(data)
+      .then((result: any) => {
         updateContext();
         toast.success(result.data.message);
       })
@@ -200,12 +217,16 @@ const ProjectDetailPage = ({ params }: any) => {
 
   const handleDeleteModel = () => {
     setIsLoading(true);
-    cDeleteModelAndFiles({
+    let data: any = {
       projectKey: projectId,
       currentModelId: selectedModel,
       fileType: project.Models[selectedModel].FileType,
-    })
-      .then((result:any) => {
+    };
+    if (isMaster) {
+      data["inputUserId"] = inputUserId;
+    }
+    cDeleteModelAndFiles(data)
+      .then((result: any) => {
         updateContext();
         toast.success(result.data.message);
       })
@@ -220,10 +241,14 @@ const ProjectDetailPage = ({ params }: any) => {
 
   const handleDeleteProject = () => {
     setIsLoading(true);
-    cdeleteProject({
+    let data: any = {
       projectId: projectId,
-    })
-      .then((result:any) => {
+    };
+    if (isMaster) {
+      data["inputUserId"] = inputUserId;
+    }
+    cdeleteProject(data)
+      .then((result: any) => {
         updateContext();
         toast.success(result.data.message);
         router.push("/project");
@@ -239,12 +264,16 @@ const ProjectDetailPage = ({ params }: any) => {
 
   const handleInviteNewMember = () => {
     setIsLoading(true);
-    cAssignProjectToMember({
+    let data: any = {
       userId: selectedNewMember,
       accessRole: newMemberRole,
       projectKey: projectId,
-    })
-      .then((result:any) => {
+    };
+    if (isMaster) {
+      data["inputUserId"] = inputUserId;
+    }
+    cAssignProjectToMember(data)
+      .then((result: any) => {
         updateContext();
         toast.success(result.data.message);
       })
@@ -261,12 +290,16 @@ const ProjectDetailPage = ({ params }: any) => {
 
   const updateRole = () => {
     setIsLoading(true);
-    cChangeProjectAccessRole({
+    let data: any = {
       projectKey: projectId,
       selectedMemberId: selectedTeamMember,
       selectedAccessRole: newMemberRole,
-    })
-      .then((result:any) => {
+    };
+    if (isMaster) {
+      data["inputUserId"] = inputUserId;
+    }
+    cChangeProjectAccessRole(data)
+      .then((result: any) => {
         updateContext();
         toast.success(result.data.message);
       })
@@ -414,6 +447,7 @@ const ProjectDetailPage = ({ params }: any) => {
                                 setNewModelLocation(
                                   project.Models[key].ModelLocation
                                 );
+                                setAllowMarkups(project.Models[key].AllowMarkups)
                                 setIsShowEditModelModal(true);
                               }}
                             >
@@ -461,7 +495,7 @@ const ProjectDetailPage = ({ params }: any) => {
                 {project.TeamMembers != undefined &&
                   project.TeamMembers != null &&
                   Object.keys(project.TeamMembers)
-                    .sort((m1:string, m2:string) => {
+                    .sort((m1: string, m2: string) => {
                       let role1 = project.TeamMembers[m1].AccessRole;
                       let role2 = project.TeamMembers[m2].AccessRole;
                       if (role1 == "Manager") {
@@ -560,7 +594,7 @@ const ProjectDetailPage = ({ params }: any) => {
             <div className="relative bg-gray-4 border-[1px] border-gray-6 rounded-[26px] shadow-md drop-shadow-0 drop-shadow-y-3 blur-6">
               <div className="flex items-center justify-center p-4 md:p-5 ">
                 <h3 className="text-center text-xl font-semibold dark:text-white text-small text-white">
-                  Edit Project
+                  Edit Project Details
                 </h3>
                 <button
                   disabled={isLoading}
@@ -685,11 +719,12 @@ const ProjectDetailPage = ({ params }: any) => {
                   </p>
                 </div>
                 <textarea
+                  disabled={allowAnyoneToScan}
                   className="bg-gray-3 px-[23px] py-[14px] m-2 mr-5 w-full rounded-[17px] text-gray-10-5 ring-0 focus:outline-none focus:border-none focus:ring-0 border-0"
                   rows={3}
                   placeholder="gmail.com, company.com"
-                  value={allowedDomains}
-                  onChange={(e:any) => {
+                  value={allowAnyoneToScan ? "" : allowedDomains}
+                  onChange={(e: any) => {
                     setAllowedDomains(e.target.value);
                   }}
                 />
@@ -958,6 +993,23 @@ const ProjectDetailPage = ({ params }: any) => {
                     setNewModelLocation(e.target.value);
                   }}
                 />
+              </div>
+
+              <div className="mx-[92px] my-[20px] flex justify-start items-center">
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    value=""
+                    className="w-[30px] h-[30px] text-white bg-gray-5 mx-[10px] rounded-[6px]  focus:ring-0 focus:bg-gray-5 focus:border-none focus:outline-none active:bg-gray-5 ring-0"
+                    checked={allowMarkups}
+                    onChange={(e: any) => {
+                      setAllowMarkups(e.target.checked);
+                    }}
+                  />
+                  <p className="text-primary text-white text-left ml-[10px] font-semibold">
+                    Allow Markups
+                  </p>
+                </div>
               </div>
 
               <div className="w-full flex flex-col justify-center items-center my-[30px]">

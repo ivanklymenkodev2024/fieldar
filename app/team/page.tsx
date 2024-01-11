@@ -27,7 +27,6 @@ import ReHeader from "@/components/headers/reheader";
 import InviteModal from "@/components/modals/inviteModal";
 import UserDetailModal from "@/components/modals/userDetail";
 import ConfirmModal from "@/components/modals/confirmModal";
-import { isatty } from "tty";
 import UserRoleModal from "@/components/modals/userRole";
 
 const cchangeProjectAccessRole = httpsCallable(
@@ -38,6 +37,10 @@ const cPromoteMemberToAdmin = httpsCallable(functions, "promoteMemberToAdmin");
 const cRemoveCompanyAdminRole = httpsCallable(
   functions,
   "removeCompanyAdminRole"
+);
+const cRemoveMemberFromCompany = httpsCallable(
+  functions,
+  "removeMemberFromCompany"
 );
 const cUnassignProjectFromMember = httpsCallable(
   functions,
@@ -73,14 +76,17 @@ const TeamPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [admins, setAdmins] = useState<any>([]);
 
-  const { user, profile, company, updateContext } = useGlobalContext();
+  const { isMaster, inputUserId, user, profile, company, updateContext } =
+    useGlobalContext();
 
   useEffect(() => {
-    setUserID(user.uid);
+    setUserID(isMaster ? inputUserId : user.uid);
     setMembers(company.Team);
     setAdmins(Object.keys(company.Admins));
     if (company.SubscriptionPlan != "Trial") {
-      setIsAdmin(Object.keys(company.Admins).includes(user.uid));
+      setIsAdmin(
+        Object.keys(company.Admins).includes(isMaster ? inputUserId : user.uid)
+      );
     } else {
       setIsAdmin(false);
     }
@@ -147,17 +153,22 @@ const TeamPage = () => {
 
   const handleUpdateRole = () => {
     setIsLoading(true);
-    cchangeProjectAccessRole({
+    let data: any = {
       projectKey: selectedProjectId,
       selectedMemberId: selectedUserId,
       selectedAccessRole: newRole,
-    })
+    };
+    if (isMaster) {
+      data["inputUserId"] = inputUserId;
+    }
+    cchangeProjectAccessRole(data)
       .then((result: any) => {
         updateContext();
         toast.success(result.data.message);
       })
       .catch((error) => {
         console.log(error);
+        toast.warning(error.message);
       })
       .finally(() => {
         setIsShowUserRoleModal(false);
@@ -176,55 +187,74 @@ const TeamPage = () => {
   const handleConfirm = () => {
     setIsLoading(true);
     if (confirmTitle == "Promote to Admin") {
-      cPromoteMemberToAdmin({
+      let data: any = {
         userIdToPromote: selectedUserId,
-      })
+      };
+      if (isMaster) {
+        data["inputUserId"] = inputUserId;
+      }
+      cPromoteMemberToAdmin(data)
         .then((result: any) => {
           updateContext();
           toast.success(result.data.message);
         })
         .catch((error) => {
           console.log(error);
+          toast.warning(error.message);
         })
         .finally(() => {
           setIsLoading(false);
           setIsShowConfirmModal(false);
         });
     } else if (confirmTitle == "Remove Admin Role") {
-      cRemoveCompanyAdminRole({
+      let data: any = {
         userIdToRemove: selectedUserId,
-      })
+      };
+      if (isMaster) {
+        data["inputUserId"] = inputUserId;
+      }
+      cRemoveCompanyAdminRole(data)
         .then((result: any) => {
           updateContext();
           toast.success(result.data.message);
         })
         .catch((error) => {
           console.log(error);
+          toast.warning(error.message);
         })
         .finally(() => {
           setIsLoading(false);
           setIsShowConfirmModal(false);
         });
     } else if (confirmTitle == "Remove from Company") {
-      cRemoveCompanyAdminRole({
+      let data: any = {
         userIdToRemove: selectedUserId,
-      })
+      };
+      if (isMaster) {
+        data["inputUserId"] = inputUserId;
+      }
+      cRemoveMemberFromCompany(data)
         .then((result: any) => {
           updateContext();
           toast.success(result.data.message);
         })
         .catch((error) => {
           console.log(error);
+          toast.warning(error.message);
         })
         .finally(() => {
           setIsLoading(false);
           setIsShowConfirmModal(false);
         });
     } else if (confirmTitle == "Remove Member from Project") {
-      cUnassignProjectFromMember({
+      let data: any = {
         selectedProjectId,
         selectedMemberId: selectedUserId,
-      })
+      };
+      if (isMaster) {
+        data["inputUserId"] = inputUserId;
+      }
+      cUnassignProjectFromMember(data)
         .then((result: any) => {
           setIsShowConfirmModal(false);
           updateContext();
@@ -238,16 +268,21 @@ const TeamPage = () => {
 
   const handleInviteToCompany = () => {
     setIsLoading(true);
-    cInviteToCompany({
+    let data: any = {
       inviteeEmail: inviteEmail,
       daysToExpiration: day,
-    })
+    };
+    if (isMaster) {
+      data["inputUserId"] = inputUserId;
+    }
+    cInviteToCompany(data)
       .then((result: any) => {
         updateContext();
         toast.success(result.data.message);
       })
       .catch((error) => {
         console.log(error);
+        toast.warning(error.message);
       })
       .finally(() => {
         setIsLoading(false);
@@ -312,7 +347,7 @@ const TeamPage = () => {
                       <div
                         key={id}
                         className={`grid grid-cols-2 md:grid-cols-3 p-[10px] border-b-[1px] border-gray-4 hover:bg-gray-7 px-[22px] ${
-                          id == 0 ? "rounded-t-[12px] pt-[16px]" : ""
+                          id == 0 ? "rounded-t-[24px] pt-[16px]" : ""
                         }`}
                         onClick={() => {
                           if (isAdmin) openUserProjectModal(id);

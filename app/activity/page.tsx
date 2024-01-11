@@ -27,9 +27,7 @@ const ActivityPage = () => {
   const [activityFilter, setActivityFilter] = useState<any>("");
   const [hiddenArray, setHiddenArray] = useState<any>([]);
 
-  const {
-    company
-  } = useGlobalContext();
+  const { company } = useGlobalContext();
   useEffect(() => {
     if (company["Activity"] == undefined) {
       setHiddenArray([]);
@@ -96,10 +94,13 @@ const ActivityPage = () => {
                 "max-w-[1024px] flex flex-col bg-gray-3 rounded-[24px] h-actable overflow-y-auto" +
                 (company["Activity"] == null ||
                 company["Activity"] == undefined ||
+                company["ProjectDirectory"] == undefined ||
                 Object.keys(company["Activity"]).filter(
                   (item) =>
-                    company["ProjectDirectory"][item].ProjectTitle ==
-                      activityFilter || activityFilter == "All"
+                    (company["ProjectDirectory"][item] != undefined &&
+                      company["ProjectDirectory"][item].ProjectTitle ==
+                        activityFilter) ||
+                    activityFilter == "All"
                 ).length == 0
                   ? " justify-center items-center"
                   : "")
@@ -107,7 +108,14 @@ const ActivityPage = () => {
             >
               {company["Activity"] != null &&
                 company["Activity"] != undefined &&
+                company["ProjectDirectory"] != undefined &&
                 Object.keys(company["Activity"]).map((key, id) => {
+                  if (
+                    company["ProjectDirectory"][key] == undefined ||
+                    company["ProjectDirectory"][key] == null
+                  ) {
+                    return <></>;
+                  }
                   if (
                     company["ProjectDirectory"][key].ProjectTitle !=
                       activityFilter &&
@@ -204,8 +212,10 @@ const ActivityPage = () => {
                 company["Activity"] == undefined ||
                 (Object.keys(company["Activity"]).filter(
                   (item) =>
-                    company["ProjectDirectory"][item].ProjectTitle ==
-                      activityFilter || activityFilter == "All"
+                    company["ProjectDirectory"][item] != undefined &&
+                    (company["ProjectDirectory"][item].ProjectTitle ==
+                      activityFilter ||
+                      activityFilter == "All")
                 ).length == 0 && (
                   <p className="text-primary text-gray-10">No Project Yet</p>
                 ))}
