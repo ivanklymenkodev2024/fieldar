@@ -2,7 +2,7 @@ import type { NextApiRequest, NextApiResponse } from "next";
 
 import Stripe from "stripe";
 
-const stripe = new Stripe(process.env.NEXT_PUBLIC_STRIPE_SECRET_KEY);
+const stripe = new Stripe(process.env.NEXT_PUBLIC_STRIPE_SECRET_KEY as string);
 
 export default async function handler(
   req: NextApiRequest,
@@ -10,6 +10,5 @@ export default async function handler(
 ) {
   const { customerId } = JSON.parse(req.body);
   const customer = await stripe.customers.retrieve(customerId);
-  console.log(JSON.stringify(customer.address));
   res.status(200).json({ customer });
 }

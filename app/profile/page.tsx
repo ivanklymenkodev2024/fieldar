@@ -63,8 +63,6 @@ const ProfilePage = () => {
 
   useEffect(() => {
 
-    console.log('IsMaster', isMaster);
-
     setUserID(user.uid);
     setName(profile.DisplayName);
     setEmail(profile.Email);

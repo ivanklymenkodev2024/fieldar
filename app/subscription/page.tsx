@@ -36,9 +36,7 @@ const database = getDatabase(firebase_app);
 import { getFunctions, httpsCallable } from "firebase/functions";
 import { loadStripe } from "@stripe/stripe-js";
 import {
-  AddressElement,
   CardCvcElement,
-  CardElement,
   CardExpiryElement,
   CardNumberElement,
   Elements,
@@ -47,7 +45,7 @@ import {
 } from "@stripe/react-stripe-js";
 
 import Stripe from "stripe";
-const stripe = new Stripe(process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY);
+const stripe = new Stripe(process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY as string);
 
 import { useRouter } from "next/navigation";
 
@@ -82,7 +80,7 @@ const CARD_ELEMENT_OPTIONS = {
   },
 };
 
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY);
+const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY as string);
 
 const SubscriptionPage = () => {
   const router = useRouter();
@@ -99,13 +97,8 @@ const SubscriptionPage = () => {
     isMaster,
     inputUserId,
     user,
-    setUser,
     profile,
-    setProfile,
-    project,
-    setProject,
     company,
-    setCompany,
     updateContext,
   } = useGlobalContext();
 
