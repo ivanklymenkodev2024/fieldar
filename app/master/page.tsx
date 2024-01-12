@@ -15,8 +15,8 @@ import ConfirmModal from "@/components/modals/confirmModal";
 const MasterPage = () => {
   const router = useRouter();
 
-  const [emailFilter, setEmailFilter] = useState("");
-  const [uidFilter, setUidFilter] = useState("");
+  const [filterType, setFilterType] = useState("Email");
+  const [filterValue, setFilterValue] = useState("");
 
   const [allUsers, setAllUsers] = useState<any>([]);
 
@@ -29,8 +29,8 @@ const MasterPage = () => {
     useGlobalContext();
 
   useEffect(() => {
-    if(!isMaster) {
-      router.push('/profile');
+    if (!isMaster) {
+      router.push("/profile");
       return;
     }
     const fetchUsers = async () => {
@@ -39,21 +39,15 @@ const MasterPage = () => {
         const snapshot = await get(child(dbRef, "users"));
         if (snapshot.exists()) {
           const users = snapshot.val();
-          const tUsers = Object.keys(users).map((key) => ({
-            ...users[key],
-            uid: key,
-            email: users[key].Email,
-          })).filter(item => item.email != user.email);
+          const tUsers = Object.keys(users)
+            .map((key) => ({
+              ...users[key],
+              uid: key,
+              email: users[key].Email,
+            }))
+            .filter((item) => item.email != user.email);
           setAllUsers(tUsers);
-          setFilteredUsers(
-            tUsers
-              .filter((user) =>
-                user.email.toLowerCase().includes(emailFilter.toLowerCase())
-              )
-              .filter((user) =>
-                user.uid.toLowerCase().includes(uidFilter.toLowerCase())
-              )
-          );
+          setFilteredUsers(tUsers);
         } else {
           console.log("No data available");
         }
@@ -69,14 +63,11 @@ const MasterPage = () => {
     if (!allUsers || allUsers.length === 0) {
       setFilteredUsers([]);
     } else {
-      const emailFilterLower = emailFilter.toLowerCase();
-      const uidFilterLower = uidFilter.toLowerCase();
+      const filterValueLower = filterValue.toLowerCase();
 
-      const filteredUsers = allUsers.filter(
-        (user: any) =>
-          user.email.toLowerCase().includes(emailFilterLower) &&
-          user.uid.toLowerCase().includes(uidFilterLower)
-      );
+      const filteredUsers = allUsers.filter((user: any) => {
+        return user[filterType] != undefined && user[filterType] != "None" && user[filterType].toLowerCase().includes(filterValueLower);
+      });
 
       setFilteredUsers(filteredUsers);
     }
@@ -128,21 +119,32 @@ const MasterPage = () => {
             <p className="text-white color-gray-11 ml-[47px] text-small font-bold my-[10px]">
               Search By:
             </p>
-            <Input
+            <select
+              className="custom-select bg-gray-3 border-gray-3 focus:border-gray-3 border-r-[30px] text-gray-11 placeholder:italic rounded-[25px] font-small px-[23px] py-[14px] md:w-[260px] m-2 mr-5 outline-none focus:ring-0 appearance-none w-[100%]"
+              value={filterType}
+              onChange={(e) => {
+                setFilterType(e.target.value);
+              }}
+            >
+              <option value={"Email"}>Email</option>
+              <option value={"PhoneNumber"}>Phone Number</option>
+              <option value={"DisplayName"}>Username</option>
+            </select>
+            {/* <Input
               type={"text"}
-              value={emailFilter}
-              setValue={setEmailFilter}
+              value={filterType}
+              setValue={setFilterType}
               placeholder={"Email"}
               extraClass={
                 "px-[33px] py-[18px] text-primary color-gray-11 rounded-[33px] max-w-[150px]"
               }
-            />
+            /> */}
           </div>
           <div className="flex flex-col mx-[10px] justify-end grow">
             <Input
               type={"text"}
-              value={uidFilter}
-              setValue={setUidFilter}
+              value={filterValue}
+              setValue={setFilterValue}
               placeholder={"Search..."}
               extraClass={
                 "px-[33px] py-[18px] text-primary color-gray-11 rounded-[33px]"
