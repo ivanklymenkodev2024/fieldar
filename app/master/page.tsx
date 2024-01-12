@@ -63,10 +63,15 @@ const MasterPage = () => {
     if (!allUsers || allUsers.length === 0) {
       setFilteredUsers([]);
     } else {
-      const filterValueLower = filterValue.toLowerCase();
+      const filterValueLower = filterValue.toLowerCase().trim();
 
       const filteredUsers = allUsers.filter((user: any) => {
-        return user[filterType] != undefined && user[filterType] != "None" && user[filterType].toLowerCase().includes(filterValueLower);
+        return (
+          user[filterType] != undefined &&
+          ((user[filterType] != "None" &&
+            user[filterType].toLowerCase().includes(filterValueLower)) ||
+            filterValueLower.length == 0)
+        );
       });
 
       setFilteredUsers(filteredUsers);
@@ -162,12 +167,15 @@ const MasterPage = () => {
             />
           </div>
         </div>
-        <div className="grid grid-cols-2 my-[10px] mt-[30px]">
+        <div className="grid grid-cols-3 my-[10px] mt-[30px]">
           <div className="cols-span-1 text-gray-11 text-small font-bold px-[40px]">
-            Results
+            Email
           </div>
           <div className="cols-span-1 text-gray-11 text-small font-bold px-[40px]">
-            UID
+            UserName
+          </div>
+          <div className="cols-span-1 text-gray-11 text-small font-bold px-[40px]">
+            PhoneNumber
           </div>
         </div>
         <div className="flex flex-col max-w-[750px] bg-gray-3 h-ttable rounded-[33px]">
@@ -176,7 +184,7 @@ const MasterPage = () => {
               return (
                 <div
                   className={
-                    "cursor-default grid grid-cols-2 py-[10px] border-b-[1px] border-gray-10 hover:bg-gray-5 " +
+                    "cursor-default grid grid-cols-3 py-[10px] border-b-[1px] border-gray-10 hover:bg-gray-5 " +
                     (id == 0 ? "rounded-t-[33px]" : "")
                   }
                   key={id}
@@ -189,7 +197,10 @@ const MasterPage = () => {
                     {user.email}
                   </div>
                   <div className="cols-span-1 text-primary text-gray-11 font-medium px-[40px]">
-                    {user.uid}
+                    {user.DisplayName}
+                  </div>
+                  <div className="cols-span-1 text-primary text-gray-11 font-medium px-[40px]">
+                    {user.PhoneNumber != "None" ? user.PhoneNumber : ""}
                   </div>
                 </div>
               );
