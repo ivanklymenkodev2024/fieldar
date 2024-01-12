@@ -59,10 +59,10 @@ const ProfilePage = () => {
 
   const [singleModalInput, setSingModalInput] = useState("");
 
-  const { isMaster, user, profile, inputUserId, updateContext } = useGlobalContext();
+  const { isMaster, user, profile, inputUserId, updateContext } =
+    useGlobalContext();
 
   useEffect(() => {
-
     setUserID(user.uid);
     setName(profile.DisplayName);
     setEmail(profile.Email);
@@ -184,8 +184,8 @@ const ProfilePage = () => {
         };
         break;
     }
-    if(isMaster) {
-      data['inputUserId'] = inputUserId;
+    if (isMaster) {
+      data["inputUserId"] = inputUserId;
     }
     func(data)
       .then((result: any) => {
@@ -216,9 +216,9 @@ const ProfilePage = () => {
     }
     setIsLoading(true);
     console.log(isMaster, inputUserId);
-    let data:any = { currentPassword: oldPassword, newPassword };
-    if(isMaster) {
-      data['inputUserId'] = inputUserId;
+    let data: any = { currentPassword: oldPassword, newPassword };
+    if (isMaster) {
+      data["inputUserId"] = inputUserId;
     }
     cChangePassword(data)
       .then((result: any) => {
@@ -241,7 +241,7 @@ const ProfilePage = () => {
       <SideBar index={-1} />
       {isSide && <ReSideBar index={-1} hide={setIsSide} />}
       {!isSide && (
-        <div className="fixed lg:left-[320px] lg:w-panel w-[100vw] min-h-[100vh] h-fit bg-gray-4">
+        <div className="absolute lg:left-[320px] lg:w-panel w-[100vw] min-h-[100vh] h-fit bg-gray-4">
           <ReHeader title={"My profile"} index={-1} show={setIsSide} />
           <Header title={"My Profile"} />
 
@@ -284,14 +284,14 @@ const ProfilePage = () => {
 
           <div className="m-[40px] ml-[62px]">
             <div className="flex items-center">
-              <p className="m-[10px] text-gray-10 font-bold w-[90px]">Name: </p>
+              <p className="m-[10px] text-gray-10 font-bold w-[120px]">Name: </p>
               <p className="m-[10px] text-white font-bold w-[200px]">{name}</p>
               <button className="w-[20px] h-[20px]" onClick={updateName}>
                 <Image src={editIcon} width={20} height={20} alt="Edit Name" />
               </button>
             </div>
             <div className="flex items-center">
-              <p className="m-[10px] text-gray-10 font-bold w-[90px]">
+              <p className="m-[10px] text-gray-10 font-bold w-[120px]">
                 Email:{" "}
               </p>
               <p className="m-[10px] text-white font-bold w-[200px]">{email}</p>
@@ -300,7 +300,7 @@ const ProfilePage = () => {
               </button>
             </div>
             <div className="flex items-center">
-              <p className="m-[10px] text-gray-10 font-bold w-[90px]">
+              <p className="m-[10px] text-gray-10 font-bold w-[120px]">
                 Phone:{" "}
               </p>
               <p className="m-[10px] text-white font-bold w-[200px]">{phone}</p>
@@ -314,7 +314,7 @@ const ProfilePage = () => {
               </button>
             </div>
             <div className="flex items-center">
-              <p className="m-[10px] text-gray-10 font-bold w-[90px]">
+              <p className="m-[10px] text-gray-10 font-bold w-[120px]">
                 Job Title
               </p>
               <p className="m-[10px] text-white font-bold w-[200px]">
@@ -330,7 +330,7 @@ const ProfilePage = () => {
               </button>
             </div>
             <div className="flex items-center">
-              <p className="m-[10px] text-gray-10 font-bold w-[90px]">
+              <p className="m-[10px] text-gray-10 font-bold w-[120px]">
                 Password:{" "}
               </p>
               <p className="m-[10px] text-white font-bold w-[200px]">
@@ -345,6 +345,26 @@ const ProfilePage = () => {
                 />
               </button>
             </div>
+            {isMaster && (
+              <div className="mt-[40px]">
+                <div className="flex items-center">
+                  <p className="m-[10px] text-gray-10 font-bold w-[120px]">
+                    User ID:{" "}
+                  </p>
+                  <p className="m-[10px] text-white font-bold w-[200px]">
+                    {inputUserId}
+                  </p>
+                </div>
+                <div className="flex items-center">
+                  <p className="m-[10px] text-gray-10 font-bold w-[120px]">
+                    Company ID:{" "}
+                  </p>
+                  <p className="m-[10px] text-white font-bold w-[200px]">
+                    {profile.CompanyKey}
+                  </p>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}
