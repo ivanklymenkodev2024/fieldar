@@ -80,7 +80,9 @@ const CARD_ELEMENT_OPTIONS = {
   },
 };
 
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY as string);
+const stripePromise = loadStripe(
+  process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY as string
+);
 
 const SubscriptionPage = () => {
   const router = useRouter();
@@ -93,14 +95,8 @@ const SubscriptionPage = () => {
 
   const [isUpdatePayment, setIsUpdatePayment] = useState(false);
 
-  const {
-    isMaster,
-    inputUserId,
-    user,
-    profile,
-    company,
-    updateContext,
-  } = useGlobalContext();
+  const { isMaster, inputUserId, user, profile, company, updateContext } =
+    useGlobalContext();
 
   const [projectCount, setProjectCount] = useState(1);
   const [companyProjectCount, setCompanyProjectCount] = useState(
@@ -374,6 +370,7 @@ const SubscriptionPage = () => {
         }),
       }).then((result) => {
         result.json().then((res) => {
+          console.log(res);
           setPaymentDate(
             getFormatData(
               new Date(res.subscription.current_period_end * 1000).toString()
